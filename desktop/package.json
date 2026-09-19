@@ -1,0 +1,48 @@
+{
+  "name": "photostudio-manager-desktop",
+  "version": "1.0.0",
+  "description": "PhotoStudio Manager - Windows desktop app for photographers",
+  "main": "main.js",
+  "author": "PhotoStudio Manager",
+  "license": "0BSD",
+  "private": true,
+  "scripts": {
+    "web": "npm run --prefix .. export:web",
+    "start": "electron .",
+    "build:x64": "npm run web && electron-builder --win --x64 --config.directories.output=dist-windows/x64",
+    "build:x86": "npm run web && electron-builder --win --ia32 --config.directories.output=dist-windows/x86",
+    "build": "npm run build:x64 && npm run build:x86"
+  },
+  "devDependencies": {
+    "electron": "^38.2.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.photostudio.manager.desktop",
+    "productName": "PhotoStudio Manager",
+    "copyright": "Copyright © 2026 PhotoStudio Manager",
+    "directories": {
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "static-server.js",
+      "updater.js",
+      "dist/**/*",
+      "package.json"
+    ],
+    "asar": true,
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "PhotoStudioManager-Setup-${arch}.exe",
+      "shortcutName": "PhotoStudio Manager",
+      "uninstallDisplayName": "PhotoStudio Manager"
+    }
+  }
+}
