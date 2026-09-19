@@ -14,7 +14,7 @@
     "build": "npm run build:x64 && npm run build:x86"
   },
   "devDependencies": {
-    "electron": "^38.2.0",
+    "electron": "^43.7.3",
     "electron-builder": "^26.0.12"
   },
   "build": {

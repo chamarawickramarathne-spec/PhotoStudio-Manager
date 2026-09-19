@@ -42,7 +42,14 @@ function createStaticServer(rootDir) {
   const root = path.resolve(rootDir);
 
   const handler = (req, res) => {
-    const pathname = decodeURIComponent((req.url || "/").split("?")[0]);
+    let pathname;
+    try {
+      pathname = decodeURIComponent((req.url || "/").split("?")[0]);
+    } catch {
+      res.writeHead(400);
+      res.end("Bad Request");
+      return;
+    }
     let filePath = path.normalize(path.join(root, pathname));
 
     if (filePath !== root && !filePath.startsWith(root + path.sep)) {
