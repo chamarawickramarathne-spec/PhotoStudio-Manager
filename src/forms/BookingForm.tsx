@@ -8,6 +8,7 @@ import { Text } from "react-native-paper";
 import { TextFormField } from "@/components/form/TextFormField";
 import { SelectFormField } from "@/components/form/SelectFormField";
 import { FormActions } from "@/components/form/FormActions";
+import { FormColumn } from "@/components/form/FormColumn";
 import {
   AlbumsGroup,
   PhotoSizesGroup,
@@ -220,37 +221,39 @@ export function BookingForm({ eventType, booking, presetClientId, onSuccess, onC
 
   return (
     <FormProvider {...form}>
-      <View style={styles.form}>
-        <View style={styles.eventBanner}>
-          <Text style={styles.eventIcon}>{EVENT_TYPE_MAP[eventType].label}</Text>
-          <Text style={styles.eventLabel}>{EVENT_TYPE_MAP[eventType].label} booking</Text>
+      <FormColumn maxWidth={720}>
+        <View style={styles.form}>
+          <View style={styles.eventBanner}>
+            <Text style={styles.eventIcon}>{EVENT_TYPE_MAP[eventType].label}</Text>
+            <Text style={styles.eventLabel}>{EVENT_TYPE_MAP[eventType].label} booking</Text>
+          </View>
+
+          <TextFormField name="title" label="Title & Job ID" placeholder="e.g. Wedding Photography Session" required />
+          <SelectFormField name="client_id" label="Client" options={clientOptions} required />
+
+          {isWedding ? (
+            <>
+              <WeddingDetailsGroup />
+              <AlbumsGroup />
+              <PhotoSizesGroup />
+            </>
+          ) : (
+            <ScheduleGroup />
+          )}
+
+          <PricingGroup currency={currency} />
+          <TextFormField name="notes" label="Special Requests / Notes" placeholder="Additional details" multiline numberOfLines={3} />
+
+          {errorMessage ? <Text style={styles.error}>{getErrorMessage(errorMessage)}</Text> : null}
+
+          <FormActions
+            submitLabel={editing ? "Save Changes" : "Create Booking"}
+            submitting={isSubmitting}
+            onSubmit={form.handleSubmit(onSubmit)}
+            onCancel={onCancel}
+          />
         </View>
-
-        <TextFormField name="title" label="Title & Job ID" placeholder="e.g. Wedding Photography Session" required />
-        <SelectFormField name="client_id" label="Client" options={clientOptions} required />
-
-        {isWedding ? (
-          <>
-            <WeddingDetailsGroup />
-            <AlbumsGroup />
-            <PhotoSizesGroup />
-          </>
-        ) : (
-          <ScheduleGroup />
-        )}
-
-        <PricingGroup currency={currency} />
-        <TextFormField name="notes" label="Special Requests / Notes" placeholder="Additional details" multiline numberOfLines={3} />
-
-        {errorMessage ? <Text style={styles.error}>{getErrorMessage(errorMessage)}</Text> : null}
-
-        <FormActions
-          submitLabel={editing ? "Save Changes" : "Create Booking"}
-          submitting={isSubmitting}
-          onSubmit={form.handleSubmit(onSubmit)}
-          onCancel={onCancel}
-        />
-      </View>
+      </FormColumn>
     </FormProvider>
   );
 }

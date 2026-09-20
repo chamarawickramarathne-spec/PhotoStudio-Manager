@@ -9,6 +9,7 @@ import { TextFormField } from "@/components/form/TextFormField";
 import { SelectFormField } from "@/components/form/SelectFormField";
 import { DateFormField } from "@/components/form/DateFormField";
 import { FormActions } from "@/components/form/FormActions";
+import { FormColumn } from "@/components/form/FormColumn";
 import { useBookings } from "@/hooks/queries/bookings";
 import { useCreateSchedule, useUpdateSchedule, type ScheduleRow } from "@/hooks/queries/payments";
 import { useAuth } from "@/hooks/useAuth";
@@ -118,42 +119,44 @@ export function PaymentScheduleForm({ presetBookingId, schedule, onSuccess, onCa
 
   return (
     <FormProvider {...form}>
-      <View style={styles.form}>
-        <SelectFormField name="booking_id" label="Booking" options={bookingOptions} required />
-        <SelectFormField
-          name="schedule_type"
-          label="Schedule Type"
-          options={SCHEDULE_TYPES.map((s) => ({ value: s.value, label: s.label }))}
-          required
-        />
-        {watchType === "custom" ? (
-          <TextFormField name="name" label="Custom Schedule Name" placeholder="e.g. Album Delivery Payment" required />
-        ) : null}
-        <TextFormField
-          name="amount"
-          label={`Amount (${currency})`}
-          placeholder="0.00"
-          keyboardType="decimal-pad"
-          required
-        />
-        <DateFormField
-          name="due_date"
-          label="Due Date"
-          required
-          minDate={editing ? undefined : new Date()}
-        />
+      <FormColumn maxWidth={560}>
+        <View style={styles.form}>
+          <SelectFormField name="booking_id" label="Booking" options={bookingOptions} required />
+          <SelectFormField
+            name="schedule_type"
+            label="Schedule Type"
+            options={SCHEDULE_TYPES.map((s) => ({ value: s.value, label: s.label }))}
+            required
+          />
+          {watchType === "custom" ? (
+            <TextFormField name="name" label="Custom Schedule Name" placeholder="e.g. Album Delivery Payment" required />
+          ) : null}
+          <TextFormField
+            name="amount"
+            label={`Amount (${currency})`}
+            placeholder="0.00"
+            keyboardType="decimal-pad"
+            required
+          />
+          <DateFormField
+            name="due_date"
+            label="Due Date"
+            required
+            minDate={editing ? undefined : new Date()}
+          />
 
-        {errorMessage ? (
-          <Text style={styles.error}>{getErrorMessage(errorMessage)}</Text>
-        ) : null}
+          {errorMessage ? (
+            <Text style={styles.error}>{getErrorMessage(errorMessage)}</Text>
+          ) : null}
 
-        <FormActions
-          submitLabel={editing ? "Save Schedule" : "Create Schedule"}
-          submitting={isSubmitting}
-          onSubmit={form.handleSubmit(onSubmit)}
-          onCancel={onCancel}
-        />
-      </View>
+          <FormActions
+            submitLabel={editing ? "Save Schedule" : "Create Schedule"}
+            submitting={isSubmitting}
+            onSubmit={form.handleSubmit(onSubmit)}
+            onCancel={onCancel}
+          />
+        </View>
+      </FormColumn>
     </FormProvider>
   );
 }

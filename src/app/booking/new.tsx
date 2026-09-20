@@ -6,6 +6,7 @@ import { router, useLocalSearchParams } from "expo-router";
 
 import { AppHeader, KeyboardScreen } from "@/components/ui/Screen";
 import { BookingForm } from "@/forms/BookingForm";
+import { FormColumn } from "@/components/form/FormColumn";
 import { EVENT_TYPES } from "@/lib/constants";
 import type { EventType } from "@/lib/constants";
 import { palette, radius, spacing } from "@/theme";
@@ -19,28 +20,30 @@ export default function NewBookingScreen() {
       <KeyboardScreen>
         <AppHeader title="New Booking" showBack />
         <ScrollView contentContainerStyle={styles.wizardContent}>
-          <Text style={styles.title}>What kind of event?</Text>
-          <PaperText style={styles.subtitle}>Select the event type to build the right booking form.</PaperText>
+          <FormColumn maxWidth={720}>
+            <Text style={styles.title}>What kind of event?</Text>
+            <PaperText style={styles.subtitle}>Select the event type to build the right booking form.</PaperText>
 
-          <View style={styles.grid}>
-            {EVENT_TYPES.map((type) => (
-              <Pressable
-                key={type.value}
-                onPress={() => setEventType(type.value)}
-                style={({ pressed }) => [styles.tile, pressed && styles.pressed]}
-              >
-                <View style={[styles.tileIcon, { backgroundColor: `${type.color}14` }]}>
-                  <Ionicons name={type.icon} size={26} color={type.color} />
-                </View>
-                <Text style={styles.tileLabel}>{type.label}</Text>
-                {type.value === "Wedding" ? (
-                  <Text style={styles.tileHint}>Special wedding form</Text>
-                ) : (
-                  <Text style={styles.tileHint}>Standard session</Text>
-                )}
-              </Pressable>
-            ))}
-          </View>
+            <View style={styles.grid}>
+              {EVENT_TYPES.map((type) => (
+                <Pressable
+                  key={type.value}
+                  onPress={() => setEventType(type.value)}
+                  style={({ pressed }) => [styles.tile, pressed && styles.pressed]}
+                >
+                  <View style={[styles.tileIcon, { backgroundColor: `${type.color}14` }]}>
+                    <Ionicons name={type.icon} size={26} color={type.color} />
+                  </View>
+                  <Text style={styles.tileLabel}>{type.label}</Text>
+                  {type.value === "Wedding" ? (
+                    <Text style={styles.tileHint}>Special wedding form</Text>
+                  ) : (
+                    <Text style={styles.tileHint}>Standard session</Text>
+                  )}
+                </Pressable>
+              ))}
+            </View>
+          </FormColumn>
         </ScrollView>
       </KeyboardScreen>
     );

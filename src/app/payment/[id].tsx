@@ -246,7 +246,7 @@ export default function PaymentDetailScreen() {
       </Screen>
 
       <Modal visible={recordOpen} onDismiss={() => setRecordOpen(false)}>
-        <View style={styles.sheet}>
+        <View style={[styles.sheet, { maxWidth: 480 }]}>
           <View style={styles.sheetHandle} />
           <Text style={styles.sheetTitle}>Record Installment</Text>
           <FormProvider {...form}>
@@ -355,6 +355,9 @@ const styles = StyleSheet.create({
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,
     maxHeight: "92%",
+    width: "100%",
+    maxWidth: 560,
+    alignSelf: "center",
   },
   sheetHandle: {
     alignSelf: "center",

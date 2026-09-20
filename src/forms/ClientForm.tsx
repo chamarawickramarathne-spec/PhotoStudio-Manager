@@ -7,6 +7,7 @@ import { Text } from "react-native-paper";
 import { TextFormField } from "@/components/form/TextFormField";
 import { SelectFormField } from "@/components/form/SelectFormField";
 import { FormActions } from "@/components/form/FormActions";
+import { FormColumn } from "@/components/form/FormColumn";
 import { useCreateClient, useUpdateClient, type ClientRow } from "@/hooks/queries/clients";
 import { useAuth } from "@/hooks/useAuth";
 import { CLIENT_STATUSES, DEFAULT_COUNTRY } from "@/lib/constants";
@@ -114,39 +115,41 @@ export function ClientForm({ client, onSuccess, onCancel }: ClientFormProps) {
 
   return (
     <FormProvider {...form}>
-      <View style={styles.form}>
-        <TextFormField name="full_name" label="Full Name" placeholder="Client name" autoCapitalize="words" required />
-        <TextFormField name="phone" label="Phone" placeholder="07x xxx xxxx" keyboardType="phone-pad" required />
-        <TextFormField name="email" label="Email" placeholder="client@example.com" autoCapitalize="none" keyboardType="email-address" />
-        <TextFormField name="second_contact" label="Second Contact Name" placeholder="Alt. contact person" autoCapitalize="words" />
-        <TextFormField name="second_phone" label="Second Contact Phone" placeholder="Alt. phone number" keyboardType="phone-pad" />
-        <TextFormField name="address" label="Address" placeholder="Street address" multiline numberOfLines={2} />
-        <View style={styles.row}>
-          <View style={styles.rowItem}>
-            <TextFormField name="city" label="City" placeholder="City" />
+      <FormColumn maxWidth={560}>
+        <View style={styles.form}>
+          <TextFormField name="full_name" label="Full Name" placeholder="Client name" autoCapitalize="words" required />
+          <TextFormField name="phone" label="Phone" placeholder="07x xxx xxxx" keyboardType="phone-pad" required />
+          <TextFormField name="email" label="Email" placeholder="client@example.com" autoCapitalize="none" keyboardType="email-address" />
+          <TextFormField name="second_contact" label="Second Contact Name" placeholder="Alt. contact person" autoCapitalize="words" />
+          <TextFormField name="second_phone" label="Second Contact Phone" placeholder="Alt. phone number" keyboardType="phone-pad" />
+          <TextFormField name="address" label="Address" placeholder="Street address" multiline numberOfLines={2} />
+          <View style={styles.row}>
+            <View style={styles.rowItem}>
+              <TextFormField name="city" label="City" placeholder="City" />
+            </View>
+            <View style={styles.rowItem}>
+              <TextFormField name="state" label="State" placeholder="State / Province" />
+            </View>
           </View>
-          <View style={styles.rowItem}>
-            <TextFormField name="state" label="State" placeholder="State / Province" />
+          <View style={styles.row}>
+            <View style={styles.rowItem}>
+              <TextFormField name="zip_code" label="Zip / Postal Code" placeholder="Zip code" />
+            </View>
+            <View style={styles.rowItem}>
+              <TextFormField name="country" label="Country" placeholder="Country" autoCapitalize="words" />
+            </View>
           </View>
+          <SelectFormField name="status" label="Status" options={CLIENT_STATUSES} />
+          <TextFormField name="notes" label="Notes" placeholder="Additional notes about the client" multiline numberOfLines={3} />
+          {errorMessage ? <Text style={styles.error}>{getErrorMessage(errorMessage)}</Text> : null}
+          <FormActions
+            submitLabel={editing ? "Save Changes" : "Add Client"}
+            submitting={isSubmitting}
+            onSubmit={form.handleSubmit(onSubmit)}
+            onCancel={onCancel}
+          />
         </View>
-        <View style={styles.row}>
-          <View style={styles.rowItem}>
-            <TextFormField name="zip_code" label="Zip / Postal Code" placeholder="Zip code" />
-          </View>
-          <View style={styles.rowItem}>
-            <TextFormField name="country" label="Country" placeholder="Country" autoCapitalize="words" />
-          </View>
-        </View>
-        <SelectFormField name="status" label="Status" options={CLIENT_STATUSES} />
-        <TextFormField name="notes" label="Notes" placeholder="Additional notes about the client" multiline numberOfLines={3} />
-        {errorMessage ? <Text style={styles.error}>{getErrorMessage(errorMessage)}</Text> : null}
-        <FormActions
-          submitLabel={editing ? "Save Changes" : "Add Client"}
-          submitting={isSubmitting}
-          onSubmit={form.handleSubmit(onSubmit)}
-          onCancel={onCancel}
-        />
-      </View>
+      </FormColumn>
     </FormProvider>
   );
 }

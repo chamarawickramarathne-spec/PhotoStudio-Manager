@@ -443,6 +443,9 @@ const styles = StyleSheet.create({
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,
     maxHeight: "92%",
+    width: "100%",
+    maxWidth: 720,
+    alignSelf: "center",
   },
   sheetHandle: {
     alignSelf: "center",
