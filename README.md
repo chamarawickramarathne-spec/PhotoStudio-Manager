@@ -1,56 +1,119 @@
-# Welcome to your Expo app 👋
+# PhotoStudio Manager
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+An all-in-one studio management app for photographers to manage **clients**, **bookings**
+(with a dedicated Wedding form), and **payments** (schedules + installments). Built for
+Android and iOS with a Windows desktop edition, all backed by a single Supabase account
+that keeps every device in sync.
 
-## Get started
+## Features
 
-1. Install dependencies
+- **Clients** - profiles with contact details, addresses, and notes; quick call/email,
+  edit, and guarded cascade-delete.
+- **Bookings** - event-type picker with dedicated Standard and complete Wedding forms
+  (wedding/homecoming details, album preferences, photo sizes); one-tap status stepper
+  (pending → completed), edit/delete/cancel, search and status filters.
+- **Payments** - schedules (deposit / milestone / final / custom) and installments;
+  schedules auto-mark themselves paid once installments cover the amount; overdue flags
+  keep outstanding amounts visible.
+- **Dashboard** - 4 stat tiles (Total Bookings / Active Clients / Monthly Revenue /
+  Outstanding), an interactive monthly revenue bar chart with 1/3/6/12-month range
+  selectors and a period total, Recent Bookings, and Payments Due; one-tap quick actions.
+- **Profile** - switchable working currency (default LKR), desktop update controls.
+- **Windows desktop** - Electron shell over the Expo web export with resizable window,
+  automatic one-click Git-based updates, and both x86 and x64 installers.
 
-   ```bash
-   npm install
-   ```
+## Tech stack
 
-2. Start the app
+- Expo SDK 57, React Native 0.86, React 19.2, TypeScript
+- Expo Router (file-based routing), React Native Paper (Material Design)
+- Supabase (Postgres + Auth + RLS), `@supabase/supabase-js`
+- TanStack Query v5, react-hook-form + zod v4
+- Electron (desktop edition), electron-builder (NSIS installers)
 
-   ```bash
-   npx expo start
-   ```
+## Project layout
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+src/app/                # Expo Router screens (auth, tabs, booking/client/payment flows)
+src/components/         # Shared UI (cards, badges, inputs, empty states, RevenueChart, etc.)
+src/forms/              # Reusable form schemas/components
+src/hooks/              # TanStack Query data hooks per entity
+src/lib/                # supabase client, constants, types, utils, desktop bridge
+src/theme/              # Paper theme + palette
+supabase/migrations/    # SQL schema + RLS + triggers (0001 init, 0002 RLS fix)
+desktop/                # Electron Windows app (main, preload, static server, updater)
+media/                  # logos, icons, branding
+test_APK/               # release APKs (kept local; shipped via GitHub releases)
+.env                    # EXPO_PUBLIC_* (client-safe) + service-role key (setup only)
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Data model: every table is scoped by `user_id` (single photographer account) with RLS
+`user_id = auth.uid()`. Bookings are polymorphic by `event_type`; `Wedding` uses
+`wedding_*` columns. Payments live in `payment_schedules` + `payment_installments`
+(a DB trigger auto-marks schedules `paid`).
 
-### Other setup steps
+## Development
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+```bash
+npm install
+npm start                 # start Expo dev server
+npm run android           # run on Android device/emulator
+npm run ios               # run on iOS simulator
+npm run web               # run web build
+npx tsc --noEmit          # typecheck
+npm run lint              # lint
+```
 
-## Learn more
+### Native build on Windows (important)
 
-To learn more about developing your project with Expo, look at the following resources:
+The project path contains spaces, which breaks CMake/ninja. Fix: the CMake flag
+`-DCMAKE_SUPPRESS_REGENERATION=ON` must be present in
+`node_modules/react-native-reanimated/android/build.gradle.kts` and
+`node_modules/react-native-worklets/android/build.gradle.kts` after every `npm install`.
+If a CMake build fails, delete `node_modules/**/.cxx` caches before rebuilding.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Android release
 
-## Join the community
+```bash
+cd android && .\gradlew.bat assembleRelease
+```
 
-Join our community of developers creating universal apps.
+Copy `android/app/build/outputs/apk/release/app-release.apk` to `test_APK/` as
+`PhotoStudioManager-<version>.apk`. Release builds are signed with the private
+`photostudio-release.keystore` (see `android/keystore.properties`). Gradle is pinned to
+8.14.3 on Windows (newer 9.x wrappers fail with Kotlin DSL / Kotlin 2.3 compatibility issues).
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Windows desktop edition
+
+The desktop app reuses the mobile source via an Expo web SPA export (`web.output = "single"`)
+wrapped in an Electron shell under `desktop/`.
+
+```bash
+npm run export:web                          # expo export → desktop/dist
+cd desktop && npm run build:x64             # → dist-windows/x64/PhotoStudioManager-Setup-x64.exe
+cd desktop && npm run build:x86             # → dist-windows/x86/...-Setup-ia32.exe (rename to -x86.exe)
+```
+
+Produce `<installer>.sha256` checksum files and attach both installers + checksums to the
+GitHub release. The built-in updater checks the project's latest GitHub release, picks the
+installer for the machine architecture, verifies SHA-256, and installs silently - it
+refuses to install on missing release/installer/checksum or checksum mismatch. Electron is
+pinned to ^43.7.3 (the last patched line shipping win32-ia32 builds; 44+ drops 32-bit).
+
+## Database
+
+- `supabase/migrations/0001_init.sql` - schema, RLS policies, triggers (initial build).
+- `supabase/migrations/0002_fix_installment_rls.sql` - removes the SECURITY DEFINER
+  `apply_installment()` cross-tenant hole, adds the BEFORE-owner trigger, and fixes
+  zero-amount schedules being auto-marked paid. Applied to the live Supabase instance on
+  2026-09-20.
+
+## Releases
+
+- Windows releases on GitHub carry `PhotoStudioManager-Setup-{x64,x86}.exe` + `.sha256`
+  (and the Android APK).
+- Mobile version is bumped in `package.json` + `app.json` (`android.versionCode`);
+  desktop version in `desktop/package.json` (compared by the updater).
+
+## License
+
+0BSD
