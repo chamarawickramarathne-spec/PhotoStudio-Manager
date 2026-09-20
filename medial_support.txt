@@ -17,7 +17,7 @@ Create and manage client profiles with contact details, addresses, and notes. Bo
 
 Manage money effortlessly with payment schedules (deposit, milestone, and final) and record installments as payments come in. The app automatically marks schedules as paid when fully settled and flags overdue amounts, so you always know who owes you and how much.
 
-The redesigned dashboard puts your whole business at a glance - a personalized greeting header with your app version, four stat tiles with month-over-month trend badges (Total Bookings, Active Clients, Monthly Revenue, Outstanding), an interactive monthly revenue bar chart with 1/3/6/12-month range selectors, tap-any-bar month readouts and a period total. A "Next Shoots" strip previews your upcoming jobs at a glance, and Payments Due groups overdue and pending amounts with progress bars so nothing slips through. Slim one-tap quick actions let you create a booking, add a client, or record a payment in seconds - all with a switchable working currency that adapts to your local rates.
+The redesigned dashboard puts your whole business at a glance - a personalized greeting header with your app version, four stat tiles with month-over-month trend badges (Total Bookings, Active Clients, Monthly Revenue, Outstanding) that line up in a single row on desktop, an interactive monthly revenue bar chart with 1/3/6/12-month range selectors, tap-any-bar month readouts and a period total. A "Next Shoots" strip previews your upcoming jobs at a glance, and Payments Due groups overdue and pending amounts with progress bars so nothing slips through. Slim one-tap quick actions let you create a booking, add a client, or record a payment in seconds - all with a switchable working currency that adapts to your local rates.
 
 The Windows desktop edition brings the full app to your computer with a resizable window, automatic one-click updates, and the same secure cloud account - every booking, client, and payment stays perfectly synchronized between your phone and your PC. Log in once and the app remembers you: your session is saved automatically and restored on every launch, on mobile and desktop alike.
 
@@ -31,7 +31,7 @@ Meet PhotoStudio Manager - your all-in-one photography business app - now on you
 ✅ Book shoots with smart forms - including a full Wedding booking form
 ✅ Track deposits, milestones & final payments
 ✅ See who owes you and who has paid - automatically
-✅ New dashboard: stat tiles with trend badges, interactive revenue chart (1/3/6/12-month views), a "Next Shoots" strip, and grouped Payments Due with progress bars
+✅ New dashboard: stat tiles with trend badges - in a single row on desktop - plus an interactive revenue chart (1/3/6/12-month views), a "Next Shoots" strip, and grouped Payments Due with progress bars
 ✅ Quick-action bar - create a booking, add a client, or record a payment in seconds
 ✅ Switch currency to match your market
 ✅ Windows app with automatic updates - keeps your studio in sync across phone and desktop
@@ -46,10 +46,10 @@ Download the Windows app today and take your studio everywhere you go! 📲💻
 
 6. IMAGE PROMPTS (5) - AI image generation for social media
 -----------------------------------------------------------
-1. Split-phone-and-laptop hero image: a professional photographer holding a smartphone and working on a laptop showing the same clean studio dashboard with a personalized greeting header, four stat tiles with small trend arrows (Total Bookings, Active Clients, Monthly Revenue, Outstanding), and a monthly revenue bar chart, warm golden-hour studio lighting, shallow depth of field, camera equipment softly blurred in the background.
+1. Split-phone-and-laptop hero image: a professional photographer holding a smartphone and working on a laptop showing the same clean studio dashboard with a personalized greeting header, four stat tiles in a single row with small trend arrows (Total Bookings, Active Clients, Monthly Revenue, Outstanding), and a monthly revenue bar chart, warm golden-hour studio lighting, shallow depth of field, camera equipment softly blurred in the background.
 2. Social media graphic for the revenue chart: a close-up of a laptop showing a beautiful monthly revenue bar chart with range selector chips and a gold highlighted monthly bar, next to a smartphone mirroring the same dashboard, a photographer's hand tapping a bar to view a month's total, soft studio lighting, navy and amber/gold color palette.
 3. Photorealistic wedding scene: an elegant bride and groom at a reception venue, with a subtle floating UI overlay showing the wedding booking form and a next-shoots schedule strip rendered on both a phone and a desktop window, cinematic warm tones.
 4. Clean 3D illustration: a smartphone next to a desktop monitor, both showing the PhotoStudio Manager app with "Welcome back" and stat tiles, a bar chart, a horizontal "Next Shoots" card strip, and grouped "Payments Due" lists, floating coins, calendar, and camera icons around them, soft shadows, modern gradient background in brand colors.
 5. Lifestyle photo: a photographer relaxing in a cafe checking the revenue dashboard and next shoots on a phone while reviewing photos on a desktop laptop, natural light, candid moment, authentic documentary style, muted warm colors - emphasizing how the app works across devices and stays signed in.
 
-(Regenerate after every modification - version 1.4.0, Desktop 1.3.0)
+(Regenerate after every modification - version 1.4.1, Desktop 1.4.0)

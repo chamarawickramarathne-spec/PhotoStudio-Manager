@@ -6,6 +6,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -30,7 +31,9 @@ type DueSchedule = DashboardStats["recentSchedules"][number] & { isOverdue: bool
 export default function DashboardTab() {
   const { data: stats, isLoading, isRefetching, refetch } = useDashboard();
   const { profile, currency } = useAuth();
+  const { width } = useWindowDimensions();
   const [desktopVersion, setDesktopVersion] = useState("");
+  const isWide = width >= 700;
 
   useEffect(() => {
     let mounted = true;
@@ -81,15 +84,26 @@ export default function DashboardTab() {
         <EmptyState icon="cloud-offline-outline" title="Could not load dashboard" />
       ) : (
         <>
-          <View style={styles.statsRow}>
-            <SummaryTile label="Total Bookings" value={String(stats.totalBookings)} color={palette.primary} icon="calendar" trend={stats.bookingsTrend} />
-            <SummaryTile label="Active Clients" value={String(stats.totalClients)} color={palette.info} icon="people" trend={stats.clientsTrend} />
-          </View>
+          {isWide ? (
+            <View style={styles.statsRow}>
+              <SummaryTile label="Total Bookings" value={String(stats.totalBookings)} color={palette.primary} icon="calendar" trend={stats.bookingsTrend} />
+              <SummaryTile label="Active Clients" value={String(stats.totalClients)} color={palette.info} icon="people" trend={stats.clientsTrend} />
+              <SummaryTile label="Monthly Revenue" value={formatMoney(stats.monthlyRevenue, currency)} color={palette.gold} icon="wallet" trend={stats.revenueTrend} />
+              <SummaryTile label="Outstanding" value={formatMoney(stats.outstanding, currency)} color={palette.warning} icon="time" />
+            </View>
+          ) : (
+            <>
+              <View style={styles.statsRow}>
+                <SummaryTile label="Total Bookings" value={String(stats.totalBookings)} color={palette.primary} icon="calendar" trend={stats.bookingsTrend} />
+                <SummaryTile label="Active Clients" value={String(stats.totalClients)} color={palette.info} icon="people" trend={stats.clientsTrend} />
+              </View>
 
-          <View style={styles.statsRow}>
-            <SummaryTile label="Monthly Revenue" value={formatMoney(stats.monthlyRevenue, currency)} color={palette.gold} icon="wallet" trend={stats.revenueTrend} />
-            <SummaryTile label="Outstanding" value={formatMoney(stats.outstanding, currency)} color={palette.warning} icon="time" />
-          </View>
+              <View style={styles.statsRow}>
+                <SummaryTile label="Monthly Revenue" value={formatMoney(stats.monthlyRevenue, currency)} color={palette.gold} icon="wallet" trend={stats.revenueTrend} />
+                <SummaryTile label="Outstanding" value={formatMoney(stats.outstanding, currency)} color={palette.warning} icon="time" />
+              </View>
+            </>
+          )}
 
           <View style={styles.actions}>
             <ActionPill icon="calendar" label="New Booking" color={palette.primary} onPress={() => router.push("/booking/new")} />
