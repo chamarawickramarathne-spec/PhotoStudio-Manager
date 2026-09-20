@@ -246,49 +246,45 @@ export default function PaymentDetailScreen() {
       </Screen>
 
       <Modal visible={recordOpen} onDismiss={() => setRecordOpen(false)}>
-        <View style={styles.sheetWrap}>
-          <View style={[styles.sheet, styles.sheetNarrow]}>
-            <View style={styles.sheetHandle} />
-            <Text style={styles.sheetTitle}>Record Installment</Text>
-            <FormProvider {...form}>
-              <View style={styles.formBody}>
-                <TextFormField name="amount" label={`Amount (${currency})`} placeholder="0.00" keyboardType="decimal-pad" required />
-                <PaperText style={styles.remaining}>
-                  Remaining balance: {formatMoney(remaining, currency)}
-                </PaperText>
-                <DateFormField name="paid_date" label="Payment Date" required maxDate={new Date()} />
-                <SelectFormField
-                  name="method"
-                  label="Payment Method"
-                  options={PAYMENT_METHODS.map((m) => ({ value: m.value, label: m.label }))}
-                  required
-                />
-                {addInstallment.error ? (
-                  <PaperText style={styles.error}>{getErrorMessage(addInstallment.error)}</PaperText>
-                ) : null}
-                <FormActions
-                  submitLabel="Save Installment"
-                  submitting={addInstallment.isPending}
-                  onSubmit={form.handleSubmit(onRecord)}
-                  onCancel={() => {
-                    setRecordOpen(false);
-                  }}
-                />
-              </View>
-            </FormProvider>
-          </View>
+        <View style={[styles.sheet, styles.sheetNarrow]}>
+          <View style={styles.sheetHandle} />
+          <Text style={styles.sheetTitle}>Record Installment</Text>
+          <FormProvider {...form}>
+            <View style={styles.formBody}>
+              <TextFormField name="amount" label={`Amount (${currency})`} placeholder="0.00" keyboardType="decimal-pad" required />
+              <PaperText style={styles.remaining}>
+                Remaining balance: {formatMoney(remaining, currency)}
+              </PaperText>
+              <DateFormField name="paid_date" label="Payment Date" required maxDate={new Date()} />
+              <SelectFormField
+                name="method"
+                label="Payment Method"
+                options={PAYMENT_METHODS.map((m) => ({ value: m.value, label: m.label }))}
+                required
+              />
+              {addInstallment.error ? (
+                <PaperText style={styles.error}>{getErrorMessage(addInstallment.error)}</PaperText>
+              ) : null}
+              <FormActions
+                submitLabel="Save Installment"
+                submitting={addInstallment.isPending}
+                onSubmit={form.handleSubmit(onRecord)}
+                onCancel={() => {
+                  setRecordOpen(false);
+                }}
+              />
+            </View>
+          </FormProvider>
         </View>
       </Modal>
 
       <Modal visible={editOpen} onDismiss={() => setEditOpen(false)}>
-        <View style={styles.sheetWrap}>
-          <View style={styles.sheet}>
-            <View style={styles.sheetHandle} />
-            <Text style={styles.sheetTitle}>Edit Schedule</Text>
-            <ScrollView contentContainerStyle={styles.sheetContent}>
-              <PaymentScheduleForm schedule={schedule} onSuccess={() => setEditOpen(false)} onCancel={() => setEditOpen(false)} />
-            </ScrollView>
-          </View>
+        <View style={styles.sheet}>
+          <View style={styles.sheetHandle} />
+          <Text style={styles.sheetTitle}>Edit Schedule</Text>
+          <ScrollView contentContainerStyle={styles.sheetContent}>
+            <PaymentScheduleForm schedule={schedule} onSuccess={() => setEditOpen(false)} onCancel={() => setEditOpen(false)} />
+          </ScrollView>
         </View>
       </Modal>
 
@@ -351,12 +347,6 @@ const styles = StyleSheet.create({
   },
   methodLabel: { fontSize: 12, color: palette.onSurfaceVariant, alignSelf: "center" },
   deleteBtn: { marginTop: spacing.xl },
-  sheetWrap: {
-    flex: 1,
-    width: "100%",
-    alignItems: "center",
-    justifyContent: "flex-end",
-  },
   sheet: {
     backgroundColor: palette.surface,
     borderTopLeftRadius: 24,
@@ -367,6 +357,7 @@ const styles = StyleSheet.create({
     maxHeight: "92%",
     width: "100%",
     maxWidth: 560,
+    alignSelf: "center",
   },
   sheetNarrow: { maxWidth: 480 },
   sheetHandle: {
