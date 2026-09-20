@@ -15,7 +15,7 @@ PhotoStudio Manager is a studio management app built for photographers who want 
 
 Create and manage client profiles with contact details, addresses, and notes. Book any event with dedicated forms - including a complete Wedding booking form with wedding and homecoming details, album preferences, and photo sizes. Track your schedule from pending to completed with a one-tap status stepper and never miss a shoot again.
 
-Manage money effortlessly with payment schedules (deposit, milestone, and final) and record installments as payments come in. The app automatically marks schedules as paid when fully settled and flags overdue amounts, so you always know who owes you and how much.
+Manage money effortlessly with payment schedules (deposit, milestone, and final) and record installments as payments come in. The app automatically marks schedules as paid when fully settled and flags overdue amounts, so you always know who owes you and how much. A booking can only ever have one final payment schedule - enforced in the app and in the database - so your books can never double-book the final invoice.
 
 The redesigned dashboard puts your whole business at a glance - a personalized greeting header with your app version, four stat tiles with month-over-month trend badges (Total Bookings, Active Clients, Monthly Revenue, Outstanding) that line up in a single row on desktop, an interactive monthly revenue bar chart with 1/3/6/12-month range selectors, tap-any-bar month readouts and a period total. A "Next Shoots" strip previews your upcoming jobs, and Payments Due groups overdue and pending amounts with progress bars so nothing slips through. Slim one-tap quick actions let you create a booking, add a client, or record a payment in seconds - all with a switchable working currency that adapts to your local rates.
 
@@ -39,6 +39,7 @@ Meet PhotoStudio Manager - your all-in-one photography business app - now on you
 ✅ Windows app with automatic updates - keeps your studio in sync across phone and desktop
 ✅ Redesigned forms: clean rust-and-gold editorial style with smart validation - no more bad deposits, empty names, or overpaid installments
 ✅ Form widths adapted to each form type on desktop - booking forms stay wide and airy, client and payment forms stay compact, installments stay focused
+✅ One final payment per booking - the app and the database both stop you from ever creating a second final payment schedule
 
 Whether you shoot weddings, birthdays, or corporate events, PhotoStudio Manager keeps your studio organized so you can focus on the shots that matter.
 
@@ -56,4 +57,4 @@ Download the Windows app today and take your studio everywhere you go! 📲💻
 4. Clean 3D illustration: a smartphone next to a desktop monitor, both showing the PhotoStudio Manager app with "Welcome back" and stat tiles, a bar chart, a horizontal "Next Shoots" card strip, and grouped "Payments Due" lists, alongside elegant centered client and payment forms on the desktop screen, floating coins, calendar, and camera icons around them, soft shadows, modern gradient background in brand colors.
 5. Lifestyle photo: a photographer relaxing in a cafe checking the revenue dashboard and next shoots on a phone while reviewing a compact, centered client form on a desktop laptop, natural light, candid moment, authentic documentary style, muted warm colors - emphasizing how the app works across devices and stays signed in.
 
-(Regenerate after every modification - version 1.4.1, Desktop 1.5.5)
+(Regenerate after every modification - version 1.4.1, Desktop 1.5.6)

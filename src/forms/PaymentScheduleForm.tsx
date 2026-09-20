@@ -11,7 +11,7 @@ import { DateFormField } from "@/components/form/DateFormField";
 import { FormActions } from "@/components/form/FormActions";
 import { FormColumn } from "@/components/form/FormColumn";
 import { useBookings } from "@/hooks/queries/bookings";
-import { useCreateSchedule, useUpdateSchedule, type ScheduleRow } from "@/hooks/queries/payments";
+import { useCreateSchedule, useUpdateSchedule, usePaymentSchedules, type ScheduleRow } from "@/hooks/queries/payments";
 import { useAuth } from "@/hooks/useAuth";
 import { SCHEDULE_TYPES, type ScheduleType } from "@/lib/constants";
 import { todayISO } from "@/lib/format";
@@ -40,6 +40,7 @@ interface PaymentScheduleFormProps {
 export function PaymentScheduleForm({ presetBookingId, schedule, onSuccess, onCancel }: PaymentScheduleFormProps) {
   const { session, currency } = useAuth();
   const { data: bookings } = useBookings();
+  const { data: schedules } = usePaymentSchedules();
   const createSchedule = useCreateSchedule();
   const updateSchedule = useUpdateSchedule();
   const editing = !!schedule;
@@ -73,11 +74,32 @@ export function PaymentScheduleForm({ presetBookingId, schedule, onSuccess, onCa
   });
 
   const watchType = useWatch({ control: form.control, name: "schedule_type" });
+  const watchBookingId = useWatch({ control: form.control, name: "booking_id" });
+
+  const chosenBookingHasFinal = useMemo(() => {
+    if (!watchBookingId) return false;
+    return (schedules ?? []).some(
+      (s) => s.booking_id === watchBookingId && s.schedule_type === "final" && s.id !== schedule?.id,
+    );
+  }, [schedules, watchBookingId, schedule?.id]);
+
   const isSubmitting = createSchedule.isPending || updateSchedule.isPending;
   const errorMessage = createSchedule.error || updateSchedule.error;
 
   const onSubmit = async (values: FormValues) => {
     if (!session) return;
+    if (values.schedule_type === "final") {
+      const existingFinal = (schedules ?? []).find(
+        (s) => s.booking_id === values.booking_id && s.schedule_type === "final" && s.id !== schedule?.id,
+      );
+      if (existingFinal) {
+        form.setError("schedule_type", {
+          type: "custom",
+          message: "This booking already has a final payment",
+        });
+        return;
+      }
+    }
     if (!editing && !values.due_date?.trim()) {
       form.setError("due_date", { type: "manual", message: "Due date is required" });
       return;
@@ -128,6 +150,9 @@ export function PaymentScheduleForm({ presetBookingId, schedule, onSuccess, onCa
             options={SCHEDULE_TYPES.map((s) => ({ value: s.value, label: s.label }))}
             required
           />
+          {watchType === "final" && chosenBookingHasFinal ? (
+            <Text style={styles.error}>This booking already has a final payment — pick another type or booking.</Text>
+          ) : null}
           {watchType === "custom" ? (
             <TextFormField name="name" label="Custom Schedule Name" placeholder="e.g. Album Delivery Payment" required />
           ) : null}
