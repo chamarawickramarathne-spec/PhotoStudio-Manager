@@ -151,6 +151,19 @@ export const CLIENT_STATUS_COLOR: Record<string, string> = {
   blacklisted: "#DC2626",
 };
 
+export interface RevenueRange {
+  key: string;
+  label: string;
+  months: number;
+}
+
+export const REVENUE_RANGES: RevenueRange[] = [
+  { key: "1m", label: "This Month", months: 1 },
+  { key: "3m", label: "Last 3", months: 3 },
+  { key: "6m", label: "Last 6", months: 6 },
+  { key: "12m", label: "Last 12", months: 12 },
+];
+
 export const DEFAULT_COUNTRY = "Sri Lanka";
 
 export const CURRENCIES = [

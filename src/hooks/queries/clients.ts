@@ -52,6 +52,7 @@ export function useCreateClient() {
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: baseKey });
+      void qc.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 }
@@ -74,6 +75,7 @@ export function useUpdateClient() {
       void qc.invalidateQueries({ queryKey: [...baseKey, vars.id] });
       void qc.invalidateQueries({ queryKey: ["bookings"] });
       void qc.invalidateQueries({ queryKey: ["payment_schedules"] });
+      void qc.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 }
@@ -87,6 +89,10 @@ export function useDeleteClient() {
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: baseKey });
+      void qc.invalidateQueries({ queryKey: ["bookings"] });
+      void qc.invalidateQueries({ queryKey: ["payment_schedules"] });
+      void qc.invalidateQueries({ queryKey: ["payment_installments"] });
+      void qc.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
 }

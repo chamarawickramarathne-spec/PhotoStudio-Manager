@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
+import Constants from "expo-constants";
 import { Button, Divider, List } from "react-native-paper";
 
 import { AppHeader, KeyboardScreen } from "@/components/ui/Screen";
@@ -174,7 +175,11 @@ export default function ProfileScreen() {
           ) : null}
           <List.Item
             title="PhotoStudio Manager"
-            description={desktop ? `Desktop version ${desktopVersion || "..."}` : "Version 1.0.0"}
+            description={
+              desktop
+                ? `Desktop version ${desktopVersion || "..."}`
+                : `Version ${Constants.expoConfig?.version ?? ""}`
+            }
             left={() => <List.Icon icon="information-outline" color={palette.onSurfaceVariant} />}
           />
         </View>

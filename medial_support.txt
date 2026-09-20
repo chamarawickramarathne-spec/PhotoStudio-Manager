@@ -7,7 +7,7 @@ PhotoStudio Manager
 
 2. SHORT DESCRIPTION
 --------------------
-PhotoStudio Manager is the all-in-one app for photographers to manage clients, bookings, and payments - on your phone and now on Windows desktop.
+PhotoStudio Manager is the all-in-one app for photographers to manage clients, bookings, and payments - on your phone and on Windows desktop, with a brand-new revenue dashboard.
 
 3. LONG DESCRIPTION
 -------------------
@@ -15,9 +15,11 @@ PhotoStudio Manager is a studio management app built for photographers who want 
 
 Create and manage client profiles with contact details, addresses, and notes. Book any event with dedicated forms - including a complete Wedding booking form with wedding and homecoming details, album preferences, and photo sizes. Track your schedule from pending to completed with a one-tap status stepper and never miss a shoot again.
 
-Manage money effortlessly with payment schedules (deposit, milestone, and final) and record installments as payments come in. The app automatically marks schedules as paid when fully settled and flags overdue amounts, so you always know who owes you and how much. The responsive dashboard shows today's shoots, active bookings, and collected vs outstanding totals in clean, readable summary cards, with one-tap quick actions and a switchable working currency that adapts to your local rates.
+Manage money effortlessly with payment schedules (deposit, milestone, and final) and record installments as payments come in. The app automatically marks schedules as paid when fully settled and flags overdue amounts, so you always know who owes you and how much.
 
-The new Windows desktop edition brings the full app to your computer with a resizable window, automatic one-click updates, and the same secure cloud account - every booking, client, and payment stays perfectly synchronized between your phone and your PC.
+The redesigned dashboard puts your whole business at a glance: four stat tiles for Total Bookings, Active Clients, Monthly Revenue, and Outstanding, plus an interactive monthly revenue bar chart with 1, 3, 6, and 12-month range selectors and a period total. Recent Bookings and Payments Due keep your schedule and cash flow in view, and one-tap quick actions let you create a booking, add a client, or record a payment in seconds - all with a switchable working currency that adapts to your local rates.
+
+The Windows desktop edition brings the full app to your computer with a resizable window, automatic one-click updates, and the same secure cloud account - every booking, client, and payment stays perfectly synchronized between your phone and your PC.
 
 4. FACEBOOK POST TEXT
 ---------------------
@@ -29,7 +31,7 @@ Meet PhotoStudio Manager - your all-in-one photography business app - now on you
 ✅ Book shoots with smart forms - including a full Wedding booking form
 ✅ Track deposits, milestones & final payments
 ✅ See who owes you and who has paid - automatically
-✅ Clean, readable dashboard with collected vs outstanding at a glance
+✅ Brand-new dashboard: 4 glanceable stats + a monthly revenue chart with 1/3/6/12-month views
 ✅ Switch currency to match your market
 ✅ Windows app with automatic updates - keeps your studio in sync across phone and desktop
 
@@ -39,14 +41,14 @@ Download the Windows app today and take your studio everywhere you go! 📲💻
 
 5. TAGS (10)
 ------------
-#Photography #Photographer #PhotographyBusiness #WeddingPhotography #PhotoStudio #BookingApp #ClientManagement #PaymentTracking #WindowsApp #StudioManager
+#Photography #Photographer #PhotographyBusiness #WeddingPhotography #PhotoStudio #RevenueChart #ClientManagement #PaymentTracking #WindowsApp #StudioManager
 
 6. IMAGE PROMPTS (5) - AI image generation for social media
 -----------------------------------------------------------
-1. Split-phone-and-laptop hero image: a professional photographer holding a smartphone and working on a laptop showing the same clean studio dashboard with balanced summary cards for clients, bookings, and collected payments, warm golden-hour studio lighting, shallow depth of field, camera equipment softly blurred in the background.
-2. Flat-lay social media graphic: a camera, calendar, wallet, smartphone, and laptop with the PhotoStudio Manager app open on a payments screen showing collected and outstanding amounts, arranged neatly on a marble surface, top-down view, soft pastel and navy color palette.
-3. Photorealistic wedding scene: an elegant bride and groom at a reception venue, with a subtle floating UI overlay showing the wedding booking form (date, venue, photo sizes) rendered on both a phone and a desktop window, cinematic warm tones.
-4. Clean 3D illustration: a smartphone next to a desktop monitor, both showing the PhotoStudio Manager app with "Clients" and "Payments" sections, floating coins, calendar, and camera icons around them, soft shadows, modern gradient background in brand colors.
-5. Lifestyle photo: a photographer relaxing in a cafe checking client payments on a phone while reviewing photos on a desktop laptop, natural light, candid moment, authentic documentary style, muted warm colors - emphasizing how the app works across devices.
+1. Split-phone-and-laptop hero image: a professional photographer holding a smartphone and working on a laptop showing the same clean studio dashboard with four stat tiles (Total Bookings, Active Clients, Monthly Revenue, Outstanding) and a monthly revenue bar chart, warm golden-hour studio lighting, shallow depth of field, camera equipment softly blurred in the background.
+2. Social media graphic for the revenue chart: a close-up of a laptop showing a beautiful monthly revenue bar chart with a 12-month range selector, next to a smartphone mirroring the same dashboard, a photographer's hand pointing at the chart, soft studio lighting, navy and amber/gold color palette.
+3. Photorealistic wedding scene: an elegant bride and groom at a reception venue, with a subtle floating UI overlay showing the wedding booking form (date, venue, photo sizes) and a revenue dashboard rendered on both a phone and a desktop window, cinematic warm tones.
+4. Clean 3D illustration: a smartphone next to a desktop monitor, both showing the PhotoStudio Manager app with stat tiles, a bar chart, and "Payments" sections, floating coins, calendar, and camera icons around them, soft shadows, modern gradient background in brand colors.
+5. Lifestyle photo: a photographer relaxing in a cafe checking the revenue dashboard and client payments on a phone while reviewing photos on a desktop laptop, natural light, candid moment, authentic documentary style, muted warm colors - emphasizing how the app works across devices.
 
-(Regenerate after every modification - version 1.3.0, Desktop 1.0.0)
+(Regenerate after every modification - version 1.3.0, Desktop 1.1.0)

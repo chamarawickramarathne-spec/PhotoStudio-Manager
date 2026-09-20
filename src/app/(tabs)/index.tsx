@@ -7,21 +7,22 @@ import { Screen } from "@/components/ui/Screen";
 import { SummaryTile } from "@/components/ui/SummaryTile";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { RevenueChart } from "@/components/ui/RevenueChart";
 import { useDashboard } from "@/hooks/queries/dashboard";
 import { useAuth } from "@/hooks/useAuth";
-import { BOOKING_STATUS_MAP, EVENT_TYPE_MAP } from "@/lib/constants";
-import { formatDate, formatMoney } from "@/lib/format";
+import { BOOKING_STATUS_MAP, EVENT_TYPE_MAP, PAYMENT_STATUS_INFO } from "@/lib/constants";
+import { formatDate, formatMoney, todayISO } from "@/lib/format";
 import { palette, radius, spacing } from "@/theme";
 
 export default function DashboardTab() {
   const { data: stats, isLoading, isRefetching, refetch } = useDashboard();
-  const { profile } = useAuth();
+  const { profile, currency } = useAuth();
 
-  const upcoming = useMemo(() => {
+  const paymentsDue = useMemo(() => {
     if (!stats) return [];
-    return stats.recentBookings
-      .filter((b) => b.booking_date && !["completed", "cancelled"].includes(b.status))
-      .sort((a, b) => (a.booking_date! < b.booking_date! ? -1 : 1))
+    return stats.recentSchedules
+      .filter((s) => s.status !== "paid" && s.status !== "cancelled")
+      .sort((a, b) => (a.due_date ?? "") < (b.due_date ?? "") ? -1 : 1)
       .slice(0, 5);
   }, [stats]);
 
@@ -29,7 +30,9 @@ export default function DashboardTab() {
 
   return (
     <Screen
-      refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={() => void refetch()} tintColor={palette.primary} />}
+      refreshControl={
+        <RefreshControl refreshing={isRefetching} onRefresh={() => void refetch()} tintColor={palette.primary} />
+      }
     >
       <View style={styles.header}>
         <View style={styles.headerRow}>
@@ -52,34 +55,51 @@ export default function DashboardTab() {
       ) : (
         <>
           <View style={styles.statsRow}>
-            <SummaryTile label="Clients" value={String(stats.totalClients)} color={palette.primary} icon="people" />
-            <SummaryTile label="Active" value={String(stats.activeBookings)} color={palette.info} icon="calendar" />
+            <SummaryTile
+              label="Total Bookings"
+              value={String(stats.totalBookings)}
+              color={palette.primary}
+              icon="calendar"
+            />
+            <SummaryTile
+              label="Active Clients"
+              value={String(stats.totalClients)}
+              color={palette.info}
+              icon="people"
+            />
           </View>
 
           <View style={styles.statsRow}>
-            <SummaryTile label="Today" value={String(stats.todayBookings)} color={palette.secondary} icon="today" />
-            <SummaryTile label="Collected" value={formatMoney(stats.totalCollected)} color={palette.success} icon="wallet" />
-          </View>
-
-          <View style={styles.statsRow}>
-            <SummaryTile label="Outstanding" value={formatMoney(stats.totalPending)} color={palette.warning} icon="time" />
-            <SummaryTile label="Overdue" value={String(stats.overdueCount)} color={palette.danger} icon="warning" />
+            <SummaryTile
+              label="Monthly Revenue"
+              value={formatMoney(stats.monthlyRevenue, currency)}
+              color={palette.success}
+              icon="wallet"
+            />
+            <SummaryTile
+              label="Outstanding"
+              value={formatMoney(stats.outstanding, currency)}
+              color={palette.warning}
+              icon="time"
+            />
           </View>
 
           <QuickActions />
 
-          <Text style={styles.sectionTitle}>Upcoming Bookings</Text>
-          {upcoming.length === 0 ? (
+          <RevenueChart series={stats.revenueSeries} currency={currency} />
+
+          <Text style={styles.sectionTitle}>Recent Bookings</Text>
+          {stats.recentBookings.length === 0 ? (
             <EmptyState
               icon="calendar-outline"
-              title="Nothing scheduled"
+              title="No bookings yet"
               message="Create a booking to see it here."
               actionLabel="New Booking"
               onAction={() => router.push("/booking/new")}
             />
           ) : (
             <View style={styles.list}>
-              {upcoming.map((booking) => {
+              {stats.recentBookings.map((booking) => {
                 const event = EVENT_TYPE_MAP[booking.event_type] ?? EVENT_TYPE_MAP.Other;
                 const status = BOOKING_STATUS_MAP[booking.status];
                 return (
@@ -100,6 +120,61 @@ export default function DashboardTab() {
                       </Text>
                     </View>
                     {status ? <StatusBadge label={status.label} color={status.color} subtle /> : null}
+                  </Pressable>
+                );
+              })}
+            </View>
+          )}
+
+          <Text style={[styles.sectionTitle, styles.sectionTitleSpaced]}>Payments Due</Text>
+          {paymentsDue.length === 0 ? (
+            <EmptyState
+              icon="wallet-outline"
+              title="Nothing due"
+              message="Outstanding schedules will appear here."
+            />
+          ) : (
+            <View style={styles.list}>
+              {paymentsDue.map((schedule) => {
+                const remaining = Math.max(
+                  Number(schedule.amount) - Number(schedule.paid_amount || 0),
+                  0,
+                );
+                const isOverdue =
+                  schedule.status === "overdue" ||
+                  (schedule.due_date && schedule.due_date < todayISO());
+                const statusInfo = isOverdue
+                  ? PAYMENT_STATUS_INFO.overdue
+                  : PAYMENT_STATUS_INFO.pending;
+                return (
+                  <Pressable
+                    key={schedule.id}
+                    style={({ pressed }) => [styles.bookingCard, pressed && styles.pressed]}
+                    onPress={() => router.push(`/payment/${schedule.id}`)}
+                  >
+                    <View style={[styles.bookingIcon, { backgroundColor: `${palette.warning}14` }]}>
+                      <Ionicons name="wallet" size={18} color={palette.warning} />
+                    </View>
+                    <View style={styles.bookingBody}>
+                      <Text style={styles.bookingTitle} numberOfLines={1}>
+                        {schedule.name || schedule.bookings?.title || "Untitled payment"}
+                      </Text>
+                      <Text style={styles.bookingMeta} numberOfLines={1}>
+                        {schedule.bookings?.clients?.full_name ?? "Unknown client"} · Due{" "}
+                        {formatDate(schedule.due_date, "MMM d")}
+                      </Text>
+                    </View>
+                    <View style={styles.dueRight}>
+                      <Text
+                        style={[styles.dueAmount, { color: isOverdue ? palette.danger : palette.onBackground }]}
+                        numberOfLines={1}
+                        adjustsFontSizeToFit
+                        minimumFontScale={0.6}
+                      >
+                        {formatMoney(remaining, currency)}
+                      </Text>
+                      <StatusBadge label={statusInfo.label} color={statusInfo.color} subtle />
+                    </View>
                   </Pressable>
                 );
               })}
@@ -173,12 +248,20 @@ const styles = StyleSheet.create({
   },
   center: { paddingVertical: 64, alignItems: "center" },
   statsRow: { flexDirection: "row", gap: spacing.sm, marginBottom: spacing.md },
-  actions: { flexDirection: "row", gap: spacing.md, marginBottom: spacing.xl },
-  action: { flex: 1, alignItems: "center", gap: spacing.sm, backgroundColor: palette.surface, borderRadius: radius.md, padding: spacing.lg },
+  actions: { flexDirection: "row", gap: spacing.md, marginTop: spacing.md, marginBottom: spacing.xl },
+  action: {
+    flex: 1,
+    alignItems: "center",
+    gap: spacing.sm,
+    backgroundColor: palette.surface,
+    borderRadius: radius.md,
+    padding: spacing.lg,
+  },
   actionIcon: { width: 44, height: 44, borderRadius: radius.sm, alignItems: "center", justifyContent: "center" },
   actionLabel: { fontSize: 12, fontWeight: "700", color: palette.onBackground },
   pressed: { opacity: 0.7 },
   sectionTitle: { fontSize: 18, fontWeight: "800", color: palette.onBackground, marginBottom: spacing.md },
+  sectionTitleSpaced: { marginTop: spacing.xl },
   list: { gap: spacing.md },
   bookingCard: {
     flexDirection: "row",
@@ -192,4 +275,6 @@ const styles = StyleSheet.create({
   bookingBody: { flex: 1, gap: 2 },
   bookingTitle: { fontSize: 14, fontWeight: "700", color: palette.onBackground },
   bookingMeta: { fontSize: 12, color: palette.onSurfaceVariant },
+  dueRight: { alignItems: "flex-end", gap: spacing.xs },
+  dueAmount: { fontSize: 13, fontWeight: "800" },
 });
