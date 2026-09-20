@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Platform, RefreshControl, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { ActivityIndicator, Button, IconButton, List, Modal, Text as PaperText } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
@@ -40,6 +40,9 @@ const installmentSchema = z.object({
 type InstallmentValues = z.infer<typeof installmentSchema>;
 
 export default function PaymentDetailScreen() {
+  const { height } = useWindowDimensions();
+  const sheetMaxHeight = Math.round(height * 0.92);
+  const sheetModalStyle = Platform.OS === "web" ? ({ justifyContent: "flex-end" } as const) : undefined;
   const { id } = useLocalSearchParams<{ id: string }>();
   const { session, currency } = useAuth();
   const { data: schedule, isLoading, isRefetching, refetch } = useSchedule(id);
@@ -245,12 +248,12 @@ export default function PaymentDetailScreen() {
         </Button>
       </Screen>
 
-      <Modal visible={recordOpen} onDismiss={() => setRecordOpen(false)}>
-        <View style={[styles.sheet, styles.sheetNarrow]}>
+      <Modal visible={recordOpen} onDismiss={() => setRecordOpen(false)} style={sheetModalStyle}>
+        <View style={[styles.sheet, styles.sheetNarrow, { maxHeight: sheetMaxHeight }]}>
           <View style={styles.sheetHandle} />
           <Text style={styles.sheetTitle}>Record Installment</Text>
           <FormProvider {...form}>
-            <View style={styles.formBody}>
+            <ScrollView contentContainerStyle={[styles.sheetContent, styles.formBody]}>
               <TextFormField name="amount" label={`Amount (${currency})`} placeholder="0.00" keyboardType="decimal-pad" required />
               <PaperText style={styles.remaining}>
                 Remaining balance: {formatMoney(remaining, currency)}
@@ -273,13 +276,13 @@ export default function PaymentDetailScreen() {
                   setRecordOpen(false);
                 }}
               />
-            </View>
+            </ScrollView>
           </FormProvider>
         </View>
       </Modal>
 
-      <Modal visible={editOpen} onDismiss={() => setEditOpen(false)}>
-        <View style={styles.sheet}>
+      <Modal visible={editOpen} onDismiss={() => setEditOpen(false)} style={sheetModalStyle}>
+        <View style={[styles.sheet, { maxHeight: sheetMaxHeight }]}>
           <View style={styles.sheetHandle} />
           <Text style={styles.sheetTitle}>Edit Schedule</Text>
           <ScrollView contentContainerStyle={styles.sheetContent}>
@@ -354,7 +357,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,
-    maxHeight: "92%",
     width: "100%",
     maxWidth: 560,
     alignSelf: "center",

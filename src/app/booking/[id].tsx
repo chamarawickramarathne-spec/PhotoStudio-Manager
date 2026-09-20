@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, RefreshControl, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { ActivityIndicator, Button, Divider, IconButton, Modal, Text as PaperText } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
@@ -22,6 +22,9 @@ import { palette, radius, spacing } from "@/theme";
 const FLOW: BookingStatus[] = ["pending", "confirmed", "in_progress", "completed"];
 
 export default function BookingDetailScreen() {
+  const { height } = useWindowDimensions();
+  const sheetMaxHeight = Math.round(height * 0.92);
+  const sheetModalStyle = Platform.OS === "web" ? ({ justifyContent: "flex-end" } as const) : undefined;
   const { id } = useLocalSearchParams<{ id: string }>();
   const { currency } = useAuth();
   const { data: booking, isLoading, isRefetching, refetch } = useBooking(id);
@@ -284,8 +287,8 @@ export default function BookingDetailScreen() {
         ) : null}
       </Screen>
 
-      <Modal visible={editOpen} onDismiss={() => setEditOpen(false)}>
-        <View style={styles.sheet}>
+      <Modal visible={editOpen} onDismiss={() => setEditOpen(false)} style={sheetModalStyle}>
+        <View style={[styles.sheet, { maxHeight: sheetMaxHeight }]}>
           <View style={styles.sheetHandle} />
           <Text style={styles.sheetTitle}>Edit Booking</Text>
           <ScrollView contentContainerStyle={styles.sheetContent}>
@@ -442,7 +445,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,
-    maxHeight: "92%",
     width: "100%",
     maxWidth: 720,
     alignSelf: "center",

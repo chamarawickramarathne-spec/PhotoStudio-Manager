@@ -1,6 +1,6 @@
 {
   "name": "photostudio-manager-desktop",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "description": "PhotoStudio Manager - Windows desktop app for photographers",
   "main": "main.js",
   "author": "PhotoStudio Manager",

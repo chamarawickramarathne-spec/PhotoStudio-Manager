@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Linking, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Linking, Platform, RefreshControl, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { ActivityIndicator, Button, Divider, IconButton, Modal, Text as PaperText } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
@@ -21,6 +21,9 @@ import { formatPhoneHref, formatEmailHref, getErrorMessage } from "@/lib/utils";
 import { palette, radius, spacing } from "@/theme";
 
 export default function ClientDetailScreen() {
+  const { height } = useWindowDimensions();
+  const sheetMaxHeight = Math.round(height * 0.92);
+  const sheetModalStyle = Platform.OS === "web" ? ({ justifyContent: "flex-end" } as const) : undefined;
   const { id } = useLocalSearchParams<{ id: string }>();
   const { currency } = useAuth();
   const { data: client, isLoading, isRefetching, refetch } = useClient(id);
@@ -211,8 +214,8 @@ export default function ClientDetailScreen() {
         </Button>
       </Screen>
 
-      <Modal visible={editOpen} onDismiss={() => setEditOpen(false)}>
-        <View style={styles.sheet}>
+      <Modal visible={editOpen} onDismiss={() => setEditOpen(false)} style={sheetModalStyle}>
+        <View style={[styles.sheet, { maxHeight: sheetMaxHeight }]}>
           <View style={styles.sheetHandle} />
           <Text style={styles.sheetTitle}>Edit Client</Text>
           <ScrollView contentContainerStyle={styles.sheetContent}>
@@ -281,7 +284,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.md,
     paddingBottom: spacing.xl,
-    maxHeight: "92%",
     width: "100%",
     maxWidth: 560,
     alignSelf: "center",
