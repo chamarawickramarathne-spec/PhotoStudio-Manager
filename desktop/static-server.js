@@ -83,13 +83,22 @@ function createStaticServer(rootDir) {
   };
 
   return {
-    listen() {
+    listen(preferredPort = 0) {
       return new Promise((resolve, reject) => {
         const server = http.createServer(handler);
-        server.on("error", reject);
-        server.listen(0, "127.0.0.1", () => {
+        server.on("error", (err) => {
+          if (preferredPort && err.code === "EADDRINUSE") {
+            server.removeAllListeners("error");
+            server.on("error", reject);
+            server.listen(0, "127.0.0.1");
+            return;
+          }
+          reject(err);
+        });
+        server.on("listening", () => {
           resolve({ server, port: server.address().port });
         });
+        server.listen(preferredPort || 0, "127.0.0.1");
       });
     },
   };

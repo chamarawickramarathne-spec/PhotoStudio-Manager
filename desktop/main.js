@@ -1,4 +1,5 @@
 const path = require("path");
+const fs = require("fs");
 const { app, BrowserWindow, dialog, ipcMain, session, shell } = require("electron");
 
 const { createStaticServer } = require("./static-server");
@@ -7,6 +8,24 @@ const { createUpdater } = require("./updater");
 const WEB_ROOT = path.join(__dirname, "dist");
 const UPDATE_REPO = process.env.PHOTOSTUDIO_UPDATE_REPO || "chamarawickramarathne-spec/PhotoStudio-Manager";
 const ICON_PATH = path.join(__dirname, "build", "icon.png");
+const PORT_FILE = path.join(app.getPath("userData"), "server-port.json");
+
+function readPreferredPort() {
+  try {
+    const port = JSON.parse(fs.readFileSync(PORT_FILE, "utf8")).port;
+    return Number.isInteger(port) && port > 0 && port < 65536 ? port : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function writeServerPort(port) {
+  try {
+    fs.writeFileSync(PORT_FILE, JSON.stringify({ port }));
+  } catch {
+    void 0;
+  }
+}
 
 let mainWindow = null;
 let staticServer = null;
@@ -136,7 +155,8 @@ if (!gotLock) {
   });
 
   app.whenReady().then(async () => {
-    staticServer = await createStaticServer(WEB_ROOT).listen();
+    staticServer = await createStaticServer(WEB_ROOT).listen(readPreferredPort());
+    writeServerPort(staticServer.port);
     registerIpc();
     createWindow();
     setTimeout(() => void silentStartupCheck(), 4000);
