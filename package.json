@@ -2,7 +2,7 @@
   "name": "photostudio-manager",
   "license": "0BSD",
   "main": "expo-router/entry",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "dependencies": {
     "@expo/ui": "~57.0.10",
     "@expo/vector-icons": "^15.1.1",
