@@ -58,3 +58,6 @@ example
 # internal agent memory files (kept locally, never committed to git)
 /AGENTS.md
 /AGENTS_PLAN.md
+
+# stray folders (housekeeping)
+/scripts/
