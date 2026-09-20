@@ -56,4 +56,4 @@ Download the Windows app today and take your studio everywhere you go! 📲💻
 4. Clean 3D illustration: a smartphone next to a desktop monitor, both showing the PhotoStudio Manager app with "Welcome back" and stat tiles, a bar chart, a horizontal "Next Shoots" card strip, and grouped "Payments Due" lists, alongside elegant centered client and payment forms on the desktop screen, floating coins, calendar, and camera icons around them, soft shadows, modern gradient background in brand colors.
 5. Lifestyle photo: a photographer relaxing in a cafe checking the revenue dashboard and next shoots on a phone while reviewing a compact, centered client form on a desktop laptop, natural light, candid moment, authentic documentary style, muted warm colors - emphasizing how the app works across devices and stays signed in.
 
-(Regenerate after every modification - version 1.4.1, Desktop 1.5.4)
+(Regenerate after every modification - version 1.4.1, Desktop 1.5.5)

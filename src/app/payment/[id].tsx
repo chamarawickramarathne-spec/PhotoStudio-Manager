@@ -42,7 +42,7 @@ type InstallmentValues = z.infer<typeof installmentSchema>;
 export default function PaymentDetailScreen() {
   const { height } = useWindowDimensions();
   const sheetMaxHeight = Math.round(height * 0.92);
-  const sheetModalStyle = Platform.OS === "web" ? ({ justifyContent: "flex-end" } as const) : undefined;
+  const sheetDialogRound = Platform.OS === "web" ? styles.sheetDialog : undefined;
   const { id } = useLocalSearchParams<{ id: string }>();
   const { session, currency } = useAuth();
   const { data: schedule, isLoading, isRefetching, refetch } = useSchedule(id);
@@ -248,8 +248,8 @@ export default function PaymentDetailScreen() {
         </Button>
       </Screen>
 
-      <Modal visible={recordOpen} onDismiss={() => setRecordOpen(false)} style={sheetModalStyle}>
-        <View style={[styles.sheet, styles.sheetNarrow, { maxHeight: sheetMaxHeight }]}>
+      <Modal visible={recordOpen} onDismiss={() => setRecordOpen(false)}>
+        <View style={[styles.sheet, styles.sheetNarrow, { maxHeight: sheetMaxHeight }, sheetDialogRound]}>
           <View style={styles.sheetHandle} />
           <Text style={styles.sheetTitle}>Record Installment</Text>
           <FormProvider {...form}>
@@ -281,8 +281,8 @@ export default function PaymentDetailScreen() {
         </View>
       </Modal>
 
-      <Modal visible={editOpen} onDismiss={() => setEditOpen(false)} style={sheetModalStyle}>
-        <View style={[styles.sheet, { maxHeight: sheetMaxHeight }]}>
+      <Modal visible={editOpen} onDismiss={() => setEditOpen(false)}>
+        <View style={[styles.sheet, { maxHeight: sheetMaxHeight }, sheetDialogRound]}>
           <View style={styles.sheetHandle} />
           <Text style={styles.sheetTitle}>Edit Schedule</Text>
           <ScrollView contentContainerStyle={styles.sheetContent}>
@@ -362,6 +362,10 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   sheetNarrow: { maxWidth: 480 },
+  sheetDialog: {
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+  },
   sheetHandle: {
     alignSelf: "center",
     width: 44,

@@ -24,7 +24,7 @@ const FLOW: BookingStatus[] = ["pending", "confirmed", "in_progress", "completed
 export default function BookingDetailScreen() {
   const { height } = useWindowDimensions();
   const sheetMaxHeight = Math.round(height * 0.92);
-  const sheetModalStyle = Platform.OS === "web" ? ({ justifyContent: "flex-end" } as const) : undefined;
+  const sheetDialogRound = Platform.OS === "web" ? styles.sheetDialog : undefined;
   const { id } = useLocalSearchParams<{ id: string }>();
   const { currency } = useAuth();
   const { data: booking, isLoading, isRefetching, refetch } = useBooking(id);
@@ -287,8 +287,8 @@ export default function BookingDetailScreen() {
         ) : null}
       </Screen>
 
-      <Modal visible={editOpen} onDismiss={() => setEditOpen(false)} style={sheetModalStyle}>
-        <View style={[styles.sheet, { maxHeight: sheetMaxHeight }]}>
+      <Modal visible={editOpen} onDismiss={() => setEditOpen(false)}>
+        <View style={[styles.sheet, { maxHeight: sheetMaxHeight }, sheetDialogRound]}>
           <View style={styles.sheetHandle} />
           <Text style={styles.sheetTitle}>Edit Booking</Text>
           <ScrollView contentContainerStyle={styles.sheetContent}>
@@ -448,6 +448,10 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 720,
     alignSelf: "center",
+  },
+  sheetDialog: {
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
   },
   sheetHandle: {
     alignSelf: "center",

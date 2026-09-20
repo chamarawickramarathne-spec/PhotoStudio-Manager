@@ -23,7 +23,7 @@ import { palette, radius, spacing } from "@/theme";
 export default function ClientDetailScreen() {
   const { height } = useWindowDimensions();
   const sheetMaxHeight = Math.round(height * 0.92);
-  const sheetModalStyle = Platform.OS === "web" ? ({ justifyContent: "flex-end" } as const) : undefined;
+  const sheetDialogRound = Platform.OS === "web" ? styles.sheetDialog : undefined;
   const { id } = useLocalSearchParams<{ id: string }>();
   const { currency } = useAuth();
   const { data: client, isLoading, isRefetching, refetch } = useClient(id);
@@ -214,8 +214,8 @@ export default function ClientDetailScreen() {
         </Button>
       </Screen>
 
-      <Modal visible={editOpen} onDismiss={() => setEditOpen(false)} style={sheetModalStyle}>
-        <View style={[styles.sheet, { maxHeight: sheetMaxHeight }]}>
+      <Modal visible={editOpen} onDismiss={() => setEditOpen(false)}>
+        <View style={[styles.sheet, { maxHeight: sheetMaxHeight }, sheetDialogRound]}>
           <View style={styles.sheetHandle} />
           <Text style={styles.sheetTitle}>Edit Client</Text>
           <ScrollView contentContainerStyle={styles.sheetContent}>
@@ -287,6 +287,10 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 560,
     alignSelf: "center",
+  },
+  sheetDialog: {
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
   },
   sheetHandle: {
     alignSelf: "center",
