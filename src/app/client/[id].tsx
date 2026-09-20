@@ -221,6 +221,9 @@ export default function ClientDetailScreen() {
               onSuccess={() => {
                 setEditOpen(false);
               }}
+              onCancel={() => {
+                setEditOpen(false);
+              }}
             />
           </ScrollView>
         </View>

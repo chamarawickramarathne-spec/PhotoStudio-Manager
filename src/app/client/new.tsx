@@ -11,6 +11,9 @@ export default function NewClientScreen() {
           onSuccess={() => {
             router.back();
           }}
+          onCancel={() => {
+            router.back();
+          }}
         />
       </Screen>
     </>

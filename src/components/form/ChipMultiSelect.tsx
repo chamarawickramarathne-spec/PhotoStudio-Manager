@@ -1,7 +1,8 @@
-import { StyleSheet, View } from "react-native";
-import { Chip, Text } from "react-native-paper";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
-import { palette, spacing } from "@/theme";
+import { palette, radius, spacing } from "@/theme";
+import { FieldLabel } from "./FieldLabel";
 
 interface ChipMultiSelectProps {
   label: string;
@@ -20,23 +21,32 @@ export function ChipMultiSelect({ label, options, value, onChange }: ChipMultiSe
   };
 
   return (
-    <View>
-      <Text style={styles.label}>{label}</Text>
-      <View style={styles.wrap}>
+    <View style={{ gap: 6 }}>
+      <FieldLabel label={label} />
+      <View style={styles.grid}>
         {options.map((option) => {
           const selected = value.includes(option);
           return (
-            <Chip
+            <Pressable
               key={option}
-              selected={selected}
               onPress={() => toggle(option)}
-              style={[styles.chip, selected && styles.chipSelected]}
-              selectedColor={palette.white}
-              showSelectedCheck={false}
-              textStyle={styles.chipText}
+              accessibilityRole="checkbox"
+              accessibilityState={{ checked: selected }}
+              style={({ pressed }) => [
+                styles.tile,
+                selected ? styles.tileSelected : null,
+                pressed ? styles.pressed : null,
+              ]}
             >
-              {option}
-            </Chip>
+              <Ionicons
+                name={selected ? "checkmark-circle" : "ellipse-outline"}
+                size={18}
+                color={selected ? palette.gold : palette.outline}
+              />
+              <Text style={[styles.tileLabel, selected ? styles.tileLabelSelected : null]}>
+                {option}
+              </Text>
+            </Pressable>
           );
         })}
       </View>
@@ -45,25 +55,28 @@ export function ChipMultiSelect({ label, options, value, onChange }: ChipMultiSe
 }
 
 const styles = StyleSheet.create({
-  label: {
-    fontSize: 12,
-    color: palette.onSurfaceVariant,
-    fontWeight: "600",
-    marginBottom: spacing.sm,
-  },
-  wrap: {
+  grid: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: spacing.sm,
   },
-  chip: {
-    backgroundColor: palette.surfaceVariant,
+  tile: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+    minHeight: 42,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.md,
+    borderWidth: 1,
     borderColor: palette.outline,
+    backgroundColor: palette.surface,
   },
-  chipSelected: {
-    backgroundColor: palette.primary,
+  tileSelected: {
+    borderColor: palette.gold,
+    backgroundColor: palette.backgroundGold,
   },
-  chipText: {
-    fontSize: 13,
-  },
+  tileLabel: { fontSize: 13, color: palette.onSurface },
+  tileLabelSelected: { fontWeight: "700", color: palette.onBackground },
+  pressed: { opacity: 0.7 },
 });

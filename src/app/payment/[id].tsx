@@ -16,6 +16,8 @@ import { DateFormField } from "@/components/form/DateFormField";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { FormActions } from "@/components/form/FormActions";
+import { moneyPositive, required } from "@/forms/validation";
 
 import {
   useAddInstallment,
@@ -30,8 +32,8 @@ import { getErrorMessage } from "@/lib/utils";
 import { palette, radius, spacing } from "@/theme";
 
 const installmentSchema = z.object({
-  amount: z.string().min(1, "Amount is required"),
-  paid_date: z.string().min(1, "Date is required"),
+  amount: moneyPositive("Amount must be greater than 0"),
+  paid_date: required("Date is required"),
   method: z.enum(["cash", "e_transfer_bank", "card_pay", "other"]),
 });
 
@@ -70,10 +72,18 @@ export default function PaymentDetailScreen() {
 
   const onRecord = async (values: InstallmentValues) => {
     if (!schedule || !session) return;
+    const amount = parseFloat(values.amount);
+    if (amount > remaining) {
+      form.setError("amount", {
+        type: "custom",
+        message: "Amount can't exceed the remaining balance",
+      });
+      return;
+    }
     await addInstallment.mutateAsync({
       user_id: session.user.id,
       schedule_id: schedule.id,
-      amount: parseFloat(values.amount),
+      amount,
       paid_date: values.paid_date,
       payment_method: values.method as InstallmentValues["method"],
     });
@@ -242,6 +252,9 @@ export default function PaymentDetailScreen() {
           <FormProvider {...form}>
             <View style={styles.formBody}>
               <TextFormField name="amount" label={`Amount (${currency})`} placeholder="0.00" keyboardType="decimal-pad" required />
+              <PaperText style={styles.remaining}>
+                Remaining balance: {formatMoney(remaining, currency)}
+              </PaperText>
               <DateFormField name="paid_date" label="Payment Date" required maxDate={new Date()} />
               <SelectFormField
                 name="method"
@@ -252,16 +265,14 @@ export default function PaymentDetailScreen() {
               {addInstallment.error ? (
                 <PaperText style={styles.error}>{getErrorMessage(addInstallment.error)}</PaperText>
               ) : null}
-              <Button
-                mode="contained"
-                onPress={form.handleSubmit(onRecord)}
-                loading={addInstallment.isPending}
-                disabled={addInstallment.isPending}
-                style={styles.submit}
-                contentStyle={styles.submitContent}
-              >
-                Save Installment
-              </Button>
+              <FormActions
+                submitLabel="Save Installment"
+                submitting={addInstallment.isPending}
+                onSubmit={form.handleSubmit(onRecord)}
+                onCancel={() => {
+                  setRecordOpen(false);
+                }}
+              />
             </View>
           </FormProvider>
         </View>
@@ -272,7 +283,7 @@ export default function PaymentDetailScreen() {
           <View style={styles.sheetHandle} />
           <Text style={styles.sheetTitle}>Edit Schedule</Text>
           <ScrollView contentContainerStyle={styles.sheetContent}>
-            <PaymentScheduleForm schedule={schedule} onSuccess={() => setEditOpen(false)} />
+            <PaymentScheduleForm schedule={schedule} onSuccess={() => setEditOpen(false)} onCancel={() => setEditOpen(false)} />
           </ScrollView>
         </View>
       </Modal>
@@ -356,7 +367,6 @@ const styles = StyleSheet.create({
   sheetTitle: { fontSize: 18, fontWeight: "800", color: palette.onBackground, marginBottom: spacing.md, textAlign: "center" },
   sheetContent: { paddingBottom: spacing.xl },
   formBody: { gap: spacing.lg },
+  remaining: { fontSize: 12, color: palette.onSurfaceVariant },
   error: { color: palette.danger, textAlign: "center" },
-  submit: { borderRadius: 999, marginTop: spacing.sm },
-  submitContent: { height: 48 },
 });

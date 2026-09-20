@@ -3,15 +3,16 @@ import { StyleSheet, Text, View } from "react-native";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Button } from "react-native-paper";
+import { Button, TextInput as PaperInput } from "react-native-paper";
 import { Link } from "expo-router";
 
 import { KeyboardScreen } from "@/components/ui/Screen";
 import { TextFormField } from "@/components/form/TextFormField";
 import { BrandHeader } from "@/components/ui/BrandHeader";
+import { AuthCard } from "@/components/ui/AuthCard";
 import { useAuth } from "@/hooks/useAuth";
 import { getErrorMessage } from "@/lib/utils";
-import { palette, spacing } from "@/theme";
+import { palette, radius, spacing } from "@/theme";
 
 const schema = z.object({
   email: z.email("Enter a valid email"),
@@ -23,6 +24,7 @@ type FormValues = z.infer<typeof schema>;
 export default function LoginScreen() {
   const { signIn } = useAuth();
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const form = useForm<FormValues>({ resolver: zodResolver(schema) });
 
   const onSubmit = async (values: FormValues) => {
@@ -38,31 +40,41 @@ export default function LoginScreen() {
     <KeyboardScreen>
       <View style={styles.container}>
         <BrandHeader subtitle="Welcome back, log in to your studio" />
-        <FormProvider {...form}>
-          <View style={styles.form}>
-            <TextFormField name="email" label="Email" placeholder="you@example.com" autoCapitalize="none" keyboardType="email-address" required />
-            <TextFormField name="password" label="Password" placeholder="Your password" secureTextEntry autoCapitalize="none" required />
-            {error ? <Text style={styles.error}>{error}</Text> : null}
-            <Button
-              mode="contained"
-              onPress={form.handleSubmit(onSubmit)}
-              loading={form.formState.isSubmitting}
-              disabled={form.formState.isSubmitting}
-              style={styles.button}
-              contentStyle={styles.buttonContent}
-            >
-              Log In
-            </Button>
-            <View style={styles.links}>
-              <Link href="/forgot" style={styles.link}>
-                Forgot password?
-              </Link>
-              <Link href="/register" style={styles.link}>
-                Create account
-              </Link>
+        <AuthCard>
+          <FormProvider {...form}>
+            <View style={styles.form}>
+              <TextFormField name="email" label="Email" placeholder="you@example.com" autoCapitalize="none" keyboardType="email-address" required />
+              <TextFormField
+                name="password"
+                label="Password"
+                placeholder="Your password"
+                secureTextEntry={!showPassword}
+                autoCapitalize="none"
+                required
+                right={<PaperInput.Icon icon={showPassword ? "eye-off" : "eye"} onPress={() => setShowPassword((v) => !v)} />}
+              />
+              {error ? <Text style={styles.error}>{error}</Text> : null}
+              <Button
+                mode="contained"
+                onPress={form.handleSubmit(onSubmit)}
+                loading={form.formState.isSubmitting}
+                disabled={form.formState.isSubmitting}
+                style={styles.button}
+                contentStyle={styles.buttonContent}
+              >
+                Log In
+              </Button>
+              <View style={styles.links}>
+                <Link href="/forgot" style={styles.link}>
+                  Forgot password?
+                </Link>
+                <Link href="/register" style={styles.link}>
+                  Create account
+                </Link>
+              </View>
             </View>
-          </View>
-        </FormProvider>
+          </FormProvider>
+        </AuthCard>
       </View>
     </KeyboardScreen>
   );
@@ -77,7 +89,7 @@ const styles = StyleSheet.create({
   },
   form: { gap: spacing.lg },
   error: { color: palette.error, fontSize: 13, textAlign: "center" },
-  button: { borderRadius: 999, paddingVertical: 4 },
+  button: { borderRadius: radius.md },
   buttonContent: { height: 48 },
   links: {
     flexDirection: "row",

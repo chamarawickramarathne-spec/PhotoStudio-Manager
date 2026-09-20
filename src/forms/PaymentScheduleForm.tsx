@@ -3,36 +3,28 @@ import { StyleSheet, View } from "react-native";
 import { useForm, useWatch, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Button, Text } from "react-native-paper";
+import { Text } from "react-native-paper";
 
 import { TextFormField } from "@/components/form/TextFormField";
 import { SelectFormField } from "@/components/form/SelectFormField";
 import { DateFormField } from "@/components/form/DateFormField";
+import { FormActions } from "@/components/form/FormActions";
 import { useBookings } from "@/hooks/queries/bookings";
-import {
-  useCreateSchedule,
-  useUpdateSchedule,
-  type ScheduleRow,
-} from "@/hooks/queries/payments";
+import { useCreateSchedule, useUpdateSchedule, type ScheduleRow } from "@/hooks/queries/payments";
 import { useAuth } from "@/hooks/useAuth";
-import { SCHEDULE_TYPES } from "@/lib/constants";
-import type { ScheduleType } from "@/lib/constants";
+import { SCHEDULE_TYPES, type ScheduleType } from "@/lib/constants";
 import { todayISO } from "@/lib/format";
 import { getErrorMessage } from "@/lib/utils";
+import { moneyPositive, required } from "@/forms/validation";
 import { palette, spacing } from "@/theme";
 
 const schema = z
   .object({
-    booking_id: z.string().min(1, "Booking is required"),
+    booking_id: required("Booking is required"),
     schedule_type: z.enum(SCHEDULE_TYPES.map((s) => s.value) as [ScheduleType, ...ScheduleType[]]),
     name: z.string().optional(),
-    amount: z.string().min(1, "Amount is required"),
+    amount: moneyPositive("Amount must be greater than 0"),
     due_date: z.string().optional(),
-  })
-  .superRefine((values, ctx) => {
-    if (values.amount && parseFloat(values.amount) <= 0) {
-      ctx.addIssue({ code: "custom", path: ["amount"], message: "Amount must be greater than 0" });
-    }
   });
 
 type FormValues = z.infer<typeof schema>;
@@ -41,9 +33,10 @@ interface PaymentScheduleFormProps {
   presetBookingId?: string;
   schedule?: ScheduleRow;
   onSuccess?: () => void;
+  onCancel?: () => void;
 }
 
-export function PaymentScheduleForm({ presetBookingId, schedule, onSuccess }: PaymentScheduleFormProps) {
+export function PaymentScheduleForm({ presetBookingId, schedule, onSuccess, onCancel }: PaymentScheduleFormProps) {
   const { session, currency } = useAuth();
   const { data: bookings } = useBookings();
   const createSchedule = useCreateSchedule();
@@ -84,9 +77,18 @@ export function PaymentScheduleForm({ presetBookingId, schedule, onSuccess }: Pa
 
   const onSubmit = async (values: FormValues) => {
     if (!session) return;
-    const dueDate = values.due_date || null;
+    if (!editing && !values.due_date?.trim()) {
+      form.setError("due_date", { type: "manual", message: "Due date is required" });
+      return;
+    }
+    const dueDate = values.due_date?.trim() || null;
     const today = todayISO();
-    const status = dueDate && dueDate < today ? "overdue" : "pending";
+    let status: ScheduleRow["status"];
+    if (editing && schedule && (schedule.status === "paid" || schedule.status === "cancelled")) {
+      status = schedule.status;
+    } else {
+      status = dueDate && dueDate < today ? "overdue" : "pending";
+    }
 
     if (editing && schedule) {
       await updateSchedule.mutateAsync({
@@ -117,12 +119,7 @@ export function PaymentScheduleForm({ presetBookingId, schedule, onSuccess }: Pa
   return (
     <FormProvider {...form}>
       <View style={styles.form}>
-        <SelectFormField
-          name="booking_id"
-          label="Booking"
-          options={bookingOptions}
-          required
-        />
+        <SelectFormField name="booking_id" label="Booking" options={bookingOptions} required />
         <SelectFormField
           name="schedule_type"
           label="Schedule Type"
@@ -139,22 +136,23 @@ export function PaymentScheduleForm({ presetBookingId, schedule, onSuccess }: Pa
           keyboardType="decimal-pad"
           required
         />
-        <DateFormField name="due_date" label="Due Date" required minDate={new Date()} />
+        <DateFormField
+          name="due_date"
+          label="Due Date"
+          required
+          minDate={editing ? undefined : new Date()}
+        />
 
         {errorMessage ? (
           <Text style={styles.error}>{getErrorMessage(errorMessage)}</Text>
         ) : null}
 
-        <Button
-          mode="contained"
-          onPress={form.handleSubmit(onSubmit)}
-          loading={isSubmitting}
-          disabled={isSubmitting}
-          style={styles.submit}
-          contentStyle={styles.submitContent}
-        >
-          {editing ? "Save Schedule" : "Create Schedule"}
-        </Button>
+        <FormActions
+          submitLabel={editing ? "Save Schedule" : "Create Schedule"}
+          submitting={isSubmitting}
+          onSubmit={form.handleSubmit(onSubmit)}
+          onCancel={onCancel}
+        />
       </View>
     </FormProvider>
   );
@@ -163,6 +161,4 @@ export function PaymentScheduleForm({ presetBookingId, schedule, onSuccess }: Pa
 const styles = StyleSheet.create({
   form: { gap: spacing.lg },
   error: { color: palette.error, fontSize: 13, textAlign: "center" },
-  submit: { borderRadius: 999, marginTop: spacing.sm },
-  submitContent: { height: 48 },
 });

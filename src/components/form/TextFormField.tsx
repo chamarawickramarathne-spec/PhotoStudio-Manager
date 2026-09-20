@@ -1,8 +1,10 @@
-import type { ComponentProps } from "react";
+import { useState, type ComponentProps } from "react";
+import { View } from "react-native";
 import { Controller, useFormContext } from "react-hook-form";
 import { Text, TextInput } from "react-native-paper";
 
-import { palette, spacing } from "@/theme";
+import { palette } from "@/theme";
+import { FieldLabel } from "./FieldLabel";
 
 interface TextFormFieldProps {
   name: string;
@@ -32,20 +34,54 @@ export function TextFormField({
       control={control}
       name={name}
       render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
-        <TextInput
-          mode="outlined"
-          label={required ? `${label} *` : label}
+        <OutlinedInput
+          label={label}
+          required={required}
           value={value ?? ""}
           onChangeText={onChange}
-          onBlur={onBlur}
-          error={!!error}
-          outlineColor={palette.outline}
-          activeOutlineColor={palette.primary}
-          style={{ backgroundColor: palette.surface }}
+          onBlur={() => onBlur()}
+          errorMessage={error?.message}
           {...rest}
         />
       )}
     />
+  );
+}
+
+function OutlinedInput({
+  label,
+  required,
+  errorMessage,
+  onBlur: externalOnBlur,
+  ...rest
+}: {
+  label: string;
+  required?: boolean;
+  errorMessage?: string;
+  onBlur?: () => void;
+} & Omit<ComponentProps<typeof TextInput>, "label" | "mode">) {
+  const [focused, setFocused] = useState(false);
+
+  return (
+    <View style={{ gap: 6 }}>
+      <FieldLabel label={label} required={required} />
+      <TextInput
+        mode="outlined"
+        outlineColor={errorMessage ? palette.error : palette.outline}
+        activeOutlineColor={errorMessage ? palette.error : palette.primary}
+        error={!!errorMessage}
+        onFocus={() => setFocused(true)}
+        onBlur={() => {
+          setFocused(false);
+          externalOnBlur?.();
+        }}
+        style={{
+          backgroundColor: focused ? palette.surface : palette.surfaceVariant,
+        }}
+        {...rest}
+      />
+      {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
+    </View>
   );
 }
 
@@ -55,7 +91,10 @@ export function FormError({ message }: { message?: string }) {
 }
 
 export function FieldSpacer() {
-  return <Text style={styles.spacer}>{""}</Text>;
+  return <View style={styles.spacer} />;
 }
 
-const styles = { error: { color: palette.error, fontSize: 12, marginTop: spacing.xs }, spacer: { fontSize: 6 } };
+const styles = {
+  error: { color: palette.error, fontSize: 12, marginTop: 0 },
+  spacer: { height: 6 },
+};

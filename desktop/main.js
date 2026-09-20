@@ -10,6 +10,16 @@ const UPDATE_REPO = process.env.PHOTOSTUDIO_UPDATE_REPO || "chamarawickramarathn
 const ICON_PATH = path.join(__dirname, "build", "icon.png");
 const PORT_FILE = path.join(app.getPath("userData"), "server-port.json");
 
+const DESKTOP_POLISH_CSS = `
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator { opacity: 0.55; cursor: pointer; }
+  input[type="date"]:focus::-webkit-calendar-picker-indicator,
+  input[type="time"]:focus::-webkit-calendar-picker-indicator { opacity: 1; }
+  input[type="date"]:disabled,
+  input[type="time"]:disabled { opacity: 0.5; }
+  :focus-visible { outline: 2px solid #A83524; outline-offset: 1px; }
+`;
+
 function readPreferredPort() {
   try {
     const port = JSON.parse(fs.readFileSync(PORT_FILE, "utf8")).port;
@@ -92,7 +102,7 @@ function createWindow() {
     minWidth: 960,
     minHeight: 640,
     show: false,
-    backgroundColor: "#F7F4F0",
+    backgroundColor: "#FAF9F6",
     icon: ICON_PATH,
     autoHideMenuBar: true,
     webPreferences: {
@@ -125,7 +135,11 @@ function createWindow() {
   session.defaultSession.setPermissionRequestHandler((_wc, _permission, callback) => callback(false));
   session.defaultSession.setPermissionCheckHandler(() => false);
 
-  void mainWindow.loadURL(baseUrl);
+  void mainWindow.loadURL(baseUrl).then(() => {
+    if (!mainWindow.isDestroyed()) {
+      mainWindow.webContents.insertCSS(DESKTOP_POLISH_CSS).catch(() => void 0);
+    }
+  });
 }
 
 function registerIpc() {

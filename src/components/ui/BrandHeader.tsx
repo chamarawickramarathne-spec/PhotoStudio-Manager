@@ -11,6 +11,7 @@ export function BrandHeader({ subtitle = "Your studio in your pocket" }: { subti
       </View>
       <Text style={styles.title}>PhotoStudio Manager</Text>
       <Text style={styles.subtitle}>{subtitle}</Text>
+      <View style={styles.goldLine} />
     </View>
   );
 }
@@ -18,18 +19,18 @@ export function BrandHeader({ subtitle = "Your studio in your pocket" }: { subti
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
-    marginBottom: spacing.xxl,
+    marginBottom: spacing.xl,
   },
   logoWrap: {
-    width: 84,
-    height: 84,
-    borderRadius: 24,
+    width: 72,
+    height: 72,
+    borderRadius: 22,
     backgroundColor: palette.primary,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
     shadowColor: "#000",
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.18,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
     elevation: 5,
@@ -43,5 +44,12 @@ const styles = StyleSheet.create({
     marginTop: spacing.xs,
     fontSize: 14,
     color: palette.onSurfaceVariant,
+  },
+  goldLine: {
+    width: 44,
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: palette.gold,
+    marginTop: spacing.md,
   },
 });

@@ -19,6 +19,7 @@ export default function NewPaymentScreen() {
           <PaymentScheduleForm
             presetBookingId={params.bookingId}
             onSuccess={() => router.back()}
+            onCancel={() => router.back()}
           />
         </ScrollView>
       </KeyboardAvoidingView>

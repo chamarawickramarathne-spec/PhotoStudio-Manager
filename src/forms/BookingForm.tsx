@@ -1,33 +1,33 @@
 import { useEffect, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
-import { useForm, useWatch, useFormContext, FormProvider } from "react-hook-form";
+import { useForm, useWatch, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Button, Switch, Text } from "react-native-paper";
+import { Text } from "react-native-paper";
 
 import { TextFormField } from "@/components/form/TextFormField";
 import { SelectFormField } from "@/components/form/SelectFormField";
-import { DateFormField } from "@/components/form/DateFormField";
-import { TimeFormField } from "@/components/form/TimeFormField";
-import { ChipMultiSelect } from "@/components/form/ChipMultiSelect";
+import { FormActions } from "@/components/form/FormActions";
+import {
+  AlbumsGroup,
+  PhotoSizesGroup,
+  PricingGroup,
+  ScheduleGroup,
+  WeddingDetailsGroup,
+} from "@/components/form/BookingSections";
 import { useClients } from "@/hooks/queries/clients";
 import { useCreateBooking, useUpdateBooking, type BookingRow } from "@/hooks/queries/bookings";
 import { useAuth } from "@/hooks/useAuth";
-import {
-  EVENT_TYPE_MAP,
-  GROUP_PHOTO_SIZES,
-  HOMECOMING_PHOTO_SIZES,
-  PHOTO_SIZES,
-  SHOOT_TYPES,
-} from "@/lib/constants";
+import { EVENT_TYPE_MAP, SHOOT_TYPES } from "@/lib/constants";
 import type { EventType } from "@/lib/constants";
 import { getErrorMessage } from "@/lib/utils";
+import { moneyOptional, required, wholeNumberOptional } from "@/forms/validation";
 import { palette, radius, spacing } from "@/theme";
 
 const schema = z
   .object({
-    title: z.string().min(1, "Title is required"),
-    client_id: z.string().min(1, "Client is required"),
+    title: required("Title is required"),
+    client_id: required("Client is required"),
     booking_date: z.string().optional(),
     start_time: z.string().optional(),
     end_time: z.string().optional(),
@@ -35,8 +35,8 @@ const schema = z
     package_name: z.string().optional(),
     shoot_type: z.enum(SHOOT_TYPES),
     album: z.enum(["Yes", "No"]),
-    total_amount: z.string().optional(),
-    deposit_amount: z.string().optional(),
+    total_amount: moneyOptional(),
+    deposit_amount: moneyOptional(),
     notes: z.string().optional(),
     wedding_hotel_name: z.string().optional(),
     wedding_date: z.string().optional(),
@@ -48,11 +48,22 @@ const schema = z
     group_photo_size: z.string().optional(),
     homecoming_photo_size: z.string().optional(),
     wedding_photo_sizes: z.array(z.string()),
-    extra_thank_you_cards_qty: z.string().optional(),
+    extra_thank_you_cards_qty: wholeNumberOptional(0, 9999, "Enter a whole number from 0 to 9999"),
   })
   .superRefine((values, ctx) => {
-    if (values.client_id && values.client_id === "none") {
+    if (values.client_id === "none" || !values.client_id.trim()) {
       ctx.addIssue({ code: "custom", path: ["client_id"], message: "Client is required" });
+    }
+    const total = Number(values.total_amount);
+    const deposit = Number(values.deposit_amount);
+    if (
+      values.total_amount !== "" &&
+      !Number.isNaN(total) &&
+      values.deposit_amount !== "" &&
+      !Number.isNaN(deposit) &&
+      deposit > total
+    ) {
+      ctx.addIssue({ code: "custom", path: ["deposit_amount"], message: "Deposit can't exceed the total" });
     }
   });
 
@@ -63,9 +74,10 @@ interface BookingFormProps {
   booking?: BookingRow;
   presetClientId?: string;
   onSuccess?: (bookingId?: string) => void;
+  onCancel?: () => void;
 }
 
-export function BookingForm({ eventType, booking, presetClientId, onSuccess }: BookingFormProps) {
+export function BookingForm({ eventType, booking, presetClientId, onSuccess, onCancel }: BookingFormProps) {
   const { session, currency } = useAuth();
   const { data: clients } = useClients();
   const createBooking = useCreateBooking();
@@ -219,130 +231,27 @@ export function BookingForm({ eventType, booking, presetClientId, onSuccess }: B
 
         {isWedding ? (
           <>
-            <Text style={styles.section}>Wedding Details</Text>
-            <View style={styles.row}>
-              <View style={styles.rowItem}>
-                <TextFormField name="wedding_hotel_name" label="Wedding Hotel" placeholder="Hotel name" />
-              </View>
-              <View style={styles.rowItem}>
-                <DateFormField name="wedding_date" label="Wedding Date" required minDate={new Date()} />
-              </View>
-            </View>
-            <View style={styles.row}>
-              <View style={styles.rowItem}>
-                <TextFormField name="homecoming_hotel_name" label="Homecoming Hotel" placeholder="Hotel name" />
-              </View>
-              <View style={styles.rowItem}>
-                <DateFormField name="homecoming_date" label="Homecoming Date" minDate={new Date()} />
-              </View>
-            </View>
-
-            <Text style={styles.section}>Albums</Text>
-            <View style={styles.toggles}>
-              <WeddingToggle name="wedding_album" label="Wedding Album" />
-              <WeddingToggle name="pre_shoot_album" label="Pre-shoot Album" />
-              <WeddingToggle name="family_album" label="Family Album" />
-            </View>
-
-            <Text style={styles.section}>Photo Sizes</Text>
-            <SelectFormField
-              name="group_photo_size"
-              label="Group Photo Size"
-              options={GROUP_PHOTO_SIZES.map((s) => ({ value: s, label: s }))}
-            />
-            <SelectFormField
-              name="homecoming_photo_size"
-              label="Homecoming Photo Size"
-              options={HOMECOMING_PHOTO_SIZES.map((s) => ({ value: s, label: s }))}
-            />
-            <WeddingPhotoSizes />
-            <TextFormField
-              name="extra_thank_you_cards_qty"
-              label="Extra Thank You Cards Qty"
-              placeholder="0"
-              keyboardType="number-pad"
-            />
+            <WeddingDetailsGroup />
+            <AlbumsGroup />
+            <PhotoSizesGroup />
           </>
         ) : (
-          <>
-            <Text style={styles.section}>Schedule</Text>
-            <View style={styles.row}>
-              <View style={styles.rowItem}>
-                <DateFormField name="booking_date" label="Booking Date" required minDate={new Date()} />
-              </View>
-            </View>
-            <View style={styles.row}>
-              <View style={styles.rowItem}>
-                <TimeFormField name="start_time" label="Start Time" />
-              </View>
-              <View style={styles.rowItem}>
-                <TimeFormField name="end_time" label="End Time" />
-              </View>
-            </View>
-            <TextFormField name="location" label="Location" placeholder="Event location" />
-            <SelectFormField name="album" label="Album" options={[{ value: "Yes", label: "Yes" }, { value: "No", label: "No" }]} />
-          </>
+          <ScheduleGroup />
         )}
 
-        <Text style={styles.section}>Package & Pricing</Text>
-        <TextFormField name="package_name" label="Package Name" placeholder="e.g. Wedding Premium" />
-        <SelectFormField
-          name="shoot_type"
-          label="Shoot Type"
-          options={SHOOT_TYPES.map((s) => ({ value: s, label: s }))}
-        />
-        <View style={styles.row}>
-          <View style={styles.rowItem}>
-            <TextFormField name="total_amount" label={`Total Amount (${currency})`} placeholder="0.00" keyboardType="decimal-pad" />
-          </View>
-          <View style={styles.rowItem}>
-            <TextFormField name="deposit_amount" label={`Deposit (${currency})`} placeholder="0.00" keyboardType="decimal-pad" />
-          </View>
-        </View>
+        <PricingGroup currency={currency} />
         <TextFormField name="notes" label="Special Requests / Notes" placeholder="Additional details" multiline numberOfLines={3} />
 
         {errorMessage ? <Text style={styles.error}>{getErrorMessage(errorMessage)}</Text> : null}
 
-        <Button
-          mode="contained"
-          onPress={form.handleSubmit(onSubmit)}
-          loading={isSubmitting}
-          disabled={isSubmitting}
-          style={styles.submit}
-          contentStyle={styles.submitContent}
-        >
-          {editing ? "Save Changes" : "Create Booking"}
-        </Button>
+        <FormActions
+          submitLabel={editing ? "Save Changes" : "Create Booking"}
+          submitting={isSubmitting}
+          onSubmit={form.handleSubmit(onSubmit)}
+          onCancel={onCancel}
+        />
       </View>
     </FormProvider>
-  );
-}
-
-function WeddingToggle({ name, label }: { name: string; label: string }) {
-  const { setValue, control } = useFormContext();
-  const value = useWatch({ control, name }) ?? false;
-  return <ToggleRow label={label} value={value} onChange={(v) => setValue(name, v)} />;
-}
-
-function ToggleRow({ label, value, onChange }: { label: string; value: boolean; onChange: (v: boolean) => void }) {
-  return (
-    <View style={styles.toggleRow}>
-      <Text style={styles.toggleLabel}>{label}</Text>
-      <Switch value={value} onValueChange={onChange} color={palette.primary} />
-    </View>
-  );
-}
-
-function WeddingPhotoSizes() {
-  const { watch, setValue } = useFormContext();
-  const value = watch("wedding_photo_sizes") ?? [];
-  return (
-    <ChipMultiSelect
-      label="Wedding Photo Sizes (select all that apply)"
-      options={PHOTO_SIZES}
-      value={value}
-      onChange={(next) => setValue("wedding_photo_sizes", next)}
-    />
   );
 }
 
@@ -357,26 +266,5 @@ const styles = StyleSheet.create({
   },
   eventIcon: { fontSize: 18, fontWeight: "800", color: palette.gold },
   eventLabel: { fontSize: 13, color: palette.onSurfaceVariant },
-  section: {
-    fontSize: 15,
-    fontWeight: "800",
-    color: palette.onBackground,
-    marginTop: spacing.sm,
-  },
-  row: { flexDirection: "row", gap: spacing.md },
-  rowItem: { flex: 1 },
-  toggles: { gap: spacing.xs },
-  toggleRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: palette.surface,
-    borderRadius: radius.sm,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-  },
-  toggleLabel: { fontSize: 14, color: palette.onBackground },
   error: { color: palette.error, fontSize: 13, textAlign: "center" },
-  submit: { borderRadius: 999, marginTop: spacing.sm },
-  submitContent: { height: 48 },
 });

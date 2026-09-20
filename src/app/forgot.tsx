@@ -9,9 +9,10 @@ import { Link } from "expo-router";
 import { KeyboardScreen } from "@/components/ui/Screen";
 import { TextFormField } from "@/components/form/TextFormField";
 import { BrandHeader } from "@/components/ui/BrandHeader";
+import { AuthCard } from "@/components/ui/AuthCard";
 import { useAuth } from "@/hooks/useAuth";
 import { getErrorMessage } from "@/lib/utils";
-import { palette, spacing } from "@/theme";
+import { palette, radius, spacing } from "@/theme";
 
 const schema = z.object({
   email: z.email("Enter a valid email"),
@@ -40,28 +41,30 @@ export default function ForgotScreen() {
     <KeyboardScreen>
       <View style={styles.container}>
         <BrandHeader subtitle="Reset your password" />
-        <FormProvider {...form}>
-          <View style={styles.form}>
-            <TextFormField name="email" label="Email" placeholder="you@example.com" autoCapitalize="none" keyboardType="email-address" required />
-            {error ? <Text style={styles.error}>{error}</Text> : null}
-            {info ? <Text style={styles.info}>{info}</Text> : null}
-            <Button
-              mode="contained"
-              onPress={form.handleSubmit(onSubmit)}
-              loading={form.formState.isSubmitting}
-              disabled={form.formState.isSubmitting}
-              style={styles.button}
-              contentStyle={styles.buttonContent}
-            >
-              Send Reset Link
-            </Button>
-            <View style={styles.links}>
-              <Link href="/login" style={styles.link}>
-                Back to log in
-              </Link>
+        <AuthCard>
+          <FormProvider {...form}>
+            <View style={styles.form}>
+              <TextFormField name="email" label="Email" placeholder="you@example.com" autoCapitalize="none" keyboardType="email-address" required />
+              {error ? <Text style={styles.error}>{error}</Text> : null}
+              {info ? <Text style={styles.info}>{info}</Text> : null}
+              <Button
+                mode="contained"
+                onPress={form.handleSubmit(onSubmit)}
+                loading={form.formState.isSubmitting}
+                disabled={form.formState.isSubmitting}
+                style={styles.button}
+                contentStyle={styles.buttonContent}
+              >
+                Send Reset Link
+              </Button>
+              <View style={styles.links}>
+                <Link href="/login" style={styles.link}>
+                  Back to log in
+                </Link>
+              </View>
             </View>
-          </View>
-        </FormProvider>
+          </FormProvider>
+        </AuthCard>
       </View>
     </KeyboardScreen>
   );
@@ -77,7 +80,7 @@ const styles = StyleSheet.create({
   form: { gap: spacing.lg },
   error: { color: palette.error, fontSize: 13, textAlign: "center" },
   info: { color: palette.tertiary, fontSize: 13, textAlign: "center" },
-  button: { borderRadius: 999, paddingVertical: 4 },
+  button: { borderRadius: radius.md },
   buttonContent: { height: 48 },
   links: { alignItems: "center", marginTop: spacing.sm },
   link: { color: palette.primary, fontWeight: "600", fontSize: 14 },

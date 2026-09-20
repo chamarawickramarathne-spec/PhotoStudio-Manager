@@ -68,6 +68,7 @@ export default function NewBookingScreen() {
           <BookingForm
             eventType={eventType}
             presetClientId={params.clientId}
+            onCancel={() => router.back()}
             onSuccess={(id) => {
               if (id) router.replace(`/booking/${id}`);
               else router.back();

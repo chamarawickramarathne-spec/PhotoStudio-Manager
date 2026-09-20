@@ -2,24 +2,30 @@ import { StyleSheet, View } from "react-native";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Button, Text } from "react-native-paper";
+import { Text } from "react-native-paper";
 
 import { TextFormField } from "@/components/form/TextFormField";
 import { SelectFormField } from "@/components/form/SelectFormField";
+import { FormActions } from "@/components/form/FormActions";
 import { useCreateClient, useUpdateClient, type ClientRow } from "@/hooks/queries/clients";
 import { useAuth } from "@/hooks/useAuth";
 import { CLIENT_STATUSES, DEFAULT_COUNTRY } from "@/lib/constants";
 import { getErrorMessage } from "@/lib/utils";
+import { phoneOptional, required } from "@/forms/validation";
 import { palette, spacing } from "@/theme";
 
 const schema = z.object({
-  full_name: z.string().min(1, "Name is required"),
-  phone: z.string().min(1, "Phone number is required"),
+  full_name: required("Name is required"),
+  phone: required("Phone number is required").refine(
+    (v) => /^[+\d][\d\s-]{5,}$/.test(v),
+    "Enter a valid phone number",
+  ),
   email: z
     .string()
+    .trim()
     .refine((v) => v === "" || z.email().safeParse(v).success, "Enter a valid email"),
   second_contact: z.string().optional(),
-  second_phone: z.string().optional(),
+  second_phone: phoneOptional(),
   address: z.string().optional(),
   city: z.string().optional(),
   state: z.string().optional(),
@@ -34,9 +40,10 @@ type FormValues = z.infer<typeof schema>;
 interface ClientFormProps {
   client?: ClientRow;
   onSuccess?: () => void;
+  onCancel?: () => void;
 }
 
-export function ClientForm({ client, onSuccess }: ClientFormProps) {
+export function ClientForm({ client, onSuccess, onCancel }: ClientFormProps) {
   const { session } = useAuth();
   const createClient = useCreateClient();
   const updateClient = useUpdateClient();
@@ -133,16 +140,12 @@ export function ClientForm({ client, onSuccess }: ClientFormProps) {
         <SelectFormField name="status" label="Status" options={CLIENT_STATUSES} />
         <TextFormField name="notes" label="Notes" placeholder="Additional notes about the client" multiline numberOfLines={3} />
         {errorMessage ? <Text style={styles.error}>{getErrorMessage(errorMessage)}</Text> : null}
-        <Button
-          mode="contained"
-          onPress={form.handleSubmit(onSubmit)}
-          loading={isSubmitting}
-          disabled={isSubmitting}
-          style={styles.submit}
-          contentStyle={styles.submitContent}
-        >
-          {editing ? "Save Changes" : "Add Client"}
-        </Button>
+        <FormActions
+          submitLabel={editing ? "Save Changes" : "Add Client"}
+          submitting={isSubmitting}
+          onSubmit={form.handleSubmit(onSubmit)}
+          onCancel={onCancel}
+        />
       </View>
     </FormProvider>
   );
@@ -153,6 +156,4 @@ const styles = StyleSheet.create({
   row: { flexDirection: "row", gap: spacing.md },
   rowItem: { flex: 1 },
   error: { color: palette.error, fontSize: 13, textAlign: "center" },
-  submit: { borderRadius: 999, marginTop: spacing.sm },
-  submitContent: { height: 48 },
 });

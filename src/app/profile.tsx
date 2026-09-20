@@ -41,7 +41,7 @@ export default function ProfileScreen() {
   const { profile, currency, signOut, updateProfile } = useAuth();
   const [saveError, setSaveError] = useState("");
   const [signOutOpen, setSignOutOpen] = useState(false);
-  const [saving, setSaving] = useState(false);
+  const [savingCode, setSavingCode] = useState<string | null>(null);
   const [desktopVersion, setDesktopVersion] = useState("");
   const [updateState, setUpdateState] = useState<UpdateResult | null>(null);
   const [checking, setChecking] = useState(false);
@@ -71,13 +71,13 @@ export default function ProfileScreen() {
 
   const setCurrency = async (code: string) => {
     setSaveError("");
-    setSaving(true);
+    setSavingCode(code);
     try {
       await updateProfile({ currency_type: code });
     } catch (e) {
       setSaveError(getErrorMessage(e));
     } finally {
-      setSaving(false);
+      setSavingCode(null);
     }
   };
 
@@ -124,7 +124,7 @@ export default function ProfileScreen() {
                 key={c.code}
                 mode={currency === c.code ? "contained" : "outlined"}
                 onPress={() => void setCurrency(c.code)}
-                loading={saving}
+                loading={savingCode === c.code}
                 style={styles.currencyBtn}
                 labelStyle={{ fontSize: 13 }}
               >

@@ -293,6 +293,7 @@ export default function BookingDetailScreen() {
               eventType={booking.event_type as BookingFormEventType}
               booking={booking}
               onSuccess={() => setEditOpen(false)}
+              onCancel={() => setEditOpen(false)}
             />
           </ScrollView>
         </View>
