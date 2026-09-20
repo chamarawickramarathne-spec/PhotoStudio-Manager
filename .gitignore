@@ -54,3 +54,7 @@ example
 
 # release APK artifacts (kept locally in test_APK/, shipped via GitHub releases)
 /test_APK/
+
+# internal agent memory files (kept locally, never committed to git)
+/AGENTS.md
+/AGENTS_PLAN.md
