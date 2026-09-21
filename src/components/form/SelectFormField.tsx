@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Controller, useFormContext } from "react-hook-form";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons";
 
 import { palette, radius, spacing } from "@/theme";
 import { FieldLabel } from "./FieldLabel";

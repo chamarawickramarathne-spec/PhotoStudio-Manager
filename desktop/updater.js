@@ -187,14 +187,14 @@ function createUpdater({ repo, currentVersion }) {
     };
   };
 
-  const download = async (result, downloadDir) => {
+  const download = async (result, downloadDir, onProgress) => {
     await fs.promises.mkdir(downloadDir, { recursive: true });
     const installerPath = path.join(downloadDir, getInstallerName());
     const checksumPath = `${installerPath}.sha256`;
 
     await fs.promises.rm(installerPath, { force: true });
     await downloadFile(result.checksumUrl, checksumPath);
-    await downloadFile(result.downloadUrl, installerPath);
+    await downloadFile(result.downloadUrl, installerPath, onProgress);
 
     const expected = (await fs.promises.readFile(checksumPath, "utf8")).trim().split(/\s+/)[0];
     const actual = await sha256File(installerPath);

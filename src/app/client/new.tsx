@@ -1,6 +1,6 @@
 import { Screen, AppHeader } from "@/components/ui/Screen";
 import { ClientForm } from "@/forms/ClientForm";
-import { router } from "expo-router";
+import { router } from "@/navigation/router";
 
 export default function NewClientScreen() {
   return (

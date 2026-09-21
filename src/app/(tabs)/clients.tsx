@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import { ActivityIndicator, RefreshControl, StyleSheet, Text, View } from "react-native";
 import { FAB, Searchbar, Text as PaperText } from "react-native-paper";
-import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import Ionicons from "@react-native-vector-icons/ionicons";
+import { router } from "@/navigation/router";
 
 import { Screen } from "@/components/ui/Screen";
 import { ClientCard } from "@/components/ui/ClientCard";

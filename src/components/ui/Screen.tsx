@@ -2,7 +2,7 @@ import { type ComponentProps, type ReactNode } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Appbar } from "react-native-paper";
-import { useRouter } from "expo-router";
+import { useRouter } from "@/navigation/router";
 
 import { palette } from "@/theme";
 

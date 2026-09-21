@@ -15,6 +15,7 @@ export interface RevenueBucket {
 export interface DashboardStats {
   totalClients: number;
   totalBookings: number;
+  activeBookings: number;
   outstanding: number;
   overdueCount: number;
   monthlyRevenue: number;
@@ -83,6 +84,10 @@ export function useDashboard() {
         supabase
           .from("bookings")
           .select("id", { count: "exact", head: true })
+          .not("status", "in", "(completed,cancelled)"),
+        supabase
+          .from("bookings")
+          .select("id", { count: "exact", head: true })
           .gte("booking_date", iso(thisMonth))
           .lt("booking_date", iso(nextMonth)),
         supabase
@@ -119,7 +124,7 @@ export function useDashboard() {
         if (res.error) throw res.error;
       }
 
-      const [clientsRes, clientsThisRes, clientsLastRes, bookingsRes, bookingsThisRes, bookingsLastRes, todayRes, upcomingRes, recentBookingsRes, schedulesRes, installmentsRes] = settled;
+      const [clientsRes, clientsThisRes, clientsLastRes, bookingsRes, activeBookingsRes, bookingsThisRes, bookingsLastRes, todayRes, upcomingRes, recentBookingsRes, schedulesRes, installmentsRes] = settled;
 
       const schedules = (schedulesRes.data ?? []) as ScheduleWithBooking[];
       const liveSchedules = schedules.filter((s) => s.status !== "cancelled");
@@ -139,6 +144,7 @@ export function useDashboard() {
       return {
         totalClients: clientsRes.count ?? 0,
         totalBookings: bookingsRes.count ?? 0,
+        activeBookings: activeBookingsRes.count ?? 0,
         outstanding,
         overdueCount,
         monthlyRevenue: currentRevenue,

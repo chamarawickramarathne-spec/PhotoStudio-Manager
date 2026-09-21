@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import { Linking, Platform, RefreshControl, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { ActivityIndicator, Button, Divider, IconButton, Modal, Text as PaperText } from "react-native-paper";
-import { Ionicons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
+import Ionicons from "@react-native-vector-icons/ionicons";
+import { router, useLocalSearchParams } from "@/navigation/router";
 
 import { AppHeader, Screen } from "@/components/ui/Screen";
 import { AppAvatar } from "@/components/ui/AppAvatar";

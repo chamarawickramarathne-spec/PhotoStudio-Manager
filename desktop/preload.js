@@ -12,4 +12,5 @@ contextBridge.exposeInMainWorld("photoStudioDesktop", {
   checkForUpdates: () => ipcRenderer.invoke("updater:check"),
   installUpdate: () => ipcRenderer.invoke("updater:install"),
   onUpdateStatus: (callback) => subscribe("updater:status", callback),
+  onUpdateProgress: (callback) => subscribe("updater:progress", callback),
 });

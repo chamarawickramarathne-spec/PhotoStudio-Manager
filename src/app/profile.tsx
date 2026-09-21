@@ -1,73 +1,25 @@
-import { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-import Constants from "expo-constants";
-import { Button, Divider, List } from "react-native-paper";
+import { useState } from "react";
+import { Image, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Button, Text as PaperText } from "react-native-paper";
+import Ionicons from "@react-native-vector-icons/ionicons";
 
 import { AppHeader, KeyboardScreen } from "@/components/ui/Screen";
 import { AppAvatar } from "@/components/ui/AppAvatar";
-import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { PhotographerForm } from "@/forms/PhotographerForm";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfileAvatar } from "@/hooks/useProfileAvatar";
 import { CURRENCIES } from "@/lib/constants";
-import { getDesktopBridge, type UpdateResult } from "@/lib/desktop";
+import { canProcessAvatar, compressImageFile, encryptAvatar } from "@/lib/media";
 import { getErrorMessage } from "@/lib/utils";
 import { palette, radius, spacing } from "@/theme";
 
-function updateLabel(result: UpdateResult): string {
-  switch (result.status) {
-    case "up-to-date":
-      return `You are up to date (v${result.currentVersion}).`;
-    case "update-available":
-      return `Update v${result.latestVersion} is available - tap Install.`;
-    case "installing":
-      return "Installing update... the app will close.";
-    case "downloading":
-      return `Downloading update v${result.latestVersion}...`;
-    case "disabled":
-      return "Updates are disabled for this build.";
-    case "integrity-mismatch":
-      return result.message || "Installer verification failed.";
-    case "integrity-unavailable":
-      return result.message || "Update refused: no checksum available.";
-    case "installer-missing":
-      return result.message || "Update refused: installer missing.";
-    case "error":
-      return result.message || "Could not check for updates.";
-    default:
-      return "Update status unknown.";
-  }
-}
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 
 export default function ProfileScreen() {
-  const { profile, currency, signOut, updateProfile } = useAuth();
+  const { profile, currency, updateProfile } = useAuth();
   const [saveError, setSaveError] = useState("");
-  const [signOutOpen, setSignOutOpen] = useState(false);
   const [savingCode, setSavingCode] = useState<string | null>(null);
-  const [desktopVersion, setDesktopVersion] = useState("");
-  const [updateState, setUpdateState] = useState<UpdateResult | null>(null);
-  const [checking, setChecking] = useState(false);
-
-  const desktop = getDesktopBridge();
-
-  useEffect(() => {
-    let mounted = true;
-    let unsubscribe: (() => void) | undefined;
-    const bridge = getDesktopBridge();
-    if (bridge) {
-      bridge
-        .getVersion()
-        .then((v) => {
-          if (mounted) setDesktopVersion(v);
-        })
-        .catch(() => {});
-      unsubscribe = bridge.onUpdateStatus((payload) => {
-        if (mounted) setUpdateState(payload);
-      });
-    }
-    return () => {
-      mounted = false;
-      if (unsubscribe) unsubscribe();
-    };
-  }, []);
+  const [uploading, setUploading] = useState(false);
 
   const setCurrency = async (code: string) => {
     setSaveError("");
@@ -81,42 +33,88 @@ export default function ProfileScreen() {
     }
   };
 
-  const handleCheckForUpdates = async () => {
-    const bridge = getDesktopBridge();
-    if (!bridge || checking) return;
-    setChecking(true);
+  const handleFile = async (file: File) => {
+    if (!profile) return;
+    setSaveError("");
+    if (!file.type.startsWith("image/")) {
+      setSaveError("Please select an image file (PNG, JPG, WEBP).");
+      return;
+    }
+    if (file.size > MAX_IMAGE_BYTES) {
+      setSaveError("Image must be 5MB or smaller.");
+      return;
+    }
+    if (!canProcessAvatar()) return;
+    setUploading(true);
     try {
-      setUpdateState(await bridge.checkForUpdates());
+      const compressed = await compressImageFile(file);
+      const encrypted = await encryptAvatar(compressed.bytes, compressed.mime);
+      await updateProfile({ avatar_data: encrypted.data, avatar_mime: encrypted.mime });
     } catch (e) {
-      setUpdateState({ status: "error", message: getErrorMessage(e) });
+      setSaveError(getErrorMessage(e));
     } finally {
-      setChecking(false);
+      setUploading(false);
     }
   };
 
-  const handleInstallUpdate = async () => {
-    const bridge = getDesktopBridge();
-    if (!bridge) return;
-    setUpdateState({ status: "downloading", latestVersion: "" });
-    setUpdateState(await bridge.installUpdate());
-  };
-
-  const handleSignOut = async () => {
-    await signOut();
-  };
+  const avatarUri = useProfileAvatar();
 
   return (
     <KeyboardScreen>
       <AppHeader title="Profile" showBack />
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.hero}>
-          <AppAvatar name={profile?.full_name ?? "P"} size={88} />
+          {avatarUri ? (
+            <View style={styles.avatarImageWrap}>
+              <Image source={{ uri: avatarUri }} style={styles.avatarImage} resizeMode="cover" />
+            </View>
+          ) : (
+            <AppAvatar name={profile?.full_name ?? "P"} size={88} />
+          )}
           <Text style={styles.name}>{profile?.business_name || profile?.full_name || "Photographer"}</Text>
-          <Text style={styles.phone}>{profile?.phone ?? profile?.full_name ?? ""}</Text>
+          <Text style={styles.phone}>{profile?.phone ?? profile?.business_phone ?? ""}</Text>
+          {Platform.OS === "web" && canProcessAvatar() ? (
+            <View style={styles.uploadRow}>
+              <input
+                id="profile-media-upload"
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) void handleFile(file);
+                  (e.target as HTMLInputElement).value = "";
+                }}
+              />
+              <Button
+                mode="outlined"
+                icon="camera"
+                loading={uploading}
+                disabled={uploading}
+                onPress={() => (document.getElementById("profile-media-upload") as HTMLInputElement | null)?.click()}
+                style={styles.uploadBtn}
+                labelStyle={{ fontSize: 13 }}
+              >
+                {uploading ? "Uploading…" : "Upload Logo / Image"}
+              </Button>
+            </View>
+          ) : null}
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Currency</Text>
+          <View style={styles.cardHeader}>
+            <Ionicons name="person-circle-outline" size={20} color={palette.primary} />
+            <Text style={styles.cardTitle}>Photographer Details</Text>
+          </View>
+          <Text style={styles.cardSub}>Your name, studio contact and bio.</Text>
+          <PhotographerForm />
+        </View>
+
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <Ionicons name="cash-outline" size={20} color={palette.gold} />
+            <Text style={styles.cardTitle}>Currency</Text>
+          </View>
           <Text style={styles.cardSub}>Used for all amounts across the app.</Text>
           <View style={styles.currencyRow}>
             {CURRENCIES.map((c) => (
@@ -132,67 +130,15 @@ export default function ProfileScreen() {
               </Button>
             ))}
           </View>
-          {saveError ? <Text style={styles.error}>{saveError}</Text> : null}
+          <PaperText style={styles.currencySub}>
+            {CURRENCIES.find((c) => c.code === currency)?.label ?? currency}
+          </PaperText>
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Account</Text>
-          <List.Item
-            title="Sign Out"
-            description="End this session on this device"
-            left={() => <List.Icon icon="logout" color={palette.danger} />}
-            onPress={() => setSignOutOpen(true)}
-          />
-          <Divider />
-          {desktop ? (
-            <>
-              <List.Item
-                title={checking ? "Checking for updates..." : "Check for Updates"}
-                description={
-                  updateState ? updateLabel(updateState) : "Look for a newer version"
-                }
-                left={() => (
-                  <List.Icon
-                    icon={checking ? "progress-download" : "cloud-download-outline"}
-                    color={palette.secondary}
-                  />
-                )}
-                onPress={() => void handleCheckForUpdates()}
-              />
-              {updateState?.status === "update-available" ? (
-                <>
-                  <Divider />
-                  <List.Item
-                    title="Install Update"
-                    description="Downloads, verifies and installs v"
-                    left={() => <List.Icon icon="download" color={palette.success} />}
-                    onPress={() => void handleInstallUpdate()}
-                  />
-                </>
-              ) : null}
-              <Divider />
-            </>
-          ) : null}
-          <List.Item
-            title="PhotoStudio Manager"
-            description={
-              desktop
-                ? `Desktop version ${desktopVersion || "..."}`
-                : `Version ${Constants.expoConfig?.version ?? ""}`
-            }
-            left={() => <List.Icon icon="information-outline" color={palette.onSurfaceVariant} />}
-          />
-        </View>
+        {saveError ? (
+          <Text style={styles.error}>{saveError}</Text>
+        ) : null}
       </ScrollView>
-
-      <ConfirmDialog
-        visible={signOutOpen}
-        title="Sign Out?"
-        message="You will need your password to sign back in."
-        confirmLabel="Sign Out"
-        onCancel={() => setSignOutOpen(false)}
-        onConfirm={() => void handleSignOut()}
-      />
     </KeyboardScreen>
   );
 }
@@ -200,8 +146,18 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   content: { padding: 16, paddingBottom: 60 },
   hero: { alignItems: "center", gap: spacing.sm, marginBottom: spacing.xl, marginTop: spacing.sm },
+  avatarImageWrap: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    overflow: "hidden",
+    backgroundColor: palette.surfaceVariant,
+  },
+  avatarImage: { width: "100%", height: "100%" },
   name: { fontSize: 22, fontWeight: "800", color: palette.onBackground, marginTop: spacing.sm },
   phone: { fontSize: 14, color: palette.onSurfaceVariant },
+  uploadRow: { marginTop: spacing.sm },
+  uploadBtn: { borderRadius: radius.pill },
   card: {
     backgroundColor: palette.surface,
     borderRadius: radius.md,
@@ -213,9 +169,11 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 2,
   },
+  cardHeader: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
   cardTitle: { fontSize: 15, fontWeight: "800", color: palette.onBackground },
   cardSub: { fontSize: 13, color: palette.onSurfaceVariant, marginTop: 2, marginBottom: spacing.md },
   currencyRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
   currencyBtn: { borderRadius: radius.pill },
-  error: { color: palette.danger, fontSize: 13, marginTop: spacing.md },
+  currencySub: { fontSize: 12, color: palette.onSurfaceVariant, marginTop: spacing.md },
+  error: { color: palette.danger, fontSize: 13, textAlign: "center", marginTop: spacing.md },
 });

@@ -1,13 +1,14 @@
 import { StyleSheet, Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons";
 import { ProgressBar as PaperProgressBar } from "react-native-paper";
 
 import { palette, radius, spacing } from "@/theme";
+import type { IconName } from "@/lib/icons";
 
 interface SummaryTileProps {
   label: string;
   value: string;
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: IconName;
   color: string;
   trend?: number;
 }

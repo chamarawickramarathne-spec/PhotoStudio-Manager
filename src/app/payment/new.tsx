@@ -1,5 +1,5 @@
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text } from "react-native";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "@/navigation/router";
 
 import { AppHeader, KeyboardScreen } from "@/components/ui/Screen";
 import { PaymentScheduleForm } from "@/forms/PaymentScheduleForm";

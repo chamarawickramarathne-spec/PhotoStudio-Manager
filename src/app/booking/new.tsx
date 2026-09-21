@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Button, Text as PaperText } from "react-native-paper";
-import { Ionicons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
+import Ionicons from "@react-native-vector-icons/ionicons";
+import { router, useLocalSearchParams } from "@/navigation/router";
 
 import { AppHeader, KeyboardScreen } from "@/components/ui/Screen";
 import { BookingForm } from "@/forms/BookingForm";

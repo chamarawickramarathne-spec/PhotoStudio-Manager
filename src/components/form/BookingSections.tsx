@@ -1,7 +1,7 @@
 import { useWindowDimensions, View, type StyleProp, type ViewStyle } from "react-native";
 import { Pressable, StyleSheet, Text } from "react-native";
 import { useFormContext, useWatch } from "react-hook-form";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons";
 
 import { TextFormField } from "@/components/form/TextFormField";
 import { SelectFormField } from "@/components/form/SelectFormField";

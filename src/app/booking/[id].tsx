@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import { Platform, Pressable, RefreshControl, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { ActivityIndicator, Button, Divider, IconButton, Modal, Text as PaperText } from "react-native-paper";
-import { Ionicons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
+import Ionicons from "@react-native-vector-icons/ionicons";
+import { router, useLocalSearchParams } from "@/navigation/router";
 
 import { AppHeader, Screen } from "@/components/ui/Screen";
 import { StatusBadge } from "@/components/ui/StatusBadge";
@@ -22,9 +22,10 @@ import { palette, radius, spacing } from "@/theme";
 const FLOW: BookingStatus[] = ["pending", "confirmed", "in_progress", "completed"];
 
 export default function BookingDetailScreen() {
-  const { height } = useWindowDimensions();
+  const { height, width } = useWindowDimensions();
   const sheetMaxHeight = Math.round(height * 0.92);
   const sheetDialogRound = Platform.OS === "web" ? styles.sheetDialog : undefined;
+  const isWide = Platform.OS === "web" && width >= 900;
   const { id } = useLocalSearchParams<{ id: string }>();
   const { currency } = useAuth();
   const { data: booking, isLoading, isRefetching, refetch } = useBooking(id);
@@ -183,85 +184,88 @@ export default function BookingDetailScreen() {
           </Pressable>
         ) : null}
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>{isWedding ? "Wedding Details" : "Schedule"}</Text>
-          {isWedding ? (
-            <>
-              <DetailRow label="Wedding Date" value={formatDate(booking.wedding_date)} />
-              <DetailRow label="Wedding Hotel" value={booking.wedding_hotel_name} />
-              <DetailRow label="Homecoming" value={booking.homecoming_hotel_name} />
-              <DetailRow label="Homecoming Date" value={formatDate(booking.homecoming_date)} />
-              <DetailRow label="Wedding Album" value={booking.wedding_album ? "Yes" : "No"} />
-              <DetailRow label="Pre-shoot Album" value={booking.pre_shoot_album ? "Yes" : "No"} />
-              <DetailRow label="Family Album" value={booking.family_album ? "Yes" : "No"} />
-              <DetailRow label="Group Photo Size" value={booking.group_photo_size} />
-              <DetailRow label="Homecoming Size" value={booking.homecoming_photo_size} />
-              <DetailRow
-                label="Wedding Sizes"
-                value={booking.wedding_photo_sizes?.length ? booking.wedding_photo_sizes.join(", ") : null}
-              />
-              <DetailRow
-                label="Extra Thank You Cards"
-                value={booking.extra_thank_you_cards_qty ? String(booking.extra_thank_you_cards_qty) : null}
-              />
-            </>
-          ) : (
-            <>
-              <DetailRow label="Booking Date" value={formatDate(booking.booking_date)} />
-              <DetailRow label="Time" value={[booking.start_time, booking.end_time].filter(Boolean).join(" – ")} />
-              <DetailRow label="Location" value={booking.location} />
-              <DetailRow label="Album" value={booking.album} />
-            </>
-          )}
-          <DetailRow label="Package" value={booking.package_name} />
-          <DetailRow label="Shoot Type" value={booking.shoot_type} />
-          {booking.notes ? (
-            <>
+        <View style={isWide ? styles.columns : undefined}>
+          <View style={isWide ? styles.leftCol : undefined}>
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Schedule & Pricing</Text>
+              {isWedding ? (
+                <>
+                  <DetailRow label="Wedding Date" value={formatDate(booking.wedding_date)} />
+                  <DetailRow label="Wedding Hotel" value={booking.wedding_hotel_name} />
+                  <DetailRow label="Homecoming" value={booking.homecoming_hotel_name} />
+                  <DetailRow label="Homecoming Date" value={formatDate(booking.homecoming_date)} />
+                  <DetailRow label="Wedding Album" value={booking.wedding_album ? "Yes" : "No"} />
+                  <DetailRow label="Pre-shoot Album" value={booking.pre_shoot_album ? "Yes" : "No"} />
+                  <DetailRow label="Family Album" value={booking.family_album ? "Yes" : "No"} />
+                  <DetailRow label="Group Photo Size" value={booking.group_photo_size} />
+                  <DetailRow label="Homecoming Size" value={booking.homecoming_photo_size} />
+                  <DetailRow
+                    label="Wedding Sizes"
+                    value={booking.wedding_photo_sizes?.length ? booking.wedding_photo_sizes.join(", ") : null}
+                  />
+                  <DetailRow
+                    label="Extra Thank You Cards"
+                    value={booking.extra_thank_you_cards_qty ? String(booking.extra_thank_you_cards_qty) : null}
+                  />
+                </>
+              ) : (
+                <>
+                  <DetailRow label="Booking Date" value={formatDate(booking.booking_date)} />
+                  <DetailRow label="Time" value={[booking.start_time, booking.end_time].filter(Boolean).join(" – ")} />
+                  <DetailRow label="Location" value={booking.location} />
+                  <DetailRow label="Album" value={booking.album} />
+                </>
+              )}
+              <DetailRow label="Package" value={booking.package_name} />
+              <DetailRow label="Shoot Type" value={booking.shoot_type} />
+              {booking.notes ? (
+                <>
+                  <Divider style={styles.divider} />
+                  <PaperText style={styles.notes}>{booking.notes}</PaperText>
+                </>
+              ) : null}
               <Divider style={styles.divider} />
-              <PaperText style={styles.notes}>{booking.notes}</PaperText>
-            </>
-          ) : null}
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Pricing</Text>
-          <DetailRow label="Total Amount" value={booking.total_amount != null ? formatMoney(booking.total_amount, currency) : null} highlight />
-          <DetailRow label="Deposit" value={booking.deposit_amount != null ? formatMoney(booking.deposit_amount, currency) : null} />
-          <Divider style={styles.divider} />
-          <DetailRow label="Collected" value={formatMoney(totalPaid, currency)} />
-          <DetailRow label="Outstanding" value={formatMoney(totalDue, currency)} warn={totalDue > 0} />
-        </View>
-
-        <Text style={styles.sectionTitle}>Payments</Text>
-        {bookingSchedules.length === 0 ? (
-          <EmptyState
-            icon="card-outline"
-            title="No payment schedules"
-            message="Set up deposit or milestone payments for this booking."
-            actionLabel="Add Schedule"
-            onAction={() => router.push(`/payment/new?bookingId=${booking.id}`)}
-          />
-        ) : (
-          <View style={styles.list}>
-            {bookingSchedules.map((schedule) => (
-              <ScheduleCard
-                key={schedule.id}
-                schedule={schedule}
-                currency={currency}
-                onPress={() => router.push(`/payment/${schedule.id}`)}
-              />
-            ))}
+              <DetailRow label="Total Amount" value={booking.total_amount != null ? formatMoney(booking.total_amount, currency) : null} highlight />
+              <DetailRow label="Deposit" value={booking.deposit_amount != null ? formatMoney(booking.deposit_amount, currency) : null} />
+              <Divider style={styles.divider} />
+              <DetailRow label="Collected" value={formatMoney(totalPaid, currency)} />
+              <DetailRow label="Outstanding" value={formatMoney(totalDue, currency)} warn={totalDue > 0} />
+            </View>
           </View>
-        )}
 
-        <Button
-          mode="outlined"
-          icon="card-plus"
-          style={styles.addBtn}
-          onPress={() => router.push(`/payment/new?bookingId=${booking.id}`)}
-        >
-          Add Payment Schedule
-        </Button>
+          <View style={isWide ? styles.rightCol : undefined}>
+            <Text style={[styles.sectionTitle, !isWide && styles.sectionTitleSpaced]}>Payments</Text>
+            {bookingSchedules.length === 0 ? (
+              <EmptyState
+                icon="card-outline"
+                title="No payment schedules"
+                message="Set up deposit or milestone payments for this booking."
+                actionLabel="Add Schedule"
+                onAction={() => router.push(`/payment/new?bookingId=${booking.id}`)}
+              />
+            ) : (
+              <View style={styles.list}>
+                {bookingSchedules.map((schedule) => (
+                  <ScheduleCard
+                    key={schedule.id}
+                    schedule={schedule}
+                    currency={currency}
+                    onPress={() => router.push(`/payment/${schedule.id}`)}
+                  />
+                ))}
+              </View>
+            )}
+
+            <Button
+              mode="outlined"
+              icon="card-plus"
+              style={styles.addBtn}
+              onPress={() => router.push(`/payment/new?bookingId=${booking.id}`)}
+            >
+              Add Payment Schedule
+            </Button>
+          </View>
+        </View>
 
         {editable ? (
           <>
@@ -433,6 +437,10 @@ const styles = StyleSheet.create({
   divider: { marginVertical: spacing.xs },
   notes: { fontSize: 13, color: palette.onSurfaceVariant, fontStyle: "italic" },
   sectionTitle: { fontSize: 18, fontWeight: "800", color: palette.onBackground, marginBottom: spacing.md },
+  sectionTitleSpaced: { marginTop: spacing.xl },
+  columns: { flexDirection: "row", alignItems: "flex-start", gap: spacing.xl },
+  leftCol: { flex: 1.3, minWidth: 0 },
+  rightCol: { flex: 1, minWidth: 0 },
   list: { gap: spacing.md },
   addBtn: { borderRadius: 999, marginTop: spacing.md },
   cancelBtn: { marginTop: spacing.xl },

@@ -1,6 +1,6 @@
 const path = require("path");
 const fs = require("fs");
-const { app, BrowserWindow, dialog, ipcMain, session, shell } = require("electron");
+const { app, BrowserWindow, ipcMain, session, shell } = require("electron");
 
 const { createStaticServer } = require("./static-server");
 const { createUpdater } = require("./updater");
@@ -58,7 +58,20 @@ async function applyPendingUpdate(result) {
   try {
     send("updater:status", { status: "downloading", latestVersion: result.latestVersion });
     const downloadDir = path.join(app.getPath("temp"), "photostudio-manager-update");
-    const downloaded = await updater.download(result, downloadDir);
+    const downloaded = await updater.download(
+      result,
+      downloadDir,
+      (percent) => {
+        send("updater:progress", {
+          stage: "downloading",
+          percent,
+          latestVersion: result.latestVersion,
+        });
+      },
+      () => {
+        send("updater:progress", { stage: "verifying", percent: 100 });
+      },
+    );
     if (downloaded.status !== "downloaded") {
       send("updater:status", downloaded);
       return downloaded;
@@ -79,20 +92,9 @@ async function silentStartupCheck() {
   const result = await updater.check();
   if (result.status !== "update-available") return;
 
-  const { response } = await dialog.showMessageBox(mainWindow, {
-    type: "info",
-    title: "Update available",
-    message: `PhotoStudio Manager ${result.latestVersion} is available`,
-    detail: `You are running v${result.currentVersion}.\n\nThe update is downloaded, verified, and installed automatically.`,
-    buttons: ["Install Now", "Later"],
-    defaultId: 0,
-    cancelId: 1,
-    noLink: true,
-  });
-
-  if (response === 0) {
-    await applyPendingUpdate(result);
-  }
+  // In-app update modal (with download/install progress bar) replaces the
+  // native Windows dialog. The renderer auto-opens the modal on this event.
+  send("updater:status", summarize(result));
 }
 
 function createWindow() {

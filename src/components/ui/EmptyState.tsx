@@ -1,11 +1,12 @@
 import { StyleSheet, Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import Ionicons from "@react-native-vector-icons/ionicons";
 import { Button } from "react-native-paper";
 
 import { palette, spacing } from "@/theme";
+import type { IconName } from "@/lib/icons";
 
 interface EmptyStateProps {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: IconName;
   title: string;
   message?: string;
   actionLabel?: string;

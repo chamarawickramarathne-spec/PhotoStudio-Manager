@@ -9,12 +9,17 @@ export type UpdateResult =
   | { status: "installer-missing"; latestVersion?: string; message?: string }
   | { status: "error"; message?: string };
 
+export type UpdateProgress =
+  | { stage: "downloading"; percent: number; latestVersion?: string }
+  | { stage: "verifying"; percent: number; latestVersion?: string };
+
 export interface DesktopBridge {
   isDesktop: boolean;
   getVersion: () => Promise<string>;
   checkForUpdates: () => Promise<UpdateResult>;
   installUpdate: () => Promise<UpdateResult>;
   onUpdateStatus: (callback: (payload: UpdateResult) => void) => () => void;
+  onUpdateProgress: (callback: (payload: UpdateProgress) => void) => () => void;
 }
 
 export function getDesktopBridge(): DesktopBridge | null {

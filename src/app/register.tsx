@@ -4,7 +4,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button, Text as PaperText, TextInput as PaperInput } from "react-native-paper";
-import { Link } from "expo-router";
+import { Link } from "@/navigation/router";
 
 import { KeyboardScreen } from "@/components/ui/Screen";
 import { TextFormField } from "@/components/form/TextFormField";

@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
-import { ActivityIndicator, RefreshControl, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, RefreshControl, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { Chip, FAB, Searchbar, Text as PaperText } from "react-native-paper";
-import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import Ionicons from "@react-native-vector-icons/ionicons";
+import { router } from "@/navigation/router";
 
 import { Screen } from "@/components/ui/Screen";
 import { ScheduleCard } from "@/components/ui/ScheduleCard";
@@ -24,6 +24,8 @@ const FILTERS: { value: PaymentStatus | "all"; label: string }[] = [
 export default function PaymentsTab() {
   const { data: schedules, isLoading, isRefetching, refetch } = usePaymentSchedules();
   const { currency } = useAuth();
+  const { width } = useWindowDimensions();
+  const isWide = width >= 700;
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<PaymentStatus | "all">("all");
   const today = todayISO();
@@ -74,15 +76,26 @@ export default function PaymentsTab() {
           <PaperText style={styles.subtitle}>Schedules, installments and balances</PaperText>
         </View>
 
-        <View style={styles.statsRow}>
-          <SummaryTile label="Collected" value={formatMoney(stats.collected, currency)} color={palette.success} icon="checkmark-circle" />
-          <SummaryTile label="Outstanding" value={formatMoney(stats.outstanding, currency)} color={palette.warning} icon="time" />
-        </View>
+        {isWide ? (
+          <View style={styles.statsRow}>
+            <SummaryTile label="Collected" value={formatMoney(stats.collected, currency)} color={palette.success} icon="checkmark-circle" />
+            <SummaryTile label="Outstanding" value={formatMoney(stats.outstanding, currency)} color={palette.warning} icon="time" />
+            <SummaryTile label="Overdue" value={String(stats.overdue)} color={palette.danger} icon="warning" />
+            <SummaryTile label="Schedules" value={String(stats.total)} color={palette.info} icon="list" />
+          </View>
+        ) : (
+          <>
+            <View style={styles.statsRow}>
+              <SummaryTile label="Collected" value={formatMoney(stats.collected, currency)} color={palette.success} icon="checkmark-circle" />
+              <SummaryTile label="Outstanding" value={formatMoney(stats.outstanding, currency)} color={palette.warning} icon="time" />
+            </View>
 
-        <View style={styles.statsRow}>
-          <SummaryTile label="Overdue" value={String(stats.overdue)} color={palette.danger} icon="warning" />
-          <SummaryTile label="Schedules" value={String(stats.total)} color={palette.info} icon="list" />
-        </View>
+            <View style={styles.statsRow}>
+              <SummaryTile label="Overdue" value={String(stats.overdue)} color={palette.danger} icon="warning" />
+              <SummaryTile label="Schedules" value={String(stats.total)} color={palette.info} icon="list" />
+            </View>
+          </>
+        )}
 
         <Searchbar
           placeholder="Search client or booking"
@@ -132,6 +145,7 @@ export default function PaymentsTab() {
                 key={schedule.id}
                 schedule={schedule}
                 currency={currency}
+                row={isWide}
                 statusOverride={effectiveStatus(schedule.status, schedule.due_date)}
                 onPress={() => router.push(`/payment/${schedule.id}`)}
               />

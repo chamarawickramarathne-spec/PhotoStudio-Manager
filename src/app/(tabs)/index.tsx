@@ -9,50 +9,53 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import { ProgressBar as PaperProgressBar } from "react-native-paper";
-import Constants from "expo-constants";
+import Ionicons from "@react-native-vector-icons/ionicons";
+import { router } from "@/navigation/router";
 
 import { Screen } from "@/components/ui/Screen";
 import { SummaryTile } from "@/components/ui/SummaryTile";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { RevenueChart } from "@/components/ui/RevenueChart";
+import { HeroHeader } from "@/components/dashboard/HeroHeader";
+import { PaymentsList, buildPaymentsDue } from "@/components/dashboard/PaymentsList";
 import { useDashboard, type DashboardStats } from "@/hooks/queries/dashboard";
 import { useAuth } from "@/hooks/useAuth";
+import { useDesktopUpdater } from "@/hooks/useDesktopUpdater";
+import { useProfileAvatar } from "@/hooks/useProfileAvatar";
 import { BOOKING_STATUS_MAP, EVENT_TYPE_MAP, type EventTypeInfo } from "@/lib/constants";
-import { formatDate, formatMoney, todayISO } from "@/lib/format";
-import { getDesktopBridge } from "@/lib/desktop";
+import type { IconName } from "@/lib/icons";
+import { APP_VERSION } from "@/lib/version";
+import { formatDate, formatMoney } from "@/lib/format";
 import { palette, radius, spacing } from "@/theme";
-
-type DueSchedule = DashboardStats["recentSchedules"][number] & { isOverdue: boolean };
 
 export default function DashboardTab() {
   const { data: stats, isLoading, isRefetching, refetch } = useDashboard();
-  const { profile, currency } = useAuth();
+  const { profile, currency, signOut } = useAuth();
+  const { isDesktop, getVersion, checkForUpdates } = useDesktopUpdater();
   const { width } = useWindowDimensions();
   const [desktopVersion, setDesktopVersion] = useState("");
+  const [signOutOpen, setSignOutOpen] = useState(false);
   const isWide = width >= 700;
 
   useEffect(() => {
     let mounted = true;
-    const bridge = getDesktopBridge();
-    if (bridge) {
-      bridge
-        .getVersion()
-        .then((v) => {
-          if (mounted) setDesktopVersion(v);
-        })
-        .catch(() => {});
-    }
+    if (!isDesktop) return;
+    getVersion()
+      .then((v) => {
+        if (mounted) setDesktopVersion(v);
+      })
+      .catch(() => {});
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [isDesktop, getVersion]);
 
-  const version = desktopVersion || Constants.expoConfig?.version || "";
+  const version = desktopVersion || APP_VERSION || "";
   const todayLabel = formatDate(new Date(), "EEE, MMM d");
+
+  const avatar = useProfileAvatar();
 
   const heroContext = [
     stats?.todayCount ? `${stats.todayCount} shoot${stats.todayCount === 1 ? "" : "s"} today` : "",
@@ -61,12 +64,7 @@ export default function DashboardTab() {
     .filter(Boolean)
     .join(" · ");
 
-  const paymentsDue = (stats?.recentSchedules ?? [])
-    .filter((s) => s.status !== "paid" && s.status !== "cancelled")
-    .map((s) => ({ ...s, isOverdue: s.status === "overdue" || (s.due_date != null && s.due_date < todayISO()) }))
-    .sort((a, b) => (a.due_date ?? "") < (b.due_date ?? "") ? -1 : 1);
-  const overdue = paymentsDue.filter((s) => s.isOverdue);
-  const pending = paymentsDue.filter((s) => !s.isOverdue);
+  const { overdue, pending } = buildPaymentsDue(stats?.recentSchedules ?? []);
 
   return (
     <Screen
@@ -74,7 +72,15 @@ export default function DashboardTab() {
         <RefreshControl refreshing={isRefetching} onRefresh={() => void refetch()} tintColor={palette.primary} />
       }
     >
-      <HeroHeader name={profile?.full_name?.split(" ")[0] ?? "Photographer"} version={version} context={heroContext} dateLabel={todayLabel} />
+      <HeroHeader
+        name={profile?.full_name?.split(" ")[0] ?? "Photographer"}
+        version={version}
+        context={heroContext}
+        dateLabel={todayLabel}
+        avatarUri={avatar}
+        onSignOut={() => setSignOutOpen(true)}
+        onCheckUpdates={isDesktop ? () => void checkForUpdates() : undefined}
+      />
 
       {isLoading ? (
         <View style={styles.center}>
@@ -87,6 +93,7 @@ export default function DashboardTab() {
           {isWide ? (
             <View style={styles.statsRow}>
               <SummaryTile label="Total Bookings" value={String(stats.totalBookings)} color={palette.primary} icon="calendar" trend={stats.bookingsTrend} />
+              <SummaryTile label="Active Bookings" value={String(stats.activeBookings)} color={palette.tertiary} icon="camera" />
               <SummaryTile label="Active Clients" value={String(stats.totalClients)} color={palette.info} icon="people" trend={stats.clientsTrend} />
               <SummaryTile label="Monthly Revenue" value={formatMoney(stats.monthlyRevenue, currency)} color={palette.gold} icon="wallet" trend={stats.revenueTrend} />
               <SummaryTile label="Outstanding" value={formatMoney(stats.outstanding, currency)} color={palette.warning} icon="time" />
@@ -95,11 +102,15 @@ export default function DashboardTab() {
             <>
               <View style={styles.statsRow}>
                 <SummaryTile label="Total Bookings" value={String(stats.totalBookings)} color={palette.primary} icon="calendar" trend={stats.bookingsTrend} />
-                <SummaryTile label="Active Clients" value={String(stats.totalClients)} color={palette.info} icon="people" trend={stats.clientsTrend} />
+                <SummaryTile label="Active Bookings" value={String(stats.activeBookings)} color={palette.tertiary} icon="camera" />
               </View>
 
               <View style={styles.statsRow}>
+                <SummaryTile label="Active Clients" value={String(stats.totalClients)} color={palette.info} icon="people" trend={stats.clientsTrend} />
                 <SummaryTile label="Monthly Revenue" value={formatMoney(stats.monthlyRevenue, currency)} color={palette.gold} icon="wallet" trend={stats.revenueTrend} />
+              </View>
+
+              <View style={styles.statsRow}>
                 <SummaryTile label="Outstanding" value={formatMoney(stats.outstanding, currency)} color={palette.warning} icon="time" />
               </View>
             </>
@@ -117,43 +128,21 @@ export default function DashboardTab() {
           <UpcomingStrip bookings={stats.upcomingBookings} />
 
           <Text style={[styles.sectionTitle, styles.sectionTitleSpaced]}>
-            Payments Due{paymentsDue.length ? ` (${paymentsDue.length})` : ""}
+            Payments Due{overdue.length + pending.length ? ` (${overdue.length + pending.length})` : ""}
           </Text>
           <PaymentsList overdue={overdue} pending={pending} currency={currency} />
         </>
       )}
-    </Screen>
-  );
-}
 
-function HeroHeader({
-  name,
-  version,
-  context,
-  dateLabel,
-}: {
-  name: string;
-  version: string;
-  context: string;
-  dateLabel: string;
-}) {
-  return (
-    <View style={styles.hero}>
-      <Pressable style={styles.avatarBtn} onPress={() => router.push("/profile")} hitSlop={8}>
-        <Ionicons name="person" size={20} color={palette.primary} />
-      </Pressable>
-      <Text style={styles.greeting}>Hello, {name}</Text>
-      <Text style={styles.metaLine}>
-        {dateLabel}
-        {context ? ` · ${context}` : ""}
-      </Text>
-      <View style={styles.heroFooter}>
-        <View style={styles.goldHairline} />
-        <View style={styles.versionPill}>
-          <Text style={styles.versionText}>v{version}</Text>
-        </View>
-      </View>
-    </View>
+      <ConfirmDialog
+        visible={signOutOpen}
+        title="Sign Out?"
+        message="You will need your password to sign back in."
+        confirmLabel="Sign Out"
+        onCancel={() => setSignOutOpen(false)}
+        onConfirm={() => void signOut()}
+      />
+    </Screen>
   );
 }
 
@@ -163,7 +152,7 @@ function ActionPill({
   color,
   onPress,
 }: {
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: IconName;
   label: string;
   color: string;
   onPress: () => void;
@@ -230,102 +219,8 @@ function EventDot({ event }: { event: EventTypeInfo }) {
   );
 }
 
-function PaymentsList({
-  overdue,
-  pending,
-  currency,
-}: {
-  overdue: DueSchedule[];
-  pending: DueSchedule[];
-  currency: string;
-}) {
-  if (overdue.length === 0 && pending.length === 0) {
-    return (
-      <EmptyState icon="wallet-outline" title="Nothing due" message="Outstanding schedules will appear here." />
-    );
-  }
-  return (
-    <View style={styles.list}>
-      {overdue.length > 0 ? (
-        <>
-          <Text style={styles.groupHeader}>Overdue</Text>
-          {overdue.map((s) => (
-            <PaymentRow key={s.id} schedule={s} currency={currency} danger />
-          ))}
-        </>
-      ) : null}
-      {pending.length > 0 ? (
-        <>
-          <Text style={styles.groupHeader}>Pending</Text>
-          {pending.map((s) => (
-            <PaymentRow key={s.id} schedule={s} currency={currency} />
-          ))}
-        </>
-      ) : null}
-    </View>
-  );
-}
-
-function PaymentRow({ schedule: s, currency, danger }: { schedule: DueSchedule; currency: string; danger?: boolean }) {
-  const remaining = Math.max(Number(s.amount) - Number(s.paid_amount || 0), 0);
-  const pct = Number(s.amount) > 0 ? Math.min(Number(s.paid_amount || 0) / Number(s.amount), 1) : 0;
-  return (
-    <Pressable
-      style={({ pressed }) => [styles.paymentCard, pressed && styles.pressed]}
-      onPress={() => router.push(`/payment/${s.id}`)}
-    >
-      <View style={styles.paymentTop}>
-        <View style={[styles.paymentIcon, { backgroundColor: `${danger ? palette.danger : palette.warning}14` }]}>
-          <Ionicons name="wallet" size={16} color={danger ? palette.danger : palette.warning} />
-        </View>
-        <View style={styles.paymentBody}>
-          <Text style={styles.paymentTitle} numberOfLines={1}>
-            {s.name || s.bookings?.title || "Untitled payment"}
-          </Text>
-          <Text style={styles.paymentMeta} numberOfLines={1}>
-            {s.bookings?.clients?.full_name ?? "Unknown client"} · Due {s.due_date ? formatDate(s.due_date, "MMM d") : "No date"}
-          </Text>
-        </View>
-        <Text style={[styles.paymentAmount, { color: danger ? palette.danger : palette.secondary }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
-          {formatMoney(remaining, currency)}
-        </Text>
-      </View>
-      <PaperProgressBar progress={pct} color={danger ? palette.danger : palette.secondary} style={styles.progress} />
-    </Pressable>
-  );
-}
-
 const styles = StyleSheet.create({
   center: { paddingVertical: 64, alignItems: "center" },
-  hero: {
-    backgroundColor: palette.backgroundGold,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
-    marginBottom: spacing.lg,
-  },
-  avatarBtn: {
-    position: "absolute",
-    top: spacing.lg,
-    right: spacing.lg,
-    width: 40,
-    height: 40,
-    borderRadius: radius.pill,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: palette.surface,
-  },
-  greeting: { fontSize: 26, fontWeight: "800", color: palette.onBackground, marginRight: 48 },
-  metaLine: { fontSize: 13, color: palette.onSurfaceVariant, marginTop: 4 },
-  heroFooter: { flexDirection: "row", alignItems: "center", marginTop: spacing.md },
-  goldHairline: { flex: 1, height: 2, borderRadius: 1, backgroundColor: palette.gold },
-  versionPill: {
-    marginLeft: spacing.sm,
-    backgroundColor: palette.gold,
-    borderRadius: radius.pill,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 3,
-  },
-  versionText: { color: palette.white, fontSize: 11, fontWeight: "800" },
   statsRow: { flexDirection: "row", gap: spacing.sm, marginBottom: spacing.md },
   actions: { flexDirection: "row", gap: spacing.sm, marginTop: spacing.sm, marginBottom: spacing.xl },
   pill: {
@@ -366,24 +261,4 @@ const styles = StyleSheet.create({
   shootMeta: { fontSize: 12, color: palette.onSurfaceVariant },
   shootMetaRow: { flexDirection: "row", alignItems: "center", gap: spacing.sm, marginTop: 2 },
   eventDot: { width: 22, height: 22, borderRadius: radius.sm, alignItems: "center", justifyContent: "center" },
-  list: { gap: spacing.md },
-  groupHeader: { fontSize: 12, fontWeight: "800", color: palette.onSurfaceVariant, textTransform: "uppercase", letterSpacing: 0.5 },
-  paymentCard: {
-    backgroundColor: palette.surface,
-    borderRadius: radius.md,
-    padding: spacing.md,
-    gap: spacing.sm,
-    shadowColor: "#000",
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 1,
-  },
-  paymentTop: { flexDirection: "row", alignItems: "center", gap: spacing.md },
-  paymentIcon: { width: 34, height: 34, borderRadius: radius.sm, alignItems: "center", justifyContent: "center" },
-  paymentBody: { flex: 1, gap: 2 },
-  paymentTitle: { fontSize: 14, fontWeight: "700", color: palette.onBackground },
-  paymentMeta: { fontSize: 12, color: palette.onSurfaceVariant },
-  paymentAmount: { fontSize: 14, fontWeight: "800" },
-  progress: { height: 6, borderRadius: radius.pill, backgroundColor: palette.surfaceVariant },
 });
