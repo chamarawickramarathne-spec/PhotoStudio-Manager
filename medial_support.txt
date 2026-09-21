@@ -23,6 +23,8 @@ The Windows desktop edition brings the full app to your computer with a resizabl
 
 Every form is built in a warm editorial style - rust-red primary and gold accents, clear labels above fields, grouped bordered sections with tidy headers, and a right-aligned Cancel/Save action bar. On the desktop app each form type uses a width tuned to its content: the booking form gets a wide, centered column so its two-column and side-by-side grids stay roomy, while client and payment-schedule forms use a more compact centered column, and the record-installment sheet stays small and focused. Mobile keeps the familiar full-width layout. Validation is smarter too: whitespace-only names and phone numbers are rejected, deposit and total amounts are checked so deposits never exceed the total, record-installment entries can't be negative or overpay an outstanding balance, and wedding contexts require a proper due date for payment schedules. Booking, client, payment, and install data can only be saved when every value is valid and sensible - so your books stay clean.
 
+Moving between screens is rock-solid on the web-first engine: a dependencies-level global shim keeps react-native animations safe on every modern browser, so smooth transition fades on the dashboard and revenue chart never throw, whether you are switching tabs on Windows, in your phone browser, or inside the Android app.
+
 4. FACEBOOK POST TEXT
 ---------------------
 Photographers, let's be honest - how many notebooks and spreadsheets are you juggling to run your studio? 📸
@@ -56,4 +58,4 @@ Get it on your phone, your PC, or right in your browser today! 📲💻🌐
 4. Clean 3D illustration: a smartphone next to a desktop monitor and an open browser window, all showing the PhotoStudio Manager app with "Welcome back" and stat tiles, a bar chart, a horizontal "Next Shoots" card strip, and grouped "Payments Due" lists, alongside elegant centered client and payment forms on the desktop screen, floating coins, calendar, and camera icons around them, soft shadows, modern gradient background in brand colors.
 5. Lifestyle photo: a photographer relaxing in a cafe checking the revenue dashboard and next shoots on a phone while reviewing a compact, centered client form on a laptop with a browser view nearby, natural light, candid moment, authentic documentary style, muted warm colors - emphasizing how the app works and stays signed in across all devices.
 
-(Regenerate after every modification - version 1.5.0, Desktop 1.6.0)
+(Regenerate after every modification - version 1.5.0, Desktop 1.6.1)
