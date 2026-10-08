@@ -18,7 +18,7 @@ const MIN_BAR = 3;
 const MAX_VALUE_LABELS = 6;
 
 export function RevenueChart({ series, currency }: RevenueChartProps) {
-  const [rangeKey, setRangeKey] = useState(REVENUE_RANGES[0].key);
+  const [rangeKey, setRangeKey] = useState(() => REVENUE_RANGES[REVENUE_RANGES.length - 1].key);
   const [selectedKey, setSelectedKey] = useState<string | undefined>(undefined);
   const [opacity] = useState(() => new Animated.Value(0));
   const [translateY] = useState(() => new Animated.Value(10));

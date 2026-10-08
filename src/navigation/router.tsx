@@ -7,6 +7,7 @@ import {
   createBrowserRouter,
   useLocation,
   useNavigate,
+  useParams,
   useSearchParams,
 } from "react-router-dom";
 import { Platform, Pressable, StyleSheet, Text, View, useWindowDimensions } from "react-native";
@@ -24,6 +25,7 @@ import DashboardTab from "@/app/(tabs)/index";
 import BookingsTab from "@/app/(tabs)/bookings";
 import ClientsTab from "@/app/(tabs)/clients";
 import PaymentsTab from "@/app/(tabs)/payments";
+import ReportsTab from "@/app/(tabs)/reports";
 import BookingNew from "@/app/booking/new";
 import BookingDetail from "@/app/booking/[id]";
 import ClientNew from "@/app/client/new";
@@ -49,6 +51,7 @@ const TABS: { route: string; label: string; icon: IconName; activeIcon: IconName
   { route: "/bookings", label: "Bookings", icon: "calendar-outline", activeIcon: "calendar" },
   { route: "/clients", label: "Clients", icon: "people-outline", activeIcon: "people" },
   { route: "/payments", label: "Payments", icon: "wallet-outline", activeIcon: "wallet" },
+  { route: "/reports", label: "Reports", icon: "bar-chart-outline", activeIcon: "bar-chart" },
 ];
 
 function BottomTabBar({ current }: { current: string }) {
@@ -100,6 +103,7 @@ const routes: RouteObject[] = [
       { path: "bookings", element: <BookingsTab /> },
       { path: "clients", element: <ClientsTab /> },
       { path: "payments", element: <PaymentsTab /> },
+      { path: "reports", element: <ReportsTab /> },
     ],
   },
   { path: "/booking/new", element: <Protected><BookingNew /></Protected> },
@@ -134,8 +138,9 @@ export function usePathname(): string {
 }
 
 export function useLocalSearchParams<T extends Record<string, unknown> = Record<string, unknown>>(): T {
+  const pathParams = useParams();
   const [searchParams] = useSearchParams();
-  const out: Record<string, unknown> = {};
+  const out: Record<string, unknown> = { ...pathParams };
   for (const [key, value] of searchParams.entries()) out[key] = value;
   return out as T;
 }
@@ -149,8 +154,8 @@ export function Link({ href, style, children }: { href: string; style?: unknown;
 }
 
 const styles = StyleSheet.create({
-  tabsRoot: { flex: 1, flexDirection: "row", backgroundColor: palette.background },
-  tabsContent: { flex: 1 },
+  tabsRoot: { flex: 1, flexDirection: "row", backgroundColor: palette.background, overflow: "hidden" },
+  tabsContent: { flex: 1, minWidth: 0 },
   tabBar: {
     flexDirection: "row",
     backgroundColor: palette.surface,

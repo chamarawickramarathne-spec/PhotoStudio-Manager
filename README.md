@@ -47,7 +47,7 @@ src/forms/                       # Reusable form schemas/components
 src/hooks/                       # TanStack Query data hooks per entity
 src/lib/                         # supabase client, constants, types, utils, desktop bridge, media (WebCrypto)
 src/theme/                       # Paper theme + palette
-supabase/migrations/             # SQL schema + RLS + triggers (0001 init, 0002 RLS fix, 0003/0004 pending)
+supabase/migrations/             # SQL schema + RLS + triggers (0001 init, 0002 RLS fix, 0003 index, 0004 photographer details)
 desktop/                         # Electron Windows app (main, preload, static server, updater)
 android/                         # Capacitor Android project (generated; gitignored)
 media/                           # logos, icons, branding, screenshots
@@ -109,13 +109,16 @@ Copy `android/app/build/outputs/apk/release/app-release.apk` to `test_APK/` as
   zero-amount schedules being auto-marked paid. Applied to the live Supabase instance on
   2026-09-20.
 - `supabase/migrations/0003_one_final_schedule_per_booking.sql` - unique partial index
-  enforcing at most one `final` payment schedule per booking.
+  enforcing at most one `final` payment schedule per booking. Applied to the live
+  Supabase instance on 2026-09-22.
 - `supabase/migrations/0004_photographer_details.sql` - `profiles.avatar_data` /
   `avatar_mime` (encrypted avatar storage protocol replaces the public URL bucket).
+  Applied to the live Supabase instance on 2026-09-22; the unused legacy
+  `profile-media` bucket was removed via the Storage API (Dashboard → Storage).
 
-**Migration 0003 + 0004 must be applied manually in the Supabase Dashboard → SQL Editor**
-(no CLI transport is configured). Until they run, the index is inert and avatar uploads
-are no-ops.
+All migrations (0001–0004) are applied to the live Supabase instance. Apply any new
+migration manually in the Supabase Dashboard → SQL Editor (no CLI transport is
+configured).
 
 ## Releases
 

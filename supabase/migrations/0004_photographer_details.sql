@@ -29,4 +29,8 @@ drop policy if exists "public read profile-media" on storage.objects;
 drop policy if exists "owner insert profile-media" on storage.objects;
 drop policy if exists "owner update profile-media" on storage.objects;
 drop policy if exists "owner delete profile-media" on storage.objects;
-delete from storage.buckets where id = 'profile-media';
+-- Legacy `profile-media` bucket: do NOT delete from storage.buckets here —
+-- Supabase's storage.protect_delete() trigger rejects direct DELETEs
+-- (error 42501 "Use the Storage API instead"). Remove it manually via
+-- Dashboard -> Storage -> profile-media -> Delete (or
+-- `supabase.storage.deleteBucket('profile-media')`). Leaving it is harmless.

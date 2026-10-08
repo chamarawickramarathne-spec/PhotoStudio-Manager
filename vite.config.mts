@@ -50,6 +50,7 @@ export default defineConfig(({ mode }) => {
     },
     optimizeDeps: {
       include: ["react-native-web", "react-native-paper", "@react-native-vector-icons/ionicons"],
+      exclude: ["react-native-safe-area-context"],
     },
     build: {
       outDir: "desktop/dist",

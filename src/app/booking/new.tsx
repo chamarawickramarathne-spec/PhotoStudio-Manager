@@ -5,6 +5,7 @@ import Ionicons from "@react-native-vector-icons/ionicons";
 import { router, useLocalSearchParams } from "@/navigation/router";
 
 import { AppHeader, KeyboardScreen } from "@/components/ui/Screen";
+import { useAppToast } from "@/components/ui/ToastProvider";
 import { BookingForm } from "@/forms/BookingForm";
 import { FormColumn } from "@/components/form/FormColumn";
 import { EVENT_TYPES } from "@/lib/constants";
@@ -14,6 +15,7 @@ import { palette, radius, spacing } from "@/theme";
 export default function NewBookingScreen() {
   const params = useLocalSearchParams<{ clientId?: string }>();
   const [eventType, setEventType] = useState<EventType | null>(null);
+  const toast = useAppToast();
 
   if (!eventType) {
     return (
@@ -72,9 +74,9 @@ export default function NewBookingScreen() {
             eventType={eventType}
             presetClientId={params.clientId}
             onCancel={() => router.back()}
-            onSuccess={(id) => {
-              if (id) router.replace(`/booking/${id}`);
-              else router.back();
+            onSuccess={() => {
+              toast.show("Booking created successfully");
+              router.replace("/bookings");
             }}
           />
         </ScrollView>

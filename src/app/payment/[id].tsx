@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Platform, RefreshControl, ScrollView, StyleSheet, Text, useWindowDimensions, View } from "react-native";
-import { ActivityIndicator, Button, IconButton, List, Modal, Text as PaperText } from "react-native-paper";
+import { ActivityIndicator, Button, IconButton, Modal, Text as PaperText } from "react-native-paper";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { router, useLocalSearchParams } from "@/navigation/router";
 
@@ -8,6 +8,8 @@ import { AppHeader, Screen } from "@/components/ui/Screen";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { InstallmentsList } from "@/components/ui/InstallmentsList";
+import { useAppToast } from "@/components/ui/ToastProvider";
 import { PaymentProgress } from "@/components/ui/SummaryTile";
 import { PaymentScheduleForm } from "@/forms/PaymentScheduleForm";
 import { TextFormField } from "@/components/form/TextFormField";
@@ -26,7 +28,7 @@ import {
   useSchedule,
 } from "@/hooks/queries/payments";
 import { useAuth } from "@/hooks/useAuth";
-import { PAYMENT_METHODS, PAYMENT_METHOD_LABEL, PAYMENT_STATUS_INFO, SCHEDULE_TYPE_LABEL } from "@/lib/constants";
+import { PAYMENT_METHODS, PAYMENT_STATUS_INFO, SCHEDULE_TYPE_LABEL } from "@/lib/constants";
 import { formatDate, formatMoney, todayISO } from "@/lib/format";
 import { getErrorMessage } from "@/lib/utils";
 import { palette, radius, spacing } from "@/theme";
@@ -45,6 +47,7 @@ export default function PaymentDetailScreen() {
   const sheetDialogRound = Platform.OS === "web" ? styles.sheetDialog : undefined;
   const { id } = useLocalSearchParams<{ id: string }>();
   const { session, currency } = useAuth();
+  const toast = useAppToast();
   const { data: schedule, isLoading, isRefetching, refetch } = useSchedule(id);
   const { data: installments, refetch: refetchInstallments } = useInstallments(id);
   const addInstallment = useAddInstallment();
@@ -90,12 +93,14 @@ export default function PaymentDetailScreen() {
       paid_date: values.paid_date,
       payment_method: values.method as InstallmentValues["method"],
     });
+    toast.show("Installment recorded");
     setRecordOpen(false);
   };
 
   const handleDelete = async () => {
     if (!schedule) return;
     await deleteSchedule.mutateAsync(schedule.id);
+    toast.show("Schedule deleted");
     router.back();
   };
 
@@ -198,7 +203,14 @@ export default function PaymentDetailScreen() {
           </View>
         </View>
 
-        {!isPaid ? (
+        {isPaid ? (
+          <View style={styles.paidNotice}>
+            <Ionicons name="checkmark-circle" size={16} color={palette.success} />
+            <PaperText style={styles.paidNoticeText}>
+              This schedule is fully paid — no more installments can be added.
+            </PaperText>
+          </View>
+        ) : (
           <Button
             mode="contained"
             icon="cash"
@@ -208,33 +220,13 @@ export default function PaymentDetailScreen() {
           >
             Record Installment
           </Button>
-        ) : null}
+        )}
 
         <Text style={styles.sectionTitle}>Installments</Text>
         {!installments || installments.length === 0 ? (
           <EmptyState icon="time-outline" title="No installments yet" message="Record the first payment for this schedule." />
         ) : (
-          <View style={styles.list}>
-            {installments.map((inst) => (
-              <List.Item
-                key={inst.id}
-                title={formatMoney(inst.amount, currency)}
-                description={formatDate(inst.paid_date)}
-                left={() => (
-                  <List.Icon
-                    icon={PAYMENT_METHODS.find((m) => m.value === inst.payment_method)?.icon ?? "cash"}
-                    color={palette.primary}
-                  />
-                )}
-                right={() => (
-                  <PaperText style={styles.methodLabel}>
-                    {PAYMENT_METHOD_LABEL[inst.payment_method ?? "other"] ?? "Other"}
-                  </PaperText>
-                )}
-                style={styles.installmentItem}
-              />
-            ))}
-          </View>
+          <InstallmentsList scheduleId={id} installments={installments} currency={currency} />
         )}
 
         <Button
@@ -341,14 +333,17 @@ const styles = StyleSheet.create({
   dot: { width: 3, height: 3, borderRadius: 2, backgroundColor: palette.outline, marginHorizontal: 4 },
   recordBtn: { borderRadius: 999, marginBottom: spacing.xl },
   recordBtnContent: { height: 48 },
-  sectionTitle: { fontSize: 18, fontWeight: "800", color: palette.onBackground, marginBottom: spacing.md },
-  list: { gap: spacing.sm },
-  installmentItem: {
-    backgroundColor: palette.surface,
+  paidNotice: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    backgroundColor: `${palette.success}14`,
     borderRadius: radius.md,
-    paddingHorizontal: spacing.sm,
+    padding: spacing.md,
+    marginBottom: spacing.xl,
   },
-  methodLabel: { fontSize: 12, color: palette.onSurfaceVariant, alignSelf: "center" },
+  paidNoticeText: { flex: 1, fontSize: 13, color: palette.onBackground },
+  sectionTitle: { fontSize: 18, fontWeight: "800", color: palette.onBackground, marginBottom: spacing.md },
   deleteBtn: { marginTop: spacing.xl },
   sheet: {
     backgroundColor: palette.surface,

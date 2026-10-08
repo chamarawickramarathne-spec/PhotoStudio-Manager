@@ -139,6 +139,24 @@ export function useAddInstallment() {
       void qc.invalidateQueries({ queryKey: ["payment_installments", vars.schedule_id] });
       void qc.invalidateQueries({ queryKey: schedulesKey });
       void qc.invalidateQueries({ queryKey: [...schedulesKey, vars.schedule_id] });
+      void qc.invalidateQueries({ queryKey: ["bookings"] });
+      void qc.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+  });
+}
+
+export function useDeleteInstallment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id }: { id: string; schedule_id: string }) => {
+      const { error } = await supabase.from("payment_installments").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: (_data, vars) => {
+      void qc.invalidateQueries({ queryKey: ["payment_installments", vars.schedule_id] });
+      void qc.invalidateQueries({ queryKey: schedulesKey });
+      void qc.invalidateQueries({ queryKey: [...schedulesKey, vars.schedule_id] });
+      void qc.invalidateQueries({ queryKey: ["bookings"] });
       void qc.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });

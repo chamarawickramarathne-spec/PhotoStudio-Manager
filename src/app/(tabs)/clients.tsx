@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ActivityIndicator, RefreshControl, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, RefreshControl, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { FAB, Searchbar, Text as PaperText } from "react-native-paper";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { router } from "@/navigation/router";
@@ -13,6 +13,8 @@ import { palette, radius, spacing } from "@/theme";
 export default function ClientsTab() {
   const { data: clients, isLoading, isRefetching, refetch } = useClients();
   const [query, setQuery] = useState("");
+  const { width } = useWindowDimensions();
+  const isWide = width >= 700;
 
   const filtered = useMemo(() => {
     if (!clients) return [];
@@ -63,13 +65,11 @@ export default function ClientsTab() {
             />
           )
         ) : (
-          <View style={styles.list}>
+          <View style={[styles.list, isWide && styles.listGrid]}>
             {filtered.map((client) => (
-              <ClientCard
-                key={client.id}
-                client={client}
-                onPress={() => router.push(`/client/${client.id}`)}
-              />
+              <View key={client.id} style={[styles.gridItem, isWide && styles.gridItemWide]}>
+                <ClientCard client={client} onPress={() => router.push(`/client/${client.id}`)} />
+              </View>
             ))}
           </View>
         )}
@@ -98,6 +98,9 @@ const styles = StyleSheet.create({
   searchInput: { fontSize: 14 },
   center: { paddingVertical: 64, alignItems: "center" },
   list: { gap: spacing.md },
+  listGrid: { flexDirection: "row", flexWrap: "wrap", gap: spacing.md },
+  gridItem: { width: "100%" },
+  gridItemWide: { width: "48.5%" },
   fab: {
     position: "absolute",
     right: 20,

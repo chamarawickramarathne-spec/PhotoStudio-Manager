@@ -1,9 +1,9 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import Ionicons from "@react-native-vector-icons/ionicons";
-import { router } from "@/navigation/router";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { ProgressBar as PaperProgressBar } from "react-native-paper";
+import { router } from "@/navigation/router";
 
 import { EmptyState } from "@/components/ui/EmptyState";
+import { StatusBadge } from "@/components/ui/StatusBadge";
 import type { DashboardStats } from "@/hooks/queries/dashboard";
 import { formatDate, formatMoney, todayISO } from "@/lib/format";
 import { palette, radius, spacing } from "@/theme";
@@ -38,77 +38,82 @@ export function PaymentsList({
       <EmptyState icon="wallet-outline" title="Nothing due" message="Outstanding schedules will appear here." />
     );
   }
+  const all = [...overdue, ...pending];
   return (
-    <View style={styles.list}>
-      {overdue.length > 0 ? (
-        <>
-          <Text style={styles.groupHeader}>Overdue</Text>
-          {overdue.map((s) => (
-            <PaymentRow key={s.id} schedule={s} currency={currency} danger />
-          ))}
-        </>
-      ) : null}
-      {pending.length > 0 ? (
-        <>
-          <Text style={styles.groupHeader}>Pending</Text>
-          {pending.map((s) => (
-            <PaymentRow key={s.id} schedule={s} currency={currency} />
-          ))}
-        </>
-      ) : null}
-    </View>
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.strip}>
+      {all.map((s) => (
+        <DueCard key={s.id} schedule={s} currency={currency} />
+      ))}
+    </ScrollView>
   );
 }
 
-function PaymentRow({ schedule: s, currency, danger }: { schedule: DueSchedule; currency: string; danger?: boolean }) {
+function DueCard({ schedule: s, currency }: { schedule: DueSchedule; currency: string }) {
   const remaining = Math.max(Number(s.amount) - Number(s.paid_amount || 0), 0);
   const pct = Number(s.amount) > 0 ? Math.min(Number(s.paid_amount || 0) / Number(s.amount), 1) : 0;
+  const color = s.isOverdue ? palette.danger : PAYMENT_PENDING_COLOR;
+  const title = s.name || s.bookings?.title || "Untitled payment";
+  const bookingTitle = s.bookings?.title ? `${s.bookings.title} · ` : "";
+  const meta = s.bookings?.clients?.full_name ?? "General payment";
   return (
     <Pressable
-      style={({ pressed }) => [styles.paymentCard, pressed && styles.pressed]}
+      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
       onPress={() => router.push(`/payment/${s.id}`)}
     >
-      <View style={styles.paymentTop}>
-        <View style={[styles.paymentIcon, { backgroundColor: `${danger ? palette.danger : palette.warning}14` }]}>
-          <Ionicons name="wallet" size={16} color={danger ? palette.danger : palette.warning} />
+      <View style={styles.topRow}>
+        <View style={styles.dateBlock}>
+          <Text style={styles.dateDay}>{s.due_date ? formatDate(s.due_date, "dd") : "–"}</Text>
+          <Text style={styles.dateMonth}>{s.due_date ? formatDate(s.due_date, "MMM") : "Due"}</Text>
         </View>
-        <View style={styles.paymentBody}>
-          <Text style={styles.paymentTitle} numberOfLines={1}>
-            {s.name || s.bookings?.title || "Untitled payment"}
+        <View style={styles.body}>
+          <Text style={styles.title} numberOfLines={1}>
+            {title}
           </Text>
-          <Text style={styles.paymentMeta} numberOfLines={1}>
-            {s.bookings?.clients?.full_name ?? "Unknown client"} · Due {s.due_date ? formatDate(s.due_date, "MMM d") : "No date"}
+          <Text style={styles.meta} numberOfLines={1}>
+            {bookingTitle}
+            {meta}
           </Text>
         </View>
-        <Text style={[styles.paymentAmount, { color: danger ? palette.danger : palette.secondary }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
-          {formatMoney(remaining, currency)}
-        </Text>
       </View>
-      <PaperProgressBar progress={pct} color={danger ? palette.danger : palette.secondary} style={styles.progress} />
+      <View style={styles.footRow}>
+        <View style={styles.footLeft}>
+          <Text style={[styles.amount, { color }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
+            {formatMoney(remaining, currency)} due
+          </Text>
+          <PaperProgressBar progress={pct} color={color} style={styles.progress} />
+        </View>
+        <StatusBadge label={s.isOverdue ? "Overdue" : "Pending"} color={color} subtle />
+      </View>
     </Pressable>
   );
 }
 
+const PAYMENT_PENDING_COLOR = "#D97706";
+
 const styles = StyleSheet.create({
-  list: { gap: spacing.md },
-  groupHeader: { fontSize: 12, fontWeight: "800", color: palette.onSurfaceVariant, textTransform: "uppercase", letterSpacing: 0.5 },
-  paymentCard: {
+  strip: { gap: spacing.md, paddingHorizontal: 1, paddingBottom: spacing.md },
+  card: {
+    width: 240,
     backgroundColor: palette.surface,
     borderRadius: radius.md,
     padding: spacing.md,
-    gap: spacing.sm,
+    gap: spacing.md,
     shadowColor: "#000",
-    shadowOpacity: 0.04,
+    shadowOpacity: 0.05,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 2 },
-    elevation: 1,
+    elevation: 2,
   },
   pressed: { opacity: 0.7 },
-  paymentTop: { flexDirection: "row", alignItems: "center", gap: spacing.md },
-  paymentIcon: { width: 34, height: 34, borderRadius: radius.sm, alignItems: "center", justifyContent: "center" },
-  paymentBody: { flex: 1, gap: 2 },
-  paymentTitle: { fontSize: 14, fontWeight: "700", color: palette.onBackground },
-  paymentMeta: { fontSize: 12, color: palette.onSurfaceVariant },
-  paymentAmount: { fontSize: 14, fontWeight: "800" },
+  topRow: { flexDirection: "row", gap: spacing.md },
+  dateBlock: { alignItems: "center", justifyContent: "center", width: 44 },
+  dateDay: { fontSize: 20, fontWeight: "800", color: palette.secondary },
+  dateMonth: { fontSize: 11, fontWeight: "700", color: palette.onSurfaceVariant, textTransform: "uppercase" },
+  body: { flex: 1, gap: 2, justifyContent: "center", minWidth: 0 },
+  title: { fontSize: 14, fontWeight: "700", color: palette.onBackground },
+  meta: { fontSize: 12, color: palette.onSurfaceVariant },
+  footRow: { flexDirection: "row", alignItems: "flex-end", gap: spacing.sm },
+  footLeft: { flex: 1, gap: spacing.xs, minWidth: 0 },
+  amount: { fontSize: 13, fontWeight: "800" },
   progress: { height: 6, borderRadius: radius.pill, backgroundColor: palette.surfaceVariant },
 });

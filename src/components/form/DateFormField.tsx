@@ -3,6 +3,7 @@ import { Controller, useFormContext } from "react-hook-form";
 import { Text as PaperText } from "react-native-paper";
 
 import { palette, radius, spacing } from "@/theme";
+import { isNativeApp } from "@/lib/platform";
 import { FieldLabel } from "./FieldLabel";
 
 interface DateFormFieldProps {
@@ -19,36 +20,77 @@ export function DateFormField({ name, label, required, minDate, maxDate }: DateF
     <Controller
       control={control}
       name={name}
-      render={({ field: { onChange, value }, fieldState: { error } }) => (
-        <>
-          <FieldLabel label={label} required={required} />
-          <View style={{ gap: 6 }}>
-            <NativeTextInput
-              {...({
-                type: "date",
-                value: value ?? "",
-                min: minDate ? minDate.toISOString().slice(0, 10) : undefined,
-                max: maxDate ? maxDate.toISOString().slice(0, 10) : undefined,
-                placeholder: "Select date",
-                onChange: (e: unknown) => {
-                  const el = e as React.ChangeEvent<HTMLInputElement>;
-                  onChange(el.target?.value ?? "");
-                },
-                style: [
-                  styles.webInput,
-                  error?.message ? styles.webInputError : null,
-                  { backgroundColor: palette.surfaceVariant, color: palette.onSurface },
-                ],
-                testID: "date-input",
-              } as React.ComponentProps<typeof NativeTextInput>)}
-            />
-            {error?.message ? <PaperText style={styles.error}>{error.message}</PaperText> : null}
-          </View>
-        </>
-      )}
+      render={({ field: { onChange, value }, fieldState: { error } }) => {
+        const min = minDate ? minDate.toISOString().slice(0, 10) : undefined;
+        const max = maxDate ? maxDate.toISOString().slice(0, 10) : undefined;
+        return (
+          <>
+            <FieldLabel label={label} required={required} />
+            <View style={{ gap: 6 }}>
+              {isNativeApp() ? (
+                <NativeTextInput
+                  {...({
+                    type: "date",
+                    value: value ?? "",
+                    min,
+                    max,
+                    placeholder: "Select date",
+                    onChange: (e: unknown) => {
+                      const el = e as React.ChangeEvent<HTMLInputElement>;
+                      onChange(el.target?.value ?? "");
+                    },
+                    style: [
+                      styles.webInput,
+                      error?.message ? styles.webInputError : null,
+                      { backgroundColor: palette.surfaceVariant, color: palette.onSurface },
+                    ],
+                    testID: "date-input",
+                  } as React.ComponentProps<typeof NativeTextInput>)}
+                />
+              ) : (
+                <input
+                  type="date"
+                  value={value ?? ""}
+                  min={min}
+                  max={max}
+                  placeholder="Select date"
+                  aria-label={label}
+                  data-testid="date-input"
+                  onChange={(e) => onChange(e.target.value)}
+                  style={{
+                    ...pickerInput,
+                    ...(error?.message ? pickerInputError : null),
+                    backgroundColor: palette.surfaceVariant,
+                    color: palette.onSurface,
+                  }}
+                />
+              )}
+              {error?.message ? <PaperText style={styles.error}>{error.message}</PaperText> : null}
+            </View>
+          </>
+        );
+      }}
     />
   );
 }
+
+const pickerInput: React.CSSProperties = {
+  minHeight: 48,
+  width: "100%",
+  boxSizing: "border-box",
+  borderRadius: radius.md,
+  borderWidth: 1,
+  borderColor: palette.outline,
+  padding: 0,
+  paddingLeft: spacing.lg,
+  paddingRight: spacing.lg,
+  fontSize: 15,
+  fontFamily: "inherit",
+  colorScheme: "light",
+  cursor: "pointer",
+};
+
+const pickerInputError: React.CSSProperties = { borderColor: palette.error };
 
 const styles = StyleSheet.create({
   webInput: {

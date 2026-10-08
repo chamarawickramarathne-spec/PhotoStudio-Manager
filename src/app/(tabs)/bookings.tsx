@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ActivityIndicator, RefreshControl, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, RefreshControl, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { Chip, FAB, Searchbar, Text as PaperText } from "react-native-paper";
 import Ionicons from "@react-native-vector-icons/ionicons";
 import { router } from "@/navigation/router";
@@ -7,9 +7,10 @@ import { router } from "@/navigation/router";
 import { Screen } from "@/components/ui/Screen";
 import { BookingCard } from "@/components/ui/BookingCard";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { useBookings } from "@/hooks/queries/bookings";
+import { useAppToast } from "@/components/ui/ToastProvider";
+import { useBookings, useUpdateBooking } from "@/hooks/queries/bookings";
 import { useAuth } from "@/hooks/useAuth";
-import { BOOKING_STATUSES } from "@/lib/constants";
+import { BOOKING_STATUSES, BOOKING_STATUS_MAP } from "@/lib/constants";
 import type { BookingStatus } from "@/lib/constants";
 import { palette, radius, spacing } from "@/theme";
 
@@ -20,7 +21,11 @@ const FILTERS: { value: BookingStatus | "all"; label: string }[] = [
 
 export default function BookingsTab() {
   const { data: bookings, isLoading, isRefetching, refetch } = useBookings();
+  const updateBooking = useUpdateBooking();
+  const toast = useAppToast();
   const { currency } = useAuth();
+  const { width } = useWindowDimensions();
+  const isWide = width >= 700;
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<BookingStatus | "all">("all");
 
@@ -76,14 +81,25 @@ export default function BookingsTab() {
             />
           )
         ) : (
-          <View style={styles.list}>
+          <View style={[styles.list, isWide && styles.listGrid]}>
             {filtered.map((booking) => (
-              <BookingCard
-                key={booking.id}
-                booking={booking}
-                currency={currency}
-                onPress={() => router.push(`/booking/${booking.id}`)}
-              />
+              <View key={booking.id} style={[styles.gridItem, isWide && styles.gridItemWide]}>
+                <BookingCard
+                  booking={booking}
+                  currency={currency}
+                  onPress={() => router.push(`/booking/${booking.id}`)}
+                  onStatusChange={(status) =>
+                    updateBooking.mutate(
+                      { id: booking.id, patch: { status } },
+                      {
+                        onSuccess: () => {
+                          toast.show(`Status changed to ${BOOKING_STATUS_MAP[status]?.label ?? status}`);
+                        },
+                      },
+                    )
+                  }
+                />
+              </View>
             ))}
           </View>
         )}
@@ -145,6 +161,9 @@ const styles = StyleSheet.create({
   filterChipText: { fontSize: 12, fontWeight: "600" },
   center: { paddingVertical: 64, alignItems: "center" },
   list: { gap: spacing.md },
+  listGrid: { flexDirection: "row", flexWrap: "wrap", gap: spacing.md },
+  gridItem: { width: "100%" },
+  gridItemWide: { width: "48.5%" },
   fab: {
     position: "absolute",
     right: 20,

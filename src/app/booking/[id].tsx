@@ -8,6 +8,7 @@ import { AppHeader, Screen } from "@/components/ui/Screen";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { useAppToast } from "@/components/ui/ToastProvider";
 import { ScheduleCard } from "@/components/ui/ScheduleCard";
 import { BookingForm } from "@/forms/BookingForm";
 import { useBooking, useDeleteBooking, useUpdateBooking } from "@/hooks/queries/bookings";
@@ -28,6 +29,7 @@ export default function BookingDetailScreen() {
   const isWide = Platform.OS === "web" && width >= 900;
   const { id } = useLocalSearchParams<{ id: string }>();
   const { currency } = useAuth();
+  const toast = useAppToast();
   const { data: booking, isLoading, isRefetching, refetch } = useBooking(id);
   const { data: schedules, refetch: refetchSchedules } = usePaymentSchedules();
   const updateBooking = useUpdateBooking();
@@ -49,6 +51,19 @@ export default function BookingDetailScreen() {
     () => bookingSchedules.reduce((sum, s) => sum + Math.max(Number(s.amount) - Number(s.paid_amount || 0), 0), 0),
     [bookingSchedules],
   );
+  const depositSchedules = useMemo(
+    () => bookingSchedules.filter((s) => s.schedule_type === "deposit"),
+    [bookingSchedules],
+  );
+  const depositTotal = useMemo(
+    () => depositSchedules.reduce((sum, s) => sum + Number(s.amount || 0), 0),
+    [depositSchedules],
+  );
+  const depositPaid = useMemo(
+    () => depositSchedules.reduce((sum, s) => sum + Number(s.paid_amount || 0), 0),
+    [depositSchedules],
+  );
+  const depositDue = Math.max(depositTotal - depositPaid, 0);
 
   if (isLoading) {
     return (
@@ -77,11 +92,19 @@ export default function BookingDetailScreen() {
   const isCancelled = booking.status === "cancelled";
 
   const setStatus = (next: BookingStatus) => {
-    updateBooking.mutate({ id: booking.id, patch: { status: next } });
+    updateBooking.mutate(
+      { id: booking.id, patch: { status: next } },
+      {
+        onSuccess: () => {
+          toast.show(`Status changed to ${BOOKING_STATUS_MAP[next]?.label ?? next}`);
+        },
+      },
+    );
   };
 
   const handleDelete = async () => {
     await deleteBooking.mutateAsync(booking.id);
+    toast.show("Booking deleted");
     router.back();
   };
 
@@ -226,7 +249,15 @@ export default function BookingDetailScreen() {
               ) : null}
               <Divider style={styles.divider} />
               <DetailRow label="Total Amount" value={booking.total_amount != null ? formatMoney(booking.total_amount, currency) : null} highlight />
-              <DetailRow label="Deposit" value={booking.deposit_amount != null ? formatMoney(booking.deposit_amount, currency) : null} />
+              {depositTotal > 0 ? (
+                <DetailRow
+                  label="Deposit"
+                  value={`${formatMoney(depositPaid, currency)} of ${formatMoney(depositTotal, currency)}`}
+                  warn={depositDue > 0}
+                />
+              ) : booking.deposit_amount != null ? (
+                <DetailRow label="Deposit" value={formatMoney(booking.deposit_amount, currency)} />
+              ) : null}
               <Divider style={styles.divider} />
               <DetailRow label="Collected" value={formatMoney(totalPaid, currency)} />
               <DetailRow label="Outstanding" value={formatMoney(totalDue, currency)} warn={totalDue > 0} />
@@ -299,7 +330,10 @@ export default function BookingDetailScreen() {
             <BookingForm
               eventType={booking.event_type as BookingFormEventType}
               booking={booking}
-              onSuccess={() => setEditOpen(false)}
+              onSuccess={() => {
+                toast.show("Booking updated");
+                setEditOpen(false);
+              }}
               onCancel={() => setEditOpen(false)}
             />
           </ScrollView>

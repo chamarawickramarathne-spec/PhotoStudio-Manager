@@ -6,7 +6,7 @@ import { palette, radius, spacing } from "@/theme";
 import type { IconName } from "@/lib/icons";
 
 const NAV_ITEMS: {
-  route: "/" | "/bookings" | "/clients" | "/payments";
+  route: "/" | "/bookings" | "/clients" | "/payments" | "/reports";
   label: string;
   icon: IconName;
   activeIcon: IconName;
@@ -15,6 +15,7 @@ const NAV_ITEMS: {
   { route: "/bookings", label: "Bookings", icon: "calendar-outline", activeIcon: "calendar" },
   { route: "/clients", label: "Clients", icon: "people-outline", activeIcon: "people" },
   { route: "/payments", label: "Payments", icon: "wallet-outline", activeIcon: "wallet" },
+  { route: "/reports", label: "Reports", icon: "bar-chart-outline", activeIcon: "bar-chart" },
 ];
 
 export function AppSidebar() {
@@ -58,6 +59,7 @@ export function AppSidebar() {
 const styles = StyleSheet.create({
   container: {
     width: 220,
+    flexShrink: 0,
     backgroundColor: palette.surface,
     borderRightWidth: 1,
     borderRightColor: palette.outlineVariant,

@@ -7,6 +7,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { DesktopUpdaterProvider, useDesktopUpdater } from "@/hooks/useDesktopUpdater";
 import { UpdateModal } from "@/components/ui/UpdateModal";
+import { ToastProvider } from "@/components/ui/ToastProvider";
 import { appRouter } from "@/navigation/router";
 import { theme, palette } from "@/theme";
 
@@ -48,11 +49,13 @@ export default function App() {
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
         <PaperProvider theme={theme}>
-          <AuthProvider>
-            <DesktopUpdaterProvider>
-              <AppGate />
-            </DesktopUpdaterProvider>
-          </AuthProvider>
+          <ToastProvider>
+            <AuthProvider>
+              <DesktopUpdaterProvider>
+                <AppGate />
+              </DesktopUpdaterProvider>
+            </AuthProvider>
+          </ToastProvider>
         </PaperProvider>
       </QueryClientProvider>
     </SafeAreaProvider>

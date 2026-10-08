@@ -139,16 +139,16 @@ export default function PaymentsTab() {
             />
           )
         ) : (
-          <View style={styles.list}>
+          <View style={[styles.list, isWide && styles.listGrid]}>
             {filtered.map((schedule) => (
-              <ScheduleCard
-                key={schedule.id}
-                schedule={schedule}
-                currency={currency}
-                row={isWide}
-                statusOverride={effectiveStatus(schedule.status, schedule.due_date)}
-                onPress={() => router.push(`/payment/${schedule.id}`)}
-              />
+              <View key={schedule.id} style={[styles.gridItem, isWide && styles.gridItemWide]}>
+                <ScheduleCard
+                  schedule={schedule}
+                  currency={currency}
+                  statusOverride={effectiveStatus(schedule.status, schedule.due_date)}
+                  onPress={() => router.push(`/payment/${schedule.id}`)}
+                />
+              </View>
             ))}
           </View>
         )}
@@ -182,6 +182,9 @@ const styles = StyleSheet.create({
   filterChipText: { fontSize: 12, fontWeight: "600" },
   center: { paddingVertical: 64, alignItems: "center" },
   list: { gap: spacing.md },
+  listGrid: { flexDirection: "row", flexWrap: "wrap", gap: spacing.md },
+  gridItem: { width: "100%" },
+  gridItemWide: { width: "48.5%" },
   fab: {
     position: "absolute",
     right: 20,

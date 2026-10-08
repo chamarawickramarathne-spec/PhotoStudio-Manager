@@ -21,6 +21,11 @@ body,
   margin: 0;
 }
 
+#root {
+  display: flex;
+  overflow: hidden;
+}
+
 body {
   background-color: #faf9f6;
   -webkit-font-smoothing: antialiased;
