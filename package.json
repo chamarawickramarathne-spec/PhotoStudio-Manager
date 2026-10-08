@@ -1,7 +1,7 @@
 {
   "name": "photostudio-manager",
   "license": "0BSD",
-  "version": "1.5.0",
+  "version": "1.6.1",
   "dependencies": {
     "@capacitor/android": "^7.0.0",
     "@capacitor/core": "^7.0.0",
