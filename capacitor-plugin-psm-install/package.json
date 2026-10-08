@@ -1,0 +1,29 @@
+{
+  "name": "capacitor-plugin-psm-install",
+  "version": "1.0.0",
+  "description": "Local Capacitor plugin (PhotoStudio Manager): stream-hash an APK with SHA-256 and launch the Android package installer for self-updates.",
+  "type": "module",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "android/"
+  ],
+  "keywords": [
+    "capacitor",
+    "plugin",
+    "android",
+    "apk",
+    "self-update"
+  ],
+  "license": "0BSD",
+  "peerDependencies": {
+    "@capacitor/core": ">=7.0.0"
+  },
+  "capacitor": {
+    "android": {
+      "src": "android"
+    }
+  }
+}

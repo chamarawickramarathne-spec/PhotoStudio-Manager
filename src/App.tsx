@@ -5,7 +5,9 @@ import { RouterProvider } from "react-router-dom";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
-import { DesktopUpdaterProvider, useDesktopUpdater } from "@/hooks/useDesktopUpdater";
+import { DesktopUpdaterProvider } from "@/hooks/useDesktopUpdater";
+import { MobileUpdaterProvider } from "@/hooks/useMobileUpdater";
+import { useAppUpdater } from "@/hooks/useAppUpdater";
 import { UpdateModal } from "@/components/ui/UpdateModal";
 import { ToastProvider } from "@/components/ui/ToastProvider";
 import { appRouter } from "@/navigation/router";
@@ -19,7 +21,7 @@ const queryClient = new QueryClient({
 
 function AppGate() {
   const { loading } = useAuth();
-  const updater = useDesktopUpdater();
+  const updater = useAppUpdater();
 
   if (loading) {
     return (
@@ -52,7 +54,9 @@ export default function App() {
           <ToastProvider>
             <AuthProvider>
               <DesktopUpdaterProvider>
-                <AppGate />
+                <MobileUpdaterProvider>
+                  <AppGate />
+                </MobileUpdaterProvider>
               </DesktopUpdaterProvider>
             </AuthProvider>
           </ToastProvider>

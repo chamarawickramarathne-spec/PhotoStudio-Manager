@@ -22,7 +22,7 @@ import { HeroHeader } from "@/components/dashboard/HeroHeader";
 import { PaymentsList, buildPaymentsDue } from "@/components/dashboard/PaymentsList";
 import { useDashboard, type DashboardStats } from "@/hooks/queries/dashboard";
 import { useAuth } from "@/hooks/useAuth";
-import { useDesktopUpdater } from "@/hooks/useDesktopUpdater";
+import { useAppUpdater } from "@/hooks/useAppUpdater";
 import { useProfileAvatar } from "@/hooks/useProfileAvatar";
 import { BOOKING_STATUS_MAP, EVENT_TYPE_MAP, type EventTypeInfo } from "@/lib/constants";
 import type { IconName } from "@/lib/icons";
@@ -33,7 +33,7 @@ import { palette, radius, spacing } from "@/theme";
 export default function DashboardTab() {
   const { data: stats, isLoading, isRefetching, refetch } = useDashboard();
   const { profile, currency, signOut } = useAuth();
-  const { isDesktop, getVersion, checkForUpdates } = useDesktopUpdater();
+  const { canCheck, getVersion, checkForUpdates } = useAppUpdater();
   const { width } = useWindowDimensions();
   const [desktopVersion, setDesktopVersion] = useState("");
   const [signOutOpen, setSignOutOpen] = useState(false);
@@ -41,7 +41,7 @@ export default function DashboardTab() {
 
   useEffect(() => {
     let mounted = true;
-    if (!isDesktop) return;
+    if (!canCheck) return;
     getVersion()
       .then((v) => {
         if (mounted) setDesktopVersion(v);
@@ -50,7 +50,7 @@ export default function DashboardTab() {
     return () => {
       mounted = false;
     };
-  }, [isDesktop, getVersion]);
+  }, [canCheck, getVersion]);
 
   const version = desktopVersion || APP_VERSION || "";
   const todayLabel = formatDate(new Date(), "EEE, MMM d");
@@ -79,7 +79,7 @@ export default function DashboardTab() {
         dateLabel={todayLabel}
         avatarUri={avatar}
         onSignOut={() => setSignOutOpen(true)}
-        onCheckUpdates={isDesktop ? () => void checkForUpdates() : undefined}
+        onCheckUpdates={canCheck ? () => void checkForUpdates() : undefined}
       />
 
       {isLoading ? (

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Allows the system package-installer dialog to be launched for
+         sideloaded updates (Android 8.0+). Declared here (plugin manifest)
+         so it survives a `npx cap add android` regeneration via cap sync. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
+</manifest>

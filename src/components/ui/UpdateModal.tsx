@@ -3,6 +3,7 @@ import { ActivityIndicator, Button, Modal, ProgressBar } from "react-native-pape
 import Ionicons from "@react-native-vector-icons/ionicons";
 
 import type { UpdateProgress, UpdateResult } from "@/lib/desktop";
+import { isNativeApp } from "@/lib/platform";
 import { palette, radius, spacing } from "@/theme";
 
 interface UpdateModalProps {
@@ -31,7 +32,7 @@ function statusLine(
       };
     case "downloading":
       if (progress?.stage === "verifying") {
-        return { title: "Verifying installer…", detail: "Checking integrity before install.", status: "working" };
+        return { title: "Verifying update…", detail: "Checking integrity before install.", status: "working" };
       }
       return {
         title: "Downloading update…",
@@ -39,17 +40,23 @@ function statusLine(
         status: "working",
       };
     case "installing":
-      return { title: "Installing update…", detail: "The app will close when finished.", status: "working" };
+      return {
+        title: "Installing update…",
+        detail: isNativeApp()
+          ? "Confirm the system install prompt to finish."
+          : "The app will close when finished.",
+        status: "working",
+      };
     case "up-to-date":
       return { title: `You are up to date (v${result.currentVersion})`, detail: "No new version available.", status: "done" };
     case "disabled":
       return { title: "Updates disabled", detail: "Update checking is off for this build.", status: "done" };
     case "integrity-mismatch":
-      return { title: "Update refused", detail: result.message || "Installer failed verification.", status: "error" };
+      return { title: "Update refused", detail: result.message || "Update failed verification.", status: "error" };
     case "integrity-unavailable":
       return { title: "Update refused", detail: result.message || "No checksum available for this release.", status: "error" };
     case "installer-missing":
-      return { title: "Update unavailable", detail: result.message || "The installer for this release is missing.", status: "error" };
+      return { title: "Update unavailable", detail: result.message || "The update package for this release is missing.", status: "error" };
     case "error":
       return { title: "Update error", detail: result.message || "Could not check for updates.", status: "error" };
     default:

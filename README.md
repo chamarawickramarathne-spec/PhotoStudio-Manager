@@ -101,6 +101,15 @@ Copy `android/app/build/outputs/apk/release/app-release.apk` to `test_APK/` as
 (versionName/versionCode) is set in `android/app/build.gradle` in sync with
 `package.json` `version` and the root `__APP_VERSION__`.
 
+Since mobile 1.6.2 the Android app self-updates: on launch it checks the latest GitHub
+release (CORS-open API) and, when a newer version ships a matching
+`PhotoStudioManager-<tagVer>.apk` + `.sha256`, offers a one-tap install. The APK is
+downloaded natively via `@capacitor/filesystem` (release-asset URLs are not CORS-open,
+so WebView fetch cannot read them), SHA-256 verified by the local
+`capacitor-plugin-psm-install` plugin, and installed through the app's FileProvider.
+Fail-closed: missing checksum or hash mismatch refuses the install (mismatched file is
+deleted).
+
 ## Database
 
 - `supabase/migrations/0001_init.sql` - schema, RLS policies, triggers (initial build).
@@ -122,8 +131,11 @@ configured).
 
 ## Releases
 
-- Windows releases on GitHub carry `PhotoStudioManager-Setup-{x64,x86}.exe` + `.sha256`
-  (and the Android APK).
+- Windows releases on GitHub carry `PhotoStudioManager-Setup-{x64,x86}.exe` + `.sha256`.
+- Releases whose tag/version shipped shared-source changes must also attach
+  `PhotoStudioManager-<version>.apk` + `.sha256` - the mobile updater refuses any
+  release whose exact-name APK/checksum assets are missing (never leave a stale
+  same-pattern APK on a release).
 - Version is bumped in `package.json` (web/Android `__APP_VERSION__`) and
   `desktop/package.json` (compared by the updater); Android versionCode/versionName in
   `android/app/build.gradle`.

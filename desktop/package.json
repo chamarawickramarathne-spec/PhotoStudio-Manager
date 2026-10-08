@@ -13,6 +13,7 @@
     "build:x86": "npm run web && electron-builder --win --ia32 --config.directories.output=dist-windows/x86",
     "build": "npm run build:x64 && npm run build:x86"
   },
+  "overrides": { "@electron/get": "^5.1.0" },
   "devDependencies": {
     "electron": "^43.7.3",
     "electron-builder": "^26.0.12"
