@@ -1,5 +1,6 @@
 import { Button, Dialog, Text } from "react-native-paper";
 
+import { useBackIntercept } from "@/components/ui/BackHandlerProvider";
 import { palette } from "@/theme";
 
 interface ConfirmDialogProps {
@@ -25,6 +26,7 @@ export function ConfirmDialog({
   onCancel,
   onConfirm,
 }: ConfirmDialogProps) {
+  useBackIntercept(visible, onCancel);
   return (
     <Dialog visible={visible} onDismiss={onCancel}>
       <Dialog.Icon icon={danger ? "alert" : "help-circle"} color={danger ? palette.danger : palette.primary} size={40} />

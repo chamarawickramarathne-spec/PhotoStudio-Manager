@@ -10,6 +10,7 @@ import { MobileUpdaterProvider } from "@/hooks/useMobileUpdater";
 import { useAppUpdater } from "@/hooks/useAppUpdater";
 import { UpdateModal } from "@/components/ui/UpdateModal";
 import { ToastProvider } from "@/components/ui/ToastProvider";
+import { BackHandlerProvider } from "@/components/ui/BackHandlerProvider";
 import { appRouter } from "@/navigation/router";
 import { theme, palette } from "@/theme";
 
@@ -52,13 +53,15 @@ export default function App() {
       <QueryClientProvider client={queryClient}>
         <PaperProvider theme={theme}>
           <ToastProvider>
-            <AuthProvider>
-              <DesktopUpdaterProvider>
-                <MobileUpdaterProvider>
-                  <AppGate />
-                </MobileUpdaterProvider>
-              </DesktopUpdaterProvider>
-            </AuthProvider>
+            <BackHandlerProvider>
+              <AuthProvider>
+                <DesktopUpdaterProvider>
+                  <MobileUpdaterProvider>
+                    <AppGate />
+                  </MobileUpdaterProvider>
+                </DesktopUpdaterProvider>
+              </AuthProvider>
+            </BackHandlerProvider>
           </ToastProvider>
         </PaperProvider>
       </QueryClientProvider>

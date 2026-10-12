@@ -1,11 +1,12 @@
 {
   "name": "photostudio-manager-android",
-  "version": "1.6.4",
+  "version": "1.6.5",
   "private": true,
   "license": "0BSD",
   "description": "PhotoStudio Manager Android app (Capacitor shell wrapping the shared web SPA).",
   "dependencies": {
     "@capacitor/android": "^7.0.0",
+    "@capacitor/app": "^7.1.2",
     "@capacitor/core": "^7.0.0",
     "@capacitor/filesystem": "^7.1.9",
     "capacitor-plugin-psm-install": "file:capacitor-plugin-psm-install"

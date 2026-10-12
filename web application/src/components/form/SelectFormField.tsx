@@ -4,6 +4,7 @@ import { Controller, useFormContext } from "react-hook-form";
 import Ionicons from "@react-native-vector-icons/ionicons";
 
 import { palette, radius, spacing } from "@/theme";
+import { useBackIntercept } from "@/components/ui/BackHandlerProvider";
 import { FieldLabel } from "./FieldLabel";
 
 export interface SelectOption {
@@ -67,6 +68,7 @@ function SelectFieldInput({
   const [open, setOpen] = useState(false);
   const [anchor, setAnchor] = useState<Anchor | null>(null);
   const triggerRef = useRef<View>(null);
+  useBackIntercept(open, () => setOpen(false));
 
   const selected = options.find((o) => o.value === value);
   const fallback = !!value && !selected;

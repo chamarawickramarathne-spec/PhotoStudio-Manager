@@ -5,6 +5,7 @@ import Ionicons from "@react-native-vector-icons/ionicons";
 
 import type { UpdateProgress, UpdateResult } from "@/lib/desktop";
 import { isNativeApp } from "@/lib/platform";
+import { useBackIntercept } from "@/components/ui/BackHandlerProvider";
 import { palette, radius, spacing } from "@/theme";
 
 interface UpdateModalProps {
@@ -85,6 +86,7 @@ function statusLine(
 
 export function UpdateModal({ visible, result, progress, checking, onClose, onInstall }: UpdateModalProps) {
   const line = statusLine(result, progress, checking);
+  useBackIntercept(visible && line.status !== "working", onClose);
 
   // Refusal/error statuses carry a technical reason (asset names, HTTP codes).
   // That detail stays out of the user-facing copy above but is preserved here

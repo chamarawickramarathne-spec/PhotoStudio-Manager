@@ -9,6 +9,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useAppToast } from "@/components/ui/ToastProvider";
+import { useBackIntercept } from "@/components/ui/BackHandlerProvider";
 import { ScheduleCard } from "@/components/ui/ScheduleCard";
 import { BookingForm } from "@/forms/BookingForm";
 import { useBooking, useDeleteBooking, useUpdateBooking } from "@/hooks/queries/bookings";
@@ -38,6 +39,7 @@ export default function BookingDetailScreen() {
   const [editOpen, setEditOpen] = useState(false);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  useBackIntercept(editOpen, () => setEditOpen(false));
 
   const bookingSchedules = useMemo(
     () => (schedules ?? []).filter((s) => s.booking_id === id),

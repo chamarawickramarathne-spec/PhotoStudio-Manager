@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { InstallmentsList } from "@/components/ui/InstallmentsList";
 import { useAppToast } from "@/components/ui/ToastProvider";
+import { useBackIntercept } from "@/components/ui/BackHandlerProvider";
 import { PaymentProgress } from "@/components/ui/SummaryTile";
 import { PaymentScheduleForm } from "@/forms/PaymentScheduleForm";
 import { TextFormField } from "@/components/form/TextFormField";
@@ -56,6 +57,8 @@ export default function PaymentDetailScreen() {
   const [recordOpen, setRecordOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  useBackIntercept(recordOpen, () => setRecordOpen(false));
+  useBackIntercept(editOpen, () => setEditOpen(false));
 
   const form = useForm<InstallmentValues>({
     resolver: zodResolver(installmentSchema),

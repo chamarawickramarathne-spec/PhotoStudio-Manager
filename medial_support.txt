@@ -27,7 +27,7 @@ A dedicated Reports tab turns your data into decisions - monthly revenue trends,
 
 Every form is built in a warm editorial style - rust-red primary and gold accents, clear labels above fields, grouped bordered sections with tidy headers, and a right-aligned Cancel/Save action bar. On the desktop app each form type uses a width tuned to its content: the booking form gets a wide, centered column so its two-column and side-by-side grids stay roomy, while client and payment-schedule forms use a more compact centered column, and the record-installment sheet stays small and focused. Mobile keeps the familiar full-width layout. Validation is smarter too: whitespace-only names and phone numbers are rejected, deposit and total amounts are checked so deposits never exceed the total, record-installment entries can't be negative or overpay an outstanding balance, and wedding contexts require a proper due date for payment schedules. Booking, client, payment, and install data can only be saved when every value is valid and sensible - so your books stay clean.
 
-Moving between screens is rock-solid on the web-first engine: a dependencies-level global shim keeps react-native animations safe on every modern browser, so smooth transition fades on the dashboard and revenue chart never throw, whether you are switching tabs on Windows, in your phone browser, or inside the Android app.
+Moving between screens is rock-solid on the web-first engine: a dependencies-level global shim keeps react-native animations safe on every modern browser, so smooth transition fades on the dashboard and revenue chart never throw, whether you are switching tabs on Windows, in your phone browser, or inside the Android app. On Android the hardware back button now works the way you expect - it steps back through your screens, closes any open dialog or menu first, and only asks you to "press back again to exit" when you reach your home screen, so you never lose your place by accident.
 
 4. FACEBOOK POST TEXT
 ---------------------
@@ -48,6 +48,7 @@ Meet PhotoStudio Manager - your all-in-one photography business app - now on you
 ✅ One final payment per booking - the app and the database both stop you from ever creating a second final payment schedule
 ✅ New Reports tab: revenue trends, collections, revenue by event type, top clients, and bookings pipeline
 ✅ Instant save confirmations - every booking, edit, status change, or deletion confirms on-screen, and you can change a booking's status straight from the list
+✅ Android back button that behaves - steps back through screens, closes open dialogs first, and never closes the app by surprise
 
 Whether you shoot weddings, birthdays, or corporate events, PhotoStudio Manager keeps your studio organized so you can focus on the shots that matter.
 
@@ -65,4 +66,4 @@ Get it on your phone, your PC, or right in your browser today! 📲💻🌐
 4. Clean 3D illustration: a smartphone next to a desktop monitor and an open browser window, all showing the PhotoStudio Manager app with "Welcome back" and stat tiles, a bar chart, a horizontal "Next Shoots" card strip, and grouped "Payments Due" lists; a large friendly calendar page and a clock face float over the phone with a checkmark confirming a picked date and time, floating coins and camera icons around them, soft shadows, modern gradient background in brand colors.
 5. Lifestyle photo: a photographer relaxing in a cafe checking the revenue dashboard and next shoots on a phone, while the phone also shows a native date-picker dialog and a compact, centered client form on a laptop with a browser view nearby, natural light, candid moment, authentic documentary style, muted warm colors - emphasizing how easy it is to schedule shoots and how the app stays signed in across all devices.
 
-(Regenerate after every modification - version 1.6.4, Desktop 1.6.4)
+(Regenerate after every modification - version 1.6.5, Desktop 1.6.4)

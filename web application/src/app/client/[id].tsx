@@ -10,6 +10,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { BookingCard } from "@/components/ui/BookingCard";
+import { useBackIntercept } from "@/components/ui/BackHandlerProvider";
 import { ClientForm } from "@/forms/ClientForm";
 import { useClient, useDeleteClient } from "@/hooks/queries/clients";
 import { useBookings } from "@/hooks/queries/bookings";
@@ -33,6 +34,7 @@ export default function ClientDetailScreen() {
 
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  useBackIntercept(editOpen, () => setEditOpen(false));
 
   const bookings = useMemo(
     () => (allBookings ?? []).filter((b) => b.client_id === id),

@@ -8,6 +8,7 @@ import type { BookingStatus } from "@/lib/constants";
 import { formatDate, formatMoney } from "@/lib/format";
 import type { BookingWithClient } from "@/hooks/queries/bookings";
 import { StatusBadge } from "@/components/ui/StatusBadge";
+import { useBackIntercept } from "@/components/ui/BackHandlerProvider";
 
 interface Anchor {
   x: number;
@@ -31,6 +32,7 @@ export function BookingCard({ booking, currency, onPress, onStatusChange }: Book
   const [menuOpen, setMenuOpen] = useState(false);
   const [anchor, setAnchor] = useState<Anchor | null>(null);
   const badgeRef = useRef<View>(null);
+  useBackIntercept(menuOpen, () => setMenuOpen(false));
 
   const openMenu = () => {
     badgeRef.current?.measureInWindow((x, y, w, h) => {
