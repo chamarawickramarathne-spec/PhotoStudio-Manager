@@ -27,5 +27,5 @@
     "vite.config.mts",
     "eslint.config.js"
   ],
-  "exclude": ["node_modules", "dist", "desktop", "android", "test_APK"]
+  "exclude": ["node_modules", "dist", "../Windows application", "../Android Mobile", "../test_APK"]
 }

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { ActivityIndicator, Button, Modal, ProgressBar } from "react-native-paper";
 import Ionicons from "@react-native-vector-icons/ionicons";
@@ -52,13 +53,31 @@ function statusLine(
     case "disabled":
       return { title: "Updates disabled", detail: "Update checking is off for this build.", status: "done" };
     case "integrity-mismatch":
-      return { title: "Update refused", detail: result.message || "Update failed verification.", status: "error" };
+      return {
+        title: "Update failed a security check",
+        detail: "The downloaded update didn't match its expected checksum and was not installed. Please try again.",
+        status: "error",
+      };
     case "integrity-unavailable":
-      return { title: "Update refused", detail: result.message || "No checksum available for this release.", status: "error" };
+      return {
+        title: "Update couldn't be verified",
+        detail: "This release is missing its security checksum, so the update was not installed. Please try again later.",
+        status: "error",
+      };
     case "installer-missing":
-      return { title: "Update unavailable", detail: result.message || "The update package for this release is missing.", status: "error" };
+      return {
+        title: "Update not available yet",
+        detail: result.latestVersion
+          ? `A newer version (v${result.latestVersion}) has been released, but it isn't available for this device yet. Please check back later.`
+          : "A newer version has been released, but it isn't available for this device yet. Please check back later.",
+        status: "error",
+      };
     case "error":
-      return { title: "Update error", detail: result.message || "Could not check for updates.", status: "error" };
+      return {
+        title: "Couldn't check for updates",
+        detail: "Please check your internet connection and try again.",
+        status: "error",
+      };
     default:
       return { title: "Update", detail: "Unknown status.", status: "done" };
   }
@@ -66,6 +85,15 @@ function statusLine(
 
 export function UpdateModal({ visible, result, progress, checking, onClose, onInstall }: UpdateModalProps) {
   const line = statusLine(result, progress, checking);
+
+  // Refusal/error statuses carry a technical reason (asset names, HTTP codes).
+  // That detail stays out of the user-facing copy above but is preserved here
+  // for diagnostics.
+  useEffect(() => {
+    if (result && "message" in result && result.message) {
+      console.warn("[updater]", result.status, result.message);
+    }
+  }, [result]);
   const downloading =
     result?.status === "downloading" || (progress?.stage === "downloading" && result?.status !== "installing");
   const percent =

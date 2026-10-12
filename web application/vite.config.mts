@@ -7,7 +7,7 @@ import { defineConfig, loadEnv } from "vite";
 const pkg = JSON.parse(readFileSync(path.resolve(process.cwd(), "package.json"), "utf8"));
 
 export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, process.cwd(), "");
+  const env = loadEnv(mode, path.resolve(process.cwd(), ".."), "");
   const publicVars = [
     "EXPO_PUBLIC_SUPABASE_URL",
     "EXPO_PUBLIC_SUPABASE_ANON_KEY",
@@ -53,7 +53,7 @@ export default defineConfig(({ mode }) => {
       exclude: ["react-native-safe-area-context"],
     },
     build: {
-      outDir: "desktop/dist",
+      outDir: "dist",
       emptyOutDir: true,
       target: "es2020",
     },
