@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { deleteBookingDetails } from "@/hooks/queries/bookingDelete";
 import { supabase } from "@/lib/supabase";
 import type { Inserts, Tables } from "@/lib/types";
 
@@ -84,6 +85,14 @@ export function useDeleteClient() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
+      const { data: bookings, error: bookingErr } = await supabase
+        .from("bookings")
+        .select("id")
+        .eq("client_id", id);
+      if (bookingErr) throw bookingErr;
+
+      await deleteBookingDetails((bookings ?? []).map((b) => b.id));
+
       const { error } = await supabase.from("clients").delete().eq("id", id);
       if (error) throw error;
     },

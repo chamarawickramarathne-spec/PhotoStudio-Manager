@@ -3,7 +3,7 @@ import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-nati
 import Ionicons from "@react-native-vector-icons/ionicons";
 
 import { palette, radius, spacing } from "@/theme";
-import { BOOKING_STATUS_MAP, BOOKING_STATUSES, EVENT_TYPE_MAP } from "@/lib/constants";
+import { BOOKING_STATUS_MAP, BOOKING_STATUSES, EVENT_TYPE_MAP, isValidStatusTransition } from "@/lib/constants";
 import type { BookingStatus } from "@/lib/constants";
 import { formatDate, formatMoney } from "@/lib/format";
 import type { BookingWithClient } from "@/hooks/queries/bookings";
@@ -101,10 +101,13 @@ export function BookingCard({ booking, currency, onPress, onStatusChange }: Book
             <ScrollView keyboardShouldPersistTaps="handled" style={styles.panelScroll} nestedScrollEnabled>
               {statuses.map((s) => {
                 const isSelected = booking.status === s.value;
+                const enabled = isValidStatusTransition(booking.status, s.value);
                 return (
                   <Pressable
                     key={s.value}
-                    style={[styles.item, isSelected ? styles.itemSelected : null]}
+                    disabled={!enabled}
+                    accessibilityState={{ disabled: !enabled, selected: isSelected }}
+                    style={[styles.item, isSelected ? styles.itemSelected : null, !enabled && styles.itemDisabled]}
                     onPress={() => selectStatus(s.value)}
                   >
                     <Ionicons
@@ -184,6 +187,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   itemSelected: { backgroundColor: palette.secondaryContainer },
+  itemDisabled: { opacity: 0.4 },
   itemLabel: { flex: 1, fontSize: 14, color: palette.onSurface },
   itemLabelSelected: { fontWeight: "700", color: palette.onSecondaryContainer },
 });

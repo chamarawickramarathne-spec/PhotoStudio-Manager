@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { deleteBookingDetails } from "@/hooks/queries/bookingDelete";
+import { ensureBookingPaymentSchedules } from "@/hooks/queries/bookingConfirm";
 import { supabase } from "@/lib/supabase";
 import type { Inserts, Tables } from "@/lib/types";
 
@@ -78,11 +80,15 @@ export function useUpdateBooking() {
         .select("*, clients(full_name, email, phone)")
         .single();
       if (error) throw error;
+      if (patch.status === "confirmed") {
+        await ensureBookingPaymentSchedules(data as BookingRow);
+      }
       return data;
     },
     onSuccess: (_data, vars) => {
       void qc.invalidateQueries({ queryKey: baseKey });
       void qc.invalidateQueries({ queryKey: [...baseKey, vars.id] });
+      void qc.invalidateQueries({ queryKey: ["payment_schedules"] });
       void qc.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
@@ -92,8 +98,7 @@ export function useDeleteBooking() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from("bookings").delete().eq("id", id);
-      if (error) throw error;
+      await deleteBookingDetails([id]);
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: baseKey });

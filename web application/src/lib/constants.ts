@@ -73,6 +73,26 @@ export const BOOKING_STATUS_ORDER: BookingStatus[] = [
   "cancelled",
 ];
 
+export const BOOKING_STATUS_FLOW: BookingStatus[] = [
+  "pending",
+  "confirmed",
+  "in_progress",
+  "completed",
+];
+
+export function nextBookingStatus(current: string): BookingStatus | null {
+  const index = BOOKING_STATUS_FLOW.indexOf(current as BookingStatus);
+  if (index < 0 || index >= BOOKING_STATUS_FLOW.length - 1) return null;
+  return BOOKING_STATUS_FLOW[index + 1];
+}
+
+export function isValidStatusTransition(current: string, next: string): boolean {
+  if (next === current) return false;
+  if (current === "cancelled") return false;
+  if (next === "cancelled") return current === "pending" || current === "confirmed";
+  return nextBookingStatus(current) === next;
+}
+
 export type PaymentStatus = "pending" | "paid" | "overdue" | "cancelled";
 
 export const PAYMENT_STATUS_INFO: Record<PaymentStatus, StatusInfo> = {

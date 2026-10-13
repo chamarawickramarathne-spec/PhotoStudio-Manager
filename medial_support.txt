@@ -7,21 +7,27 @@ PhotoStudio Manager
 
 2. SHORT DESCRIPTION
 --------------------
-PhotoStudio Manager is the all-in-one app for photographers to manage clients, bookings, and payments - on your phone, on Windows desktop, and in your browser. One secure cloud account, an editorial rust-and-gold dashboard, interactive revenue analytics, smart validated forms with native calendar and clock pickers, and layouts that look great on any screen.
+PhotoStudio Manager is the all-in-one app for photographers to manage clients, bookings, payments, and invoices - on your phone, on Windows desktop, and in your browser. One secure cloud account, an editorial rust-and-gold dashboard, automatic payment schedules when you confirm a booking, interactive revenue analytics, one-tap PDF invoices you can share to email or WhatsApp, smart validated forms with native calendar and clock pickers, and layouts that look great on any screen.
 
 3. LONG DESCRIPTION
 -------------------
-PhotoStudio Manager is a studio management app built for photographers who want to run their business without the paperwork. Keep every client contact in one place, book shoots in seconds, and track payments with confidence - whether you are on location with your phone, in the studio on your Windows desktop, or checking in from any browser.
+PhotoStudio Manager is a studio management app built for photographers who want to run their business without the paperwork. Keep every client contact in one place, book shoots in seconds, turn confirmed jobs into clear payment plans automatically, bill clients with polished invoices, and track payments with confidence - whether you are on location with your phone, in the studio on your Windows desktop, or checking in from any browser.
 
-Create and manage client profiles with contact details, addresses, and notes. Book any event with dedicated forms - including a complete Wedding booking form with wedding and homecoming details, album preferences, and photo sizes. Track your schedule from pending to completed with a one-tap status stepper and never miss a shoot again.
+Create and manage client profiles with contact details, addresses, and notes. Book any event with dedicated forms - including a complete Wedding booking form with wedding and homecoming details, album preferences, and photo sizes. Track your schedule from pending to completed and never miss a shoot again.
+
+Confirm a booking and the money side takes care of itself. The moment a booking is confirmed, PhotoStudio Manager automatically creates its payment schedule for you: a deposit due in two days and a final payment for the remaining balance due on the shoot date. You start collecting right away instead of building the plan by hand, and the app never double-creates a schedule if one already exists.
+
+Move every booking forward one clear step at a time. Status flows in order - Pending, Confirmed, In Progress, Completed - and future steps stay locked until the previous one is done, so your pipeline can't be knocked out of order by an accidental tap. A booking can only be cancelled while it is still pending or confirmed, and both the detail screen and the list card respect the same rules.
+
+Bill like a professional. Generate a clean PDF invoice in one tap - it carries your studio details, the client's billing information, the event, an itemized line table, totals, and your notes. Send it straight to your client by sharing to email, WhatsApp, or any other app on your phone through the native share sheet, or download it on Windows and the web. Your clients get a document that looks the part, without any design work from you.
 
 Picking dates and times is effortless everywhere: every date field opens your device's real calendar and every time field opens its clock picker. On Windows and the web you get the browser's native date and time pickers; on Android the app opens the phone's own system calendar and clock dialogs - no typing dates or times by hand, ever.
 
-Manage money effortlessly with payment schedules (deposit, milestone, and final) and record installments as payments come in. The app automatically marks schedules as paid when fully settled and flags overdue amounts, so you always know who owes you and how much. A booking can only ever have one final payment schedule - enforced in the app and in the database - so your books can never double-book the final invoice.
+Manage money effortlessly with payment schedules (deposit, milestone, and final) and record installments as payments come in. The app automatically marks schedules as paid when fully settled and flags overdue amounts, so you always know who owes you and how much. A booking can only ever have one final payment schedule - enforced in the app and in the database - so your books can never double-book the final invoice. Clicking delete is worry-free too: removing a client, a booking, or a payment schedule cleans up all of its related records at once - bookings, payment schedules, and installments are removed together both by the app and by the database itself, so stray orphaned payments never linger in your books.
 
 The redesigned dashboard puts your whole business at a glance - a personalized greeting header with your app version, four stat tiles with month-over-month trend badges (Total Bookings, Active Clients, Monthly Revenue, Outstanding) that line up in a single row on desktop, an interactive monthly revenue bar chart with 1/3/6/12-month range selectors, tap-any-bar month readouts and a period total. A "Next Shoots" strip previews your upcoming jobs, and Payments Due groups overdue and pending amounts with progress bars so nothing slips through. Slim one-tap quick actions let you create a booking, add a client, or record a payment in seconds - all with a switchable working currency that adapts to your local rates.
 
-The Windows desktop edition brings the full app to your computer with a resizable window and automatic one-click updates; the Android app now updates itself too - on launch it quietly checks for a newer release and offers a verified one-tap install, so you always run the latest version. The browser edition shares the same instantly available experience. Every booking, client, and payment stays perfectly synchronized across every device through your secure cloud account. Log in once and the app remembers you: your session is saved automatically and restored on every launch, on mobile, desktop, and web alike. Update messages are plain and helpful: if the newest release is not yet available for your exact device, the app tells you so clearly instead of showing a cryptic error.
+The Windows desktop edition brings the full app to your computer with a resizable window and automatic one-click updates; the Android app updates itself too - on launch it quietly checks for a newer release and offers a verified one-tap install, so you always run the latest version. The browser edition shares the same instantly available experience. Every booking, client, payment, and invoice stays perfectly synchronized across every device through your secure cloud account. Log in once and the app remembers you: your session is saved automatically and restored on every launch, on mobile, desktop, and web alike. Update messages are plain and helpful: if the newest release is not yet available for your exact device, the app tells you so clearly instead of showing a cryptic error.
 
 A dedicated Reports tab turns your data into decisions - monthly revenue trends, collected vs outstanding vs overdue totals, revenue by event type, payment-method breakdowns, top clients by revenue, and a bookings pipeline from pending to completed. Saving is satisfying and clear: every create, edit, status change, or deletion confirms with an instant on-screen toast, bookings open instantly from the list with full details, and you can change a booking's status right from the list card without opening it. Installments can be deleted with one tap and the schedule's paid balance updates immediately, deposit schedules track their own paid-to-date, and fully paid schedules explain why no further installments can be recorded.
 
@@ -31,39 +37,43 @@ Moving between screens is rock-solid on the web-first engine: a dependencies-lev
 
 4. FACEBOOK POST TEXT
 ---------------------
-Photographers, let's be honest - how many notebooks and spreadsheets are you juggling to run your studio? 📸
+Photographers, let's be honest - how many notebooks and spreadsheets are you juggling to run your studio?
 
 Meet PhotoStudio Manager - your all-in-one photography business app - now on your phone, your Windows desktop, AND in your browser!
 
-✅ Manage every client in one place
-✅ Book shoots with smart forms - including a full Wedding booking form
-✅ Pick dates on a real calendar and times on a real clock - no typing dates or times by hand, on desktop, web, and Android
-✅ Track deposits, milestones & final payments
-✅ See who owes you and who has paid - automatically
-✅ Dashboard: stat tiles with trend badges - in a single row on desktop - plus an interactive revenue chart (1/3/6/12-month views), a "Next Shoots" strip, and grouped Payments Due with progress bars
-✅ Quick-action bar - create a booking, add a client, or record a payment in seconds
-✅ Switch currency to match your market
-✅ Automatic updates on Windows AND Android - the app checks for new versions and installs them safely, so you always run the latest
-✅ Redesigned forms: clean rust-and-gold editorial style with smart validation - no more bad deposits, empty names, or overpaid installments
-✅ One final payment per booking - the app and the database both stop you from ever creating a second final payment schedule
-✅ New Reports tab: revenue trends, collections, revenue by event type, top clients, and bookings pipeline
-✅ Instant save confirmations - every booking, edit, status change, or deletion confirms on-screen, and you can change a booking's status straight from the list
-✅ Android back button that behaves - steps back through screens, closes open dialogs first, and never closes the app by surprise
+- Manage every client in one place
+- Book shoots with smart forms - including a full Wedding booking form
+- Confirm a booking and the payment plan builds itself: a deposit due in two days and a final payment for the rest, due on the shoot date
+- Booking status flows one step at a time - Pending, Confirmed, In Progress, Completed - so your pipeline never gets knocked out of order
+- Create a polished PDF invoice in one tap and share it to email, WhatsApp, or any app - or download it on desktop
+- Pick dates on a real calendar and times on a real clock - no typing dates or times by hand, on desktop, web, and Android
+- Track deposits, milestones & final payments
+- See who owes you and who has paid - automatically
+- Dashboard: stat tiles with trend badges - in a single row on desktop - plus an interactive revenue chart (1/3/6/12-month views), a "Next Shoots" strip, and grouped Payments Due with progress bars
+- Quick-action bar - create a booking, add a client, or record a payment in seconds
+- Switch currency to match your market
+- Automatic updates on Windows AND Android - the app checks for new versions and installs them safely, so you always run the latest
+- Redesigned forms: clean rust-and-gold editorial style with smart validation - no more bad deposits, empty names, or overpaid installments
+- One final payment per booking - the app and the database both stop you from ever creating a second final payment schedule
+- New Reports tab: revenue trends, collections, revenue by event type, top clients, and bookings pipeline
+- Instant save confirmations - every booking, edit, status change, or deletion confirms on-screen, and you can change a booking's status straight from the list
+- Delete with peace of mind - removing a client or booking cleans up its payment schedules and installments too, in the app and in the database, so no orphaned payments are ever left behind
+- Android back button that behaves - steps back through screens, closes open dialogs first, and never closes the app by surprise
 
 Whether you shoot weddings, birthdays, or corporate events, PhotoStudio Manager keeps your studio organized so you can focus on the shots that matter.
 
-Get it on your phone, your PC, or right in your browser today! 📲💻🌐
+Get it on your phone, your PC, or right in your browser today!
 
 5. TAGS (10+)
 ------------
-#Photography #Photographer #PhotographyBusiness #WeddingPhotography #PhotoStudio #StudioManager #ClientManagement #PaymentTracking #RevenueReports #BookingSystem #DatePicker #TimePicker #AutoUpdate #MobileApp
+#Photography #Photographer #PhotographyBusiness #WeddingPhotography #PhotoStudio #StudioManager #ClientManagement #BookingSystem #PaymentTracking #PhotographyInvoicing #InvoicePDF #RevenueReports #AutoPayments #DatePicker #AutoUpdate
 
 6. IMAGE PROMPTS (5) - AI image generation for social media
 -----------------------------------------------------------
 1. Split-three-device hero image: a professional photographer holding a smartphone, with a laptop and a browser window nearby, all showing the same clean studio dashboard with a personalized greeting header, four stat tiles in a single row with small trend arrows (Total Bookings, Active Clients, Monthly Revenue, Outstanding), and a monthly revenue bar chart, warm golden-hour studio lighting, shallow depth of field, camera equipment softly blurred in the background.
-2. Social media graphic for the booking form: a close-up of a laptop showing a beautifully organized photography booking form in a wide centered column with labels above each field, grouped bordered sections with small headers, and gold-accented buttons, next to a smartphone that shows a bright Android calendar picker opened over the booking form, rust-red and warm gold color palette, soft studio lighting - emphasizing that the app works on phone, desktop, and web.
-3. Photorealistic wedding scene: an elegant bride and groom at a reception venue, with a subtle floating UI overlay showing the wide wedding booking form with wedding and homecoming dates selected on a calendar, album and photo-size options, and a next-shoots schedule strip rendered on a phone, a desktop window, and a browser card, cinematic warm tones.
-4. Clean 3D illustration: a smartphone next to a desktop monitor and an open browser window, all showing the PhotoStudio Manager app with "Welcome back" and stat tiles, a bar chart, a horizontal "Next Shoots" card strip, and grouped "Payments Due" lists; a large friendly calendar page and a clock face float over the phone with a checkmark confirming a picked date and time, floating coins and camera icons around them, soft shadows, modern gradient background in brand colors.
-5. Lifestyle photo: a photographer relaxing in a cafe checking the revenue dashboard and next shoots on a phone, while the phone also shows a native date-picker dialog and a compact, centered client form on a laptop with a browser view nearby, natural light, candid moment, authentic documentary style, muted warm colors - emphasizing how easy it is to schedule shoots and how the app stays signed in across all devices.
+2. Social media graphic for the booking flow: a close-up of a laptop showing a confirmed photography booking that has just automatically produced two payment rows - a Deposit and a Final Payment with a due date - beside a phone showing the same booking's forward-only status stepper (Pending, Confirmed, In Progress, Completed) with the next step highlighted, rust-red and warm gold color palette, soft studio lighting.
+3. Invoice-focused product shot: a phone in one hand showing a clean PDF invoice preview with a studio header, an itemized line table, and a bold total, while a share sheet fans out toward email and messaging icons, a laptop in the background shows the same invoice ready to download, cinematic warm tones, shallow depth of field.
+4. Clean 3D illustration: a smartphone next to a desktop monitor and an open browser window, all showing the PhotoStudio Manager app with "Welcome back" and stat tiles, a bar chart, a horizontal "Next Shoots" card strip, and grouped "Payments Due" lists; a large friendly calendar page and a clock face float over the phone with a checkmark confirming a picked date and time, a paper invoice with a gold checkmark and floating coins and camera icons around them, soft shadows, modern gradient background in brand colors.
+5. Lifestyle photo: a photographer relaxing in a cafe confirming a booking on a phone and watching the deposit and final payment appear, then sharing an invoice PDF, while a laptop nearby shows the revenue dashboard and next shoots, natural light, candid moment, authentic documentary style, muted warm colors - emphasizing how easy it is to schedule shoots, get paid, and stay signed in across all devices.
 
-(Regenerate after every modification - version 1.6.5, Desktop 1.6.4)
+(Regenerate after every modification - version 2.0.0, Desktop 2.0.0, Android 2.0.0)

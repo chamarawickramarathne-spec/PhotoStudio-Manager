@@ -15,13 +15,19 @@ import { BookingForm } from "@/forms/BookingForm";
 import { useBooking, useDeleteBooking, useUpdateBooking } from "@/hooks/queries/bookings";
 import { usePaymentSchedules } from "@/hooks/queries/payments";
 import { useAuth } from "@/hooks/useAuth";
-import { BOOKING_STATUS_MAP, EVENT_TYPE_MAP } from "@/lib/constants";
+import {
+  BOOKING_STATUS_FLOW,
+  BOOKING_STATUS_MAP,
+  EVENT_TYPE_MAP,
+  isValidStatusTransition,
+  nextBookingStatus,
+} from "@/lib/constants";
 import type { BookingStatus } from "@/lib/constants";
 import { formatDate, formatMoney } from "@/lib/format";
 import { getErrorMessage } from "@/lib/utils";
 import { palette, radius, spacing } from "@/theme";
 
-const FLOW: BookingStatus[] = ["pending", "confirmed", "in_progress", "completed"];
+const FLOW = BOOKING_STATUS_FLOW;
 
 export default function BookingDetailScreen() {
   const { height, width } = useWindowDimensions();
@@ -91,14 +97,21 @@ export default function BookingDetailScreen() {
   const status = BOOKING_STATUS_MAP[booking.status] ?? { label: booking.status, color: "#6B7280" };
   const isWedding = booking.event_type === "Wedding";
   const editable = booking.status === "pending";
+  const canCancel = booking.status === "pending" || booking.status === "confirmed";
   const isCancelled = booking.status === "cancelled";
+  const nextStatus = nextBookingStatus(booking.status);
 
   const setStatus = (next: BookingStatus) => {
+    if (!isValidStatusTransition(booking.status, next)) return;
     updateBooking.mutate(
       { id: booking.id, patch: { status: next } },
       {
         onSuccess: () => {
-          toast.show(`Status changed to ${BOOKING_STATUS_MAP[next]?.label ?? next}`);
+          toast.show(
+            next === "confirmed"
+              ? "Booking confirmed — payment schedule created"
+              : `Status changed to ${BOOKING_STATUS_MAP[next]?.label ?? next}`,
+          );
         },
       },
     );
@@ -118,9 +131,20 @@ export default function BookingDetailScreen() {
         title="Booking"
         showBack
         right={
-          editable ? (
-            <IconButton icon="pencil" onPress={() => setEditOpen(true)} />
-          ) : undefined
+          <View style={styles.headerActions}>
+            <IconButton
+              icon="file-document-outline"
+              accessibilityLabel="Create invoice"
+              onPress={() => router.push(`/invoice/${booking.id}`)}
+            />
+            {editable ? (
+              <IconButton
+                icon="pencil"
+                accessibilityLabel="Edit booking"
+                onPress={() => setEditOpen(true)}
+              />
+            ) : null}
+          </View>
         }
       />
 
@@ -160,11 +184,17 @@ export default function BookingDetailScreen() {
               const info = BOOKING_STATUS_MAP[step];
               const reached = currentFlowIndex >= i;
               const isCurrent = currentFlowIndex === i;
+              const enabled = step === nextStatus;
+              const lockedFuture = i > currentFlowIndex && !enabled;
               return (
                 <View key={step} style={styles.stepWrap}>
                   <Pressable
                     onPress={() => setStatus(step)}
-                    style={[styles.step, reached && styles.stepActive]}
+                    disabled={!enabled}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Mark as ${info.label}`}
+                    accessibilityState={{ disabled: !enabled }}
+                    style={[styles.step, reached && styles.stepActive, lockedFuture && styles.stepDisabled]}
                   >
                     <Ionicons
                       name={reached ? "checkmark" : info.icon}
@@ -300,27 +330,27 @@ export default function BookingDetailScreen() {
           </View>
         </View>
 
+        {canCancel ? (
+          <Button
+            icon="close-circle-outline"
+            mode="text"
+            textColor={palette.danger}
+            style={styles.cancelBtn}
+            onPress={() => setCancelOpen(true)}
+          >
+            Cancel Booking
+          </Button>
+        ) : null}
         {editable ? (
-          <>
-            <Button
-              icon="close-circle-outline"
-              mode="text"
-              textColor={palette.danger}
-              style={styles.cancelBtn}
-              onPress={() => setCancelOpen(true)}
-            >
-              Cancel Booking
-            </Button>
-            <Button
-              icon="trash-can-outline"
-              mode="text"
-              textColor={palette.danger}
-              style={styles.deleteBtn}
-              onPress={() => setDeleteOpen(true)}
-            >
-              Delete Booking
-            </Button>
-          </>
+          <Button
+            icon="trash-can-outline"
+            mode="text"
+            textColor={palette.danger}
+            style={styles.deleteBtn}
+            onPress={() => setDeleteOpen(true)}
+          >
+            Delete Booking
+          </Button>
         ) : null}
       </Screen>
 
@@ -402,6 +432,7 @@ function DetailRow({
 }
 
 const styles = StyleSheet.create({
+  headerActions: { flexDirection: "row", alignItems: "center" },
   center: { flex: 1, alignItems: "center", justifyContent: "center" },
   hero: { flexDirection: "row", alignItems: "center", gap: spacing.lg, marginBottom: spacing.lg },
   heroIcon: { width: 52, height: 52, borderRadius: radius.sm, alignItems: "center", justifyContent: "center" },
@@ -430,6 +461,7 @@ const styles = StyleSheet.create({
     backgroundColor: palette.surfaceVariant,
   },
   stepActive: { backgroundColor: palette.primary },
+  stepDisabled: { opacity: 0.4 },
   stepLine: { position: "absolute", top: 17, left: "50%", width: "100%", height: 2, backgroundColor: palette.outline },
   stepLineActive: { backgroundColor: palette.primary },
   stepLabel: { fontSize: 10, color: palette.onSurfaceVariant, marginTop: 6, textAlign: "center" },

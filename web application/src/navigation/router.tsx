@@ -32,6 +32,7 @@ import ClientNew from "@/app/client/new";
 import ClientDetail from "@/app/client/[id]";
 import PaymentNew from "@/app/payment/new";
 import PaymentDetail from "@/app/payment/[id]";
+import InvoiceScreen from "@/app/invoice/[id]";
 import ProfileScreen from "@/app/profile";
 
 function Protected({ children }: { children: ReactNode }) {
@@ -112,6 +113,7 @@ const routes: RouteObject[] = [
   { path: "/client/:id", element: <Protected><ClientDetail /></Protected> },
   { path: "/payment/new", element: <Protected><PaymentNew /></Protected> },
   { path: "/payment/:id", element: <Protected><PaymentDetail /></Protected> },
+  { path: "/invoice/:id", element: <Protected><InvoiceScreen /></Protected> },
   { path: "/profile", element: <Protected><ProfileScreen /></Protected> },
   { path: "*", element: <Navigate to="/" replace /> },
 ];
