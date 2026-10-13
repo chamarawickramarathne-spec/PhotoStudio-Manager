@@ -24,6 +24,7 @@ import {
 } from "@/lib/constants";
 import type { BookingStatus } from "@/lib/constants";
 import { formatDate, formatMoney } from "@/lib/format";
+import { orderSchedules } from "@/lib/scheduleOrder";
 import { getErrorMessage } from "@/lib/utils";
 import { palette, radius, spacing } from "@/theme";
 
@@ -48,7 +49,7 @@ export default function BookingDetailScreen() {
   useBackIntercept(editOpen, () => setEditOpen(false));
 
   const bookingSchedules = useMemo(
-    () => (schedules ?? []).filter((s) => s.booking_id === id),
+    () => orderSchedules((schedules ?? []).filter((s) => s.booking_id === id)),
     [schedules, id],
   );
   const totalPaid = useMemo(

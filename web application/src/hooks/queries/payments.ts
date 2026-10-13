@@ -26,7 +26,8 @@ export function usePaymentSchedules() {
       const { data, error } = await supabase
         .from("payment_schedules")
         .select("*, bookings(title, event_type, booking_date, clients(full_name))")
-        .order("due_date", { ascending: true, nullsFirst: true });
+        .order("due_date", { ascending: true, nullsFirst: false })
+        .order("created_at", { ascending: true });
       if (error) throw error;
       return (data ?? []) as ScheduleWithBooking[];
     },

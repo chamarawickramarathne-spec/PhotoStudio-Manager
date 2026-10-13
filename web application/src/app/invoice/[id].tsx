@@ -14,8 +14,10 @@ import { useAuth } from "@/hooks/useAuth";
 import { useProfileAvatar } from "@/hooks/useProfileAvatar";
 import { EVENT_TYPE_MAP, SCHEDULE_TYPE_LABEL } from "@/lib/constants";
 import { formatMoney, todayISO } from "@/lib/format";
+import { orderSchedules } from "@/lib/scheduleOrder";
 import { getErrorMessage } from "@/lib/utils";
 import { downloadInvoice, shareInvoice } from "@/lib/invoice/share";
+import { buildPackageFields } from "@/lib/invoice/package";
 import type { InvoiceData } from "@/lib/invoice/types";
 import { palette, radius, spacing } from "@/theme";
 
@@ -30,7 +32,7 @@ export default function InvoiceScreen() {
   const [busy, setBusy] = useState<"download" | "share" | null>(null);
 
   const bookingSchedules = useMemo(
-    () => (schedules ?? []).filter((s) => s.booking_id === id),
+    () => orderSchedules((schedules ?? []).filter((s) => s.booking_id === id)),
     [schedules, id],
   );
 
@@ -73,6 +75,7 @@ export default function InvoiceScreen() {
       bookingTitle: booking.title,
       eventType: EVENT_TYPE_MAP[booking.event_type]?.label ?? booking.event_type,
       bookingDate: booking.booking_date,
+      package: buildPackageFields(booking),
       lines,
       total,
       paid,
@@ -165,6 +168,19 @@ export default function InvoiceScreen() {
             {invoice.eventType}
             {invoice.bookingDate ? ` · ${invoice.bookingDate}` : ""}
           </Text>
+
+          {invoice.package && invoice.package.length > 0 ? (
+            <>
+              <Divider style={styles.divider} />
+              <Text style={styles.sectionLabel}>PACKAGE</Text>
+              {invoice.package.map((field) => (
+                <View key={field.label} style={styles.packageRow}>
+                  <Text style={styles.packageLabel}>{field.label}</Text>
+                  <Text style={styles.packageValue}>{field.value}</Text>
+                </View>
+              ))}
+            </>
+          ) : null}
 
           <Divider style={styles.divider} />
 
@@ -262,6 +278,9 @@ const styles = StyleSheet.create({
   sectionLabel: { fontSize: 10, fontWeight: "800", color: palette.primary, letterSpacing: 1, marginTop: spacing.xs },
   strong: { fontSize: 14, fontWeight: "700", color: palette.onBackground },
   muted: { fontSize: 12, color: palette.onSurfaceVariant },
+  packageRow: { flexDirection: "row", justifyContent: "space-between", gap: spacing.md, paddingVertical: 2 },
+  packageLabel: { fontSize: 12, color: palette.onSurfaceVariant },
+  packageValue: { fontSize: 12, fontWeight: "600", color: palette.onBackground, flexShrink: 1, textAlign: "right" },
   divider: { marginVertical: spacing.sm },
   lineRow: { flexDirection: "row", justifyContent: "space-between", gap: spacing.md, paddingVertical: 6 },
   lineInfo: { flex: 1, gap: 2 },

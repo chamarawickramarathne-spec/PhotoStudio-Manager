@@ -16,6 +16,11 @@ export interface InvoiceLine {
   paid: number;
 }
 
+export interface InvoiceField {
+  label: string;
+  value: string;
+}
+
 export interface InvoiceData {
   invoiceNumber: string;
   issueDate: string;
@@ -25,6 +30,7 @@ export interface InvoiceData {
   bookingTitle: string;
   eventType: string;
   bookingDate: string | null;
+  package?: InvoiceField[] | null;
   lines: InvoiceLine[];
   total: number;
   paid: number;

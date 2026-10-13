@@ -41,6 +41,11 @@ function drawLogo(doc: jsPDF, dataUri: string | null | undefined, x: number, y: 
   }
 }
 
+function lastTableY(doc: jsPDF, fallback: number): number {
+  const last = (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable;
+  return last?.finalY ?? fallback;
+}
+
 export function buildInvoicePdf(data: InvoiceData): BuiltInvoice {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
   doc.setFont("helvetica", "normal");
@@ -116,6 +121,20 @@ export function buildInvoicePdf(data: InvoiceData): BuiltInvoice {
 
   y = Math.max(clientY, bookingY) + 16;
 
+  if (data.package && data.package.length > 0) {
+    autoTable(doc, {
+      head: [["Package Details", ""]],
+      body: data.package.map((field) => [field.label, field.value]),
+      startY: y,
+      margin: { left: MARGIN, right: MARGIN },
+      theme: "grid",
+      headStyles: { fillColor: ACCENT, textColor: 255, fontSize: 9, fontStyle: "bold" },
+      styles: { fontSize: 9, cellPadding: 5, textColor: [40, 40, 40] },
+      columnStyles: { 0: { cellWidth: 150, fontStyle: "bold" } },
+    });
+    y = lastTableY(doc, y) + 14;
+  }
+
   const body = data.lines.map((line) => [
     line.label,
     line.type,
@@ -140,8 +159,7 @@ export function buildInvoicePdf(data: InvoiceData): BuiltInvoice {
     },
   });
 
-  const afterTable = (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable;
-  let totalY = (afterTable?.finalY ?? y) + 20;
+  let totalY = lastTableY(doc, y) + 20;
   const labelX = PAGE_WIDTH - MARGIN - 150;
   const valueX = PAGE_WIDTH - MARGIN;
 
