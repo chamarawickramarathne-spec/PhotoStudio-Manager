@@ -49,10 +49,11 @@ function GuestOnly({ children }: { children: ReactNode }) {
 
 const TABS: { route: string; label: string; icon: IconName; activeIcon: IconName }[] = [
   { route: "/", label: "Dashboard", icon: "home-outline", activeIcon: "home" },
-  { route: "/bookings", label: "Bookings", icon: "calendar-outline", activeIcon: "calendar" },
   { route: "/clients", label: "Clients", icon: "people-outline", activeIcon: "people" },
+  { route: "/bookings", label: "Bookings", icon: "calendar-outline", activeIcon: "calendar" },
   { route: "/payments", label: "Payments", icon: "wallet-outline", activeIcon: "wallet" },
   { route: "/reports", label: "Reports", icon: "bar-chart-outline", activeIcon: "bar-chart" },
+  { route: "/profile", label: "Profile", icon: "person-outline", activeIcon: "person" },
 ];
 
 function BottomTabBar({ current }: { current: string }) {
@@ -105,6 +106,7 @@ const routes: RouteObject[] = [
       { path: "clients", element: <ClientsTab /> },
       { path: "payments", element: <PaymentsTab /> },
       { path: "reports", element: <ReportsTab /> },
+      { path: "profile", element: <ProfileScreen /> },
     ],
   },
   { path: "/booking/new", element: <Protected><BookingNew /></Protected> },
@@ -114,7 +116,6 @@ const routes: RouteObject[] = [
   { path: "/payment/new", element: <Protected><PaymentNew /></Protected> },
   { path: "/payment/:id", element: <Protected><PaymentDetail /></Protected> },
   { path: "/invoice/:id", element: <Protected><InvoiceScreen /></Protected> },
-  { path: "/profile", element: <Protected><ProfileScreen /></Protected> },
   { path: "*", element: <Navigate to="/" replace /> },
 ];
 

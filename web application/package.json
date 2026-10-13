@@ -1,6 +1,6 @@
 {
   "name": "photostudio-manager-web",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "private": true,
   "license": "0BSD",
   "description": "PhotoStudio Manager shared web-first SPA (react-native-web) used by web, Windows (Electron), and Android (Capacitor).",

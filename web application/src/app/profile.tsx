@@ -61,7 +61,7 @@ export default function ProfileScreen() {
 
   return (
     <KeyboardScreen>
-      <AppHeader title="Profile" showBack />
+      <AppHeader title="Profile" />
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.hero}>
           {avatarUri ? (

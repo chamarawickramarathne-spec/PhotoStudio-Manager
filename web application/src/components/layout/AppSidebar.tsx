@@ -6,16 +6,17 @@ import { palette, radius, spacing } from "@/theme";
 import type { IconName } from "@/lib/icons";
 
 const NAV_ITEMS: {
-  route: "/" | "/bookings" | "/clients" | "/payments" | "/reports";
+  route: "/" | "/clients" | "/bookings" | "/payments" | "/reports" | "/profile";
   label: string;
   icon: IconName;
   activeIcon: IconName;
 }[] = [
   { route: "/", label: "Dashboard", icon: "home-outline", activeIcon: "home" },
-  { route: "/bookings", label: "Bookings", icon: "calendar-outline", activeIcon: "calendar" },
   { route: "/clients", label: "Clients", icon: "people-outline", activeIcon: "people" },
+  { route: "/bookings", label: "Bookings", icon: "calendar-outline", activeIcon: "calendar" },
   { route: "/payments", label: "Payments", icon: "wallet-outline", activeIcon: "wallet" },
   { route: "/reports", label: "Reports", icon: "bar-chart-outline", activeIcon: "bar-chart" },
+  { route: "/profile", label: "Profile", icon: "person-outline", activeIcon: "person" },
 ];
 
 export function AppSidebar() {

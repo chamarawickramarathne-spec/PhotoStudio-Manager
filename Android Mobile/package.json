@@ -1,6 +1,6 @@
 {
   "name": "photostudio-manager-android",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "private": true,
   "license": "0BSD",
   "description": "PhotoStudio Manager Android app (Capacitor shell wrapping the shared web SPA).",

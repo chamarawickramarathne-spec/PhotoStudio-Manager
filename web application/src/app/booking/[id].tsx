@@ -132,11 +132,6 @@ export default function BookingDetailScreen() {
         showBack
         right={
           <View style={styles.headerActions}>
-            <IconButton
-              icon="file-document-outline"
-              accessibilityLabel="Create invoice"
-              onPress={() => router.push(`/invoice/${booking.id}`)}
-            />
             {editable ? (
               <IconButton
                 icon="pencil"
@@ -294,6 +289,39 @@ export default function BookingDetailScreen() {
               <DetailRow label="Collected" value={formatMoney(totalPaid, currency)} />
               <DetailRow label="Outstanding" value={formatMoney(totalDue, currency)} warn={totalDue > 0} />
             </View>
+
+            <View style={styles.actionGroup}>
+              <Button
+                mode="contained"
+                icon="file-document-outline"
+                style={styles.actionBtn}
+                labelStyle={styles.actionBtnLabel}
+                onPress={() => router.push(`/invoice/${booking.id}`)}
+              >
+                Create Invoice
+              </Button>
+              <Button
+                mode="outlined"
+                icon="card-plus"
+                style={styles.actionBtn}
+                labelStyle={styles.actionBtnLabel}
+                onPress={() => router.push(`/payment/new?bookingId=${booking.id}`)}
+              >
+                Add Payment Schedule
+              </Button>
+              {canCancel ? (
+                <Button
+                  mode="text"
+                  icon="close-circle-outline"
+                  textColor={palette.danger}
+                  style={styles.actionBtn}
+                  labelStyle={styles.actionBtnLabel}
+                  onPress={() => setCancelOpen(true)}
+                >
+                  Cancel Booking
+                </Button>
+              ) : null}
+            </View>
           </View>
 
           <View style={isWide ? styles.rightCol : undefined}>
@@ -318,29 +346,9 @@ export default function BookingDetailScreen() {
                 ))}
               </View>
             )}
-
-            <Button
-              mode="outlined"
-              icon="card-plus"
-              style={styles.addBtn}
-              onPress={() => router.push(`/payment/new?bookingId=${booking.id}`)}
-            >
-              Add Payment Schedule
-            </Button>
           </View>
         </View>
 
-        {canCancel ? (
-          <Button
-            icon="close-circle-outline"
-            mode="text"
-            textColor={palette.danger}
-            style={styles.cancelBtn}
-            onPress={() => setCancelOpen(true)}
-          >
-            Cancel Booking
-          </Button>
-        ) : null}
         {editable ? (
           <Button
             icon="trash-can-outline"
@@ -510,8 +518,9 @@ const styles = StyleSheet.create({
   leftCol: { flex: 1.3, minWidth: 0 },
   rightCol: { flex: 1, minWidth: 0 },
   list: { gap: spacing.md },
-  addBtn: { borderRadius: 999, marginTop: spacing.md },
-  cancelBtn: { marginTop: spacing.xl },
+  actionGroup: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm, marginBottom: spacing.lg },
+  actionBtn: { borderRadius: 999 },
+  actionBtnLabel: { fontSize: 13 },
   deleteBtn: { marginBottom: spacing.lg },
   error: { color: palette.danger, textAlign: "center", marginTop: spacing.sm },
   sheet: {
