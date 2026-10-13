@@ -48,6 +48,7 @@ example
 # desktop (Electron) app
 /Windows application/dist/
 /Windows application/dist-windows/
+/Windows application/dist-preview/
 /Windows application/node_modules/
 /Windows application/out/
 /Windows application/*.log

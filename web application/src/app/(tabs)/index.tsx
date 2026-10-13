@@ -3,7 +3,6 @@ import {
   ActivityIndicator,
   Pressable,
   RefreshControl,
-  ScrollView,
   StyleSheet,
   Text,
   useWindowDimensions,
@@ -17,6 +16,7 @@ import { SummaryTile } from "@/components/ui/SummaryTile";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { ResponsiveWrap } from "@/components/ui/ResponsiveWrap";
 import { RevenueChart } from "@/components/ui/RevenueChart";
 import { HeroHeader } from "@/components/dashboard/HeroHeader";
 import { PaymentsList, buildPaymentsDue } from "@/components/dashboard/PaymentsList";
@@ -178,7 +178,7 @@ function UpcomingStrip({ bookings }: { bookings: DashboardStats["upcomingBooking
     );
   }
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.strip}>
+    <ResponsiveWrap minItemWidth={230} gap={spacing.md}>
       {bookings.map((b) => {
         const event = EVENT_TYPE_MAP[b.event_type] ?? EVENT_TYPE_MAP.Other;
         const status = BOOKING_STATUS_MAP[b.status];
@@ -207,7 +207,7 @@ function UpcomingStrip({ bookings }: { bookings: DashboardStats["upcomingBooking
           </Pressable>
         );
       })}
-    </ScrollView>
+    </ResponsiveWrap>
   );
 }
 
@@ -239,9 +239,8 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.7 },
   sectionTitle: { fontSize: 18, fontWeight: "800", color: palette.onBackground, marginBottom: spacing.md },
   sectionTitleSpaced: { marginTop: spacing.xl },
-  strip: { gap: spacing.md, paddingHorizontal: 1, paddingBottom: spacing.md },
   shootCard: {
-    width: 220,
+    width: "100%",
     flexDirection: "row",
     gap: spacing.md,
     backgroundColor: palette.surface,

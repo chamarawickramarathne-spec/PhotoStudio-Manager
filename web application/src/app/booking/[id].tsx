@@ -11,6 +11,7 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useAppToast } from "@/components/ui/ToastProvider";
 import { useBackIntercept } from "@/components/ui/BackHandlerProvider";
 import { ScheduleCard } from "@/components/ui/ScheduleCard";
+import { PackageDetails } from "@/components/booking/PackageDetails";
 import { BookingForm } from "@/forms/BookingForm";
 import { useBooking, useDeleteBooking, useUpdateBooking } from "@/hooks/queries/bookings";
 import { usePaymentSchedules } from "@/hooks/queries/payments";
@@ -23,7 +24,6 @@ import {
   nextBookingStatus,
 } from "@/lib/constants";
 import type { BookingStatus } from "@/lib/constants";
-import { formatDate, formatMoney } from "@/lib/format";
 import { orderSchedules } from "@/lib/scheduleOrder";
 import { getErrorMessage } from "@/lib/utils";
 import { palette, radius, spacing } from "@/theme";
@@ -96,7 +96,6 @@ export default function BookingDetailScreen() {
 
   const event = EVENT_TYPE_MAP[booking.event_type] ?? EVENT_TYPE_MAP.Other;
   const status = BOOKING_STATUS_MAP[booking.status] ?? { label: booking.status, color: "#6B7280" };
-  const isWedding = booking.event_type === "Wedding";
   const editable = booking.status === "pending";
   const canCancel = booking.status === "pending" || booking.status === "confirmed";
   const isCancelled = booking.status === "cancelled";
@@ -239,56 +238,21 @@ export default function BookingDetailScreen() {
           <View style={isWide ? styles.leftCol : undefined}>
             <View style={styles.card}>
               <Text style={styles.cardTitle}>Schedule & Pricing</Text>
-              {isWedding ? (
-                <>
-                  <DetailRow label="Wedding Date" value={formatDate(booking.wedding_date)} />
-                  <DetailRow label="Wedding Hotel" value={booking.wedding_hotel_name} />
-                  <DetailRow label="Homecoming" value={booking.homecoming_hotel_name} />
-                  <DetailRow label="Homecoming Date" value={formatDate(booking.homecoming_date)} />
-                  <DetailRow label="Wedding Album" value={booking.wedding_album ? "Yes" : "No"} />
-                  <DetailRow label="Pre-shoot Album" value={booking.pre_shoot_album ? "Yes" : "No"} />
-                  <DetailRow label="Family Album" value={booking.family_album ? "Yes" : "No"} />
-                  <DetailRow label="Group Photo Size" value={booking.group_photo_size} />
-                  <DetailRow label="Homecoming Size" value={booking.homecoming_photo_size} />
-                  <DetailRow
-                    label="Wedding Sizes"
-                    value={booking.wedding_photo_sizes?.length ? booking.wedding_photo_sizes.join(", ") : null}
-                  />
-                  <DetailRow
-                    label="Extra Thank You Cards"
-                    value={booking.extra_thank_you_cards_qty ? String(booking.extra_thank_you_cards_qty) : null}
-                  />
-                </>
-              ) : (
-                <>
-                  <DetailRow label="Booking Date" value={formatDate(booking.booking_date)} />
-                  <DetailRow label="Time" value={[booking.start_time, booking.end_time].filter(Boolean).join(" – ")} />
-                  <DetailRow label="Location" value={booking.location} />
-                  <DetailRow label="Album" value={booking.album} />
-                </>
-              )}
-              <DetailRow label="Package" value={booking.package_name} />
-              <DetailRow label="Shoot Type" value={booking.shoot_type} />
+              <PackageDetails
+                booking={booking}
+                currency={currency}
+                depositTotal={depositTotal}
+                depositPaid={depositPaid}
+                depositDue={depositDue}
+                totalPaid={totalPaid}
+                totalDue={totalDue}
+              />
               {booking.notes ? (
                 <>
                   <Divider style={styles.divider} />
                   <PaperText style={styles.notes}>{booking.notes}</PaperText>
                 </>
               ) : null}
-              <Divider style={styles.divider} />
-              <DetailRow label="Total Amount" value={booking.total_amount != null ? formatMoney(booking.total_amount, currency) : null} highlight />
-              {depositTotal > 0 ? (
-                <DetailRow
-                  label="Deposit"
-                  value={`${formatMoney(depositPaid, currency)} of ${formatMoney(depositTotal, currency)}`}
-                  warn={depositDue > 0}
-                />
-              ) : booking.deposit_amount != null ? (
-                <DetailRow label="Deposit" value={formatMoney(booking.deposit_amount, currency)} />
-              ) : null}
-              <Divider style={styles.divider} />
-              <DetailRow label="Collected" value={formatMoney(totalPaid, currency)} />
-              <DetailRow label="Outstanding" value={formatMoney(totalDue, currency)} warn={totalDue > 0} />
             </View>
 
             <View style={styles.actionGroup}>
@@ -412,34 +376,6 @@ export default function BookingDetailScreen() {
 
 type BookingFormEventType = import("@/lib/constants").EventType;
 
-function DetailRow({
-  label,
-  value,
-  highlight,
-  warn,
-}: {
-  label: string;
-  value: string | null | undefined;
-  highlight?: boolean;
-  warn?: boolean;
-}) {
-  if (value == null || value === "" || value === "Not set" || value === " – ") return null;
-  return (
-    <View style={styles.detailRow}>
-      <Text style={styles.detailLabel}>{label}</Text>
-      <Text
-        style={[
-          styles.detailValue,
-          highlight && styles.detailValueHighlight,
-          warn && { color: palette.warning },
-        ]}
-      >
-        {value}
-      </Text>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   headerActions: { flexDirection: "row", alignItems: "center" },
   center: { flex: 1, alignItems: "center", justifyContent: "center" },
@@ -507,10 +443,6 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   cardTitle: { fontSize: 15, fontWeight: "800", color: palette.onBackground, marginBottom: spacing.xs },
-  detailRow: { flexDirection: "row", justifyContent: "space-between", gap: spacing.md },
-  detailLabel: { fontSize: 13, color: palette.onSurfaceVariant },
-  detailValue: { fontSize: 13, fontWeight: "600", color: palette.onBackground, textAlign: "right", flexShrink: 1 },
-  detailValueHighlight: { fontWeight: "800" },
   divider: { marginVertical: spacing.xs },
   notes: { fontSize: 13, color: palette.onSurfaceVariant, fontStyle: "italic" },
   sectionTitle: { fontSize: 18, fontWeight: "800", color: palette.onBackground, marginBottom: spacing.md },

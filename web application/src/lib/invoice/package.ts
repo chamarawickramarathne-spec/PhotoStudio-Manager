@@ -1,6 +1,8 @@
 import { formatDate } from "@/lib/format";
 
-import type { InvoiceField } from "./types";
+import type { InvoiceField, InvoiceSection } from "./types";
+
+export const EMPTY_VALUE = "\u2014";
 
 interface PackageBooking {
   event_type: string;
@@ -28,42 +30,88 @@ function yesNo(value: boolean): string {
   return value ? "Yes" : "No";
 }
 
-export function buildPackageFields(booking: PackageBooking): InvoiceField[] {
-  const fields: InvoiceField[] = [];
-  const add = (label: string, value: string | null | undefined) => {
-    if (value == null) return;
-    const trimmed = value.trim();
-    if (trimmed.length === 0) return;
-    fields.push({ label, value: trimmed });
-  };
+function text(value: string | null | undefined): string {
+  const trimmed = value?.trim();
+  return trimmed && trimmed.length > 0 ? trimmed : EMPTY_VALUE;
+}
 
-  add("Package", booking.package_name);
-  add("Shoot Type", booking.shoot_type);
+function date(value: string | null): string {
+  return value ? formatDate(value) : EMPTY_VALUE;
+}
 
+function field(label: string, value: string, chip = false): InvoiceField {
+  return chip ? { label, value, chip } : { label, value };
+}
+
+export function buildPackageSections(booking: PackageBooking): InvoiceSection[] {
   if (booking.event_type === "Wedding") {
-    add("Wedding Date", booking.wedding_date ? formatDate(booking.wedding_date) : null);
-    add("Wedding Venue", booking.wedding_hotel_name);
-    add("Homecoming Venue", booking.homecoming_hotel_name);
-    add("Homecoming Date", booking.homecoming_date ? formatDate(booking.homecoming_date) : null);
-    fields.push({ label: "Wedding Album", value: yesNo(booking.wedding_album) });
-    fields.push({ label: "Pre-shoot Album", value: yesNo(booking.pre_shoot_album) });
-    fields.push({ label: "Family Album", value: yesNo(booking.family_album) });
-    add("Group Photo Size", booking.group_photo_size);
-    add("Homecoming Size", booking.homecoming_photo_size);
-    add(
-      "Wedding Sizes",
-      booking.wedding_photo_sizes?.length ? booking.wedding_photo_sizes.join(", ") : null,
-    );
-    add(
-      "Extra Thank You Cards",
-      booking.extra_thank_you_cards_qty ? String(booking.extra_thank_you_cards_qty) : null,
-    );
-  } else {
-    add("Booking Date", booking.booking_date ? formatDate(booking.booking_date) : null);
-    add("Time", [booking.start_time, booking.end_time].filter(Boolean).join(" - ") || null);
-    add("Location", booking.location);
-    add("Album", booking.album);
+    const sizes = booking.wedding_photo_sizes ?? [];
+    return [
+      {
+        title: "Wedding Details",
+        columns: 2,
+        fields: [
+          field("Wedding Date", date(booking.wedding_date)),
+          field("Wedding Venue", text(booking.wedding_hotel_name)),
+          field("Homecoming Venue", text(booking.homecoming_hotel_name)),
+          field("Homecoming Date", date(booking.homecoming_date)),
+        ],
+      },
+      {
+        title: "Albums",
+        columns: 3,
+        fields: [
+          field("Wedding Album", yesNo(booking.wedding_album), true),
+          field("Pre-shoot Album", yesNo(booking.pre_shoot_album), true),
+          field("Family Album", yesNo(booking.family_album), true),
+        ],
+      },
+      {
+        title: "Photo Sizes",
+        columns: 3,
+        fields: [
+          field("Group Photo Size", text(booking.group_photo_size), true),
+          field("Homecoming Photo Size", text(booking.homecoming_photo_size), true),
+          field(
+            "Extra Thank You Cards Qty",
+            String(booking.extra_thank_you_cards_qty ?? 0),
+            true,
+          ),
+          ...(sizes.length > 0
+            ? [field("Wedding Photo Sizes", sizes.join(", "), true)]
+            : []),
+        ],
+      },
+      {
+        title: "Package",
+        columns: 2,
+        fields: [
+          field("Package", text(booking.package_name)),
+          field("Shoot Type", text(booking.shoot_type)),
+        ],
+      },
+    ];
   }
 
-  return fields;
+  return [
+    {
+      title: "Schedule",
+      columns: 3,
+      fields: [
+        field("Booking Date", date(booking.booking_date)),
+        field("Start Time", text(booking.start_time)),
+        field("End Time", text(booking.end_time)),
+        field("Location", text(booking.location)),
+        field("Album", text(booking.album), true),
+      ],
+    },
+    {
+      title: "Package",
+      columns: 2,
+      fields: [
+        field("Package", text(booking.package_name)),
+        field("Shoot Type", text(booking.shoot_type)),
+      ],
+    },
+  ];
 }

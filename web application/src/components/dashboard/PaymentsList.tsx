@@ -1,8 +1,10 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { ProgressBar as PaperProgressBar } from "react-native-paper";
+import Ionicons from "@react-native-vector-icons/ionicons";
 import { router } from "@/navigation/router";
 
 import { EmptyState } from "@/components/ui/EmptyState";
+import { ResponsiveWrap } from "@/components/ui/ResponsiveWrap";
 import { StatusBadge } from "@/components/ui/StatusBadge";
 import type { DashboardStats } from "@/hooks/queries/dashboard";
 import { formatDate, formatMoney, todayISO } from "@/lib/format";
@@ -40,11 +42,11 @@ export function PaymentsList({
   }
   const all = [...overdue, ...pending];
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.strip}>
+    <ResponsiveWrap minItemWidth={250} gap={spacing.md}>
       {all.map((s) => (
         <DueCard key={s.id} schedule={s} currency={currency} />
       ))}
-    </ScrollView>
+    </ResponsiveWrap>
   );
 }
 
@@ -73,6 +75,14 @@ function DueCard({ schedule: s, currency }: { schedule: DueSchedule; currency: s
             {bookingTitle}
             {meta}
           </Text>
+          {s.notes ? (
+            <View style={styles.noteRow}>
+              <Ionicons name="document-text-outline" size={12} color={palette.onSurfaceVariant} />
+              <Text style={styles.noteText} numberOfLines={1}>
+                {s.notes}
+              </Text>
+            </View>
+          ) : null}
         </View>
       </View>
       <View style={styles.footRow}>
@@ -91,9 +101,8 @@ function DueCard({ schedule: s, currency }: { schedule: DueSchedule; currency: s
 const PAYMENT_PENDING_COLOR = "#D97706";
 
 const styles = StyleSheet.create({
-  strip: { gap: spacing.md, paddingHorizontal: 1, paddingBottom: spacing.md },
   card: {
-    width: 240,
+    width: "100%",
     backgroundColor: palette.surface,
     borderRadius: radius.md,
     padding: spacing.md,
@@ -112,6 +121,8 @@ const styles = StyleSheet.create({
   body: { flex: 1, gap: 2, justifyContent: "center", minWidth: 0 },
   title: { fontSize: 14, fontWeight: "700", color: palette.onBackground },
   meta: { fontSize: 12, color: palette.onSurfaceVariant },
+  noteRow: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 2, minWidth: 0 },
+  noteText: { fontSize: 12, color: palette.onSurfaceVariant, fontStyle: "italic", flexShrink: 1 },
   footRow: { flexDirection: "row", alignItems: "flex-end", gap: spacing.sm },
   footLeft: { flex: 1, gap: spacing.xs, minWidth: 0 },
   amount: { fontSize: 13, fontWeight: "800" },

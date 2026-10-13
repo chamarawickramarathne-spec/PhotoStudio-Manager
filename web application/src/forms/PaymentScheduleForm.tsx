@@ -26,6 +26,7 @@ const schema = z
     name: z.string().optional(),
     amount: moneyPositive("Amount must be greater than 0"),
     due_date: z.string().optional(),
+    notes: z.string().optional(),
   });
 
 type FormValues = z.infer<typeof schema>;
@@ -63,6 +64,7 @@ export function PaymentScheduleForm({ presetBookingId, schedule, onSuccess, onCa
           name: schedule.name ?? "",
           amount: String(schedule.amount),
           due_date: schedule.due_date ?? "",
+          notes: schedule.notes ?? "",
         }
       : {
           booking_id: presetBookingId ?? "",
@@ -70,6 +72,7 @@ export function PaymentScheduleForm({ presetBookingId, schedule, onSuccess, onCa
           name: "",
           amount: "",
           due_date: "",
+          notes: "",
         },
   });
 
@@ -123,6 +126,7 @@ export function PaymentScheduleForm({ presetBookingId, schedule, onSuccess, onCa
           amount: parseFloat(values.amount),
           due_date: dueDate,
           status,
+          notes: values.notes?.trim() ? values.notes.trim() : null,
         },
       });
     } else {
@@ -134,6 +138,7 @@ export function PaymentScheduleForm({ presetBookingId, schedule, onSuccess, onCa
         amount: parseFloat(values.amount),
         due_date: dueDate,
         status,
+        notes: values.notes?.trim() ? values.notes.trim() : null,
       });
     }
     onSuccess?.();
@@ -168,6 +173,13 @@ export function PaymentScheduleForm({ presetBookingId, schedule, onSuccess, onCa
             label="Due Date"
             required
             minDate={editing ? undefined : new Date()}
+          />
+          <TextFormField
+            name="notes"
+            label="Note (optional)"
+            placeholder="e.g. Paid in cash, awaiting bank transfer"
+            multiline
+            numberOfLines={3}
           />
 
           {errorMessage ? (

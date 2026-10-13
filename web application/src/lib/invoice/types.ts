@@ -10,6 +10,7 @@ export interface InvoiceParty {
 export interface InvoiceLine {
   label: string;
   type: string;
+  note?: string | null;
   dueDate?: string | null;
   status?: string | null;
   amount: number;
@@ -19,6 +20,13 @@ export interface InvoiceLine {
 export interface InvoiceField {
   label: string;
   value: string;
+  chip?: boolean;
+}
+
+export interface InvoiceSection {
+  title: string;
+  columns: number;
+  fields: InvoiceField[];
 }
 
 export interface InvoiceData {
@@ -30,7 +38,7 @@ export interface InvoiceData {
   bookingTitle: string;
   eventType: string;
   bookingDate: string | null;
-  package?: InvoiceField[] | null;
+  package?: InvoiceSection[] | null;
   lines: InvoiceLine[];
   total: number;
   paid: number;

@@ -1,7 +1,7 @@
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 
-import type { InvoiceData } from "./types";
+import type { InvoiceData, InvoiceSection } from "./types";
 
 const MARGIN = 40;
 const PAGE_WIDTH = 595.28;
@@ -44,6 +44,120 @@ function drawLogo(doc: jsPDF, dataUri: string | null | undefined, x: number, y: 
 function lastTableY(doc: jsPDF, fallback: number): number {
   const last = (doc as unknown as { lastAutoTable?: { finalY: number } }).lastAutoTable;
   return last?.finalY ?? fallback;
+}
+
+const CHIP_FILL: [number, number, number] = [251, 245, 232];
+const LABEL_GREY: [number, number, number] = [120, 120, 120];
+
+const CARD_PAD = 10;
+const CARD_TITLE_H = 18;
+const CARD_COL_GAP = 10;
+const CARD_ROW_H = 30;
+const CARD_SECTION_TITLE_H = 16;
+const CARD_SECTION_GAP = 8;
+
+function packageCardHeight(sections: InvoiceSection[], maxColumns: number): number {
+  let height = CARD_PAD + CARD_TITLE_H;
+  sections.forEach((section, index) => {
+    const columns = Math.min(section.columns, maxColumns);
+    const rows = Math.ceil(section.fields.length / columns);
+    height += CARD_SECTION_TITLE_H + rows * CARD_ROW_H;
+    if (index < sections.length - 1) height += CARD_SECTION_GAP;
+  });
+  return height + CARD_PAD;
+}
+
+function drawPackageCard(
+  doc: jsPDF,
+  sections: InvoiceSection[],
+  x: number,
+  y: number,
+  width: number,
+  maxColumns: number,
+): number {
+  const height = packageCardHeight(sections, maxColumns);
+
+  doc.setDrawColor(...ACCENT);
+  doc.setLineWidth(0.9);
+  doc.roundedRect(x, y, width, height, 8, 8, "S");
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(...ACCENT);
+  doc.text("PACKAGE DETAILS", x + CARD_PAD, y + CARD_PAD + 6);
+
+  const inner = width - CARD_PAD * 2;
+  let cy = y + CARD_PAD + CARD_TITLE_H;
+
+  sections.forEach((section, index) => {
+    const columns = Math.min(section.columns, maxColumns);
+    const colWidth = (inner - CARD_COL_GAP * (columns - 1)) / columns;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.setTextColor(...ACCENT);
+    doc.text(section.title.toUpperCase(), x + CARD_PAD, cy);
+    doc.setDrawColor(...ACCENT);
+    doc.setLineWidth(0.5);
+    doc.line(x + CARD_PAD, cy + 3, x + width - CARD_PAD, cy + 3);
+    cy += CARD_SECTION_TITLE_H;
+
+    let col = 0;
+    section.fields.forEach((fld) => {
+      const fx = x + CARD_PAD + col * (colWidth + CARD_COL_GAP);
+      const empty = !fld.value || fld.value.trim().length === 0 || fld.value === "-";
+      const valueText = empty ? "-" : fld.value;
+      const valueY = cy + 11;
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(7.5);
+      doc.setTextColor(...LABEL_GREY);
+      doc.splitTextToSize(fld.label, colWidth).slice(0, 1).forEach((line: string) => doc.text(line, fx, cy));
+
+      doc.setFontSize(8.5);
+      const chipWidth = fld.chip && !empty ? doc.getTextWidth(valueText) + 12 : Number.POSITIVE_INFINITY;
+      if (chipWidth <= colWidth) {
+        doc.setFillColor(...CHIP_FILL);
+        doc.setDrawColor(...ACCENT);
+        doc.setLineWidth(0.5);
+        doc.roundedRect(fx, valueY - 8, chipWidth, 12, 3, 3, "FD");
+        doc.setTextColor(40, 40, 40);
+        doc.text(valueText, fx + 6, valueY);
+      } else {
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(...(empty ? ([150, 150, 150] as [number, number, number]) : ([30, 30, 30] as [number, number, number])));
+        doc.splitTextToSize(valueText, colWidth).forEach((line: string, i: number) => doc.text(line, fx, valueY + i * 10));
+      }
+
+      col += 1;
+      if (col >= columns) {
+        col = 0;
+        cy += CARD_ROW_H;
+      }
+    });
+    if (col !== 0) cy += CARD_ROW_H;
+    if (index < sections.length - 1) cy += CARD_SECTION_GAP;
+  });
+
+  return y + height;
+}
+
+function drawTotals(doc: jsPDF, data: InvoiceData, labelX: number, valueX: number, startY: number): number {
+  let totalY = startY;
+  const totals: Array<[string, string]> = [
+    ["Total", money(data.total, data.currency)],
+    ["Paid", money(data.paid, data.currency)],
+    ["Balance Due", money(data.balance, data.currency)],
+  ];
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.setTextColor(70, 70, 70);
+  totals.forEach(([label, value]) => {
+    doc.text(label, labelX, totalY);
+    doc.text(value, valueX, totalY, { align: "right" });
+    totalY += 16;
+  });
+  return totalY;
 }
 
 export function buildInvoicePdf(data: InvoiceData): BuiltInvoice {
@@ -121,23 +235,9 @@ export function buildInvoicePdf(data: InvoiceData): BuiltInvoice {
 
   y = Math.max(clientY, bookingY) + 16;
 
-  if (data.package && data.package.length > 0) {
-    autoTable(doc, {
-      head: [["Package Details", ""]],
-      body: data.package.map((field) => [field.label, field.value]),
-      startY: y,
-      margin: { left: MARGIN, right: MARGIN },
-      theme: "grid",
-      headStyles: { fillColor: ACCENT, textColor: 255, fontSize: 9, fontStyle: "bold" },
-      styles: { fontSize: 9, cellPadding: 5, textColor: [40, 40, 40] },
-      columnStyles: { 0: { cellWidth: 150, fontStyle: "bold" } },
-    });
-    y = lastTableY(doc, y) + 14;
-  }
-
   const body = data.lines.map((line) => [
     line.label,
-    line.type,
+    line.note && line.note.trim() ? `${line.type}\n${line.note.trim()}` : line.type,
     dateLabel(line.dueDate),
     line.status ? line.status.toUpperCase() : "-",
     money(line.amount, data.currency),
@@ -159,31 +259,29 @@ export function buildInvoicePdf(data: InvoiceData): BuiltInvoice {
     },
   });
 
-  let totalY = lastTableY(doc, y) + 20;
-  const labelX = PAGE_WIDTH - MARGIN - 150;
-  const valueX = PAGE_WIDTH - MARGIN;
+  let bottomY = lastTableY(doc, y) + 24;
+  const BAND_GAP = 24;
 
-  const totals: Array<[string, string, boolean]> = [
-    ["Total", money(data.total, data.currency), false],
-    ["Paid", money(data.paid, data.currency), false],
-    ["Balance Due", money(data.balance, data.currency), true],
-  ];
-
-  totals.forEach(([label, value, strong]) => {
-    doc.setFont("helvetica", strong ? "bold" : "normal");
-    doc.setFontSize(strong ? 12 : 10);
-    doc.setTextColor(...(strong ? ACCENT : ([70, 70, 70] as [number, number, number])));
-    doc.text(label, labelX, totalY);
-    doc.text(value, valueX, totalY, { align: "right" });
-    totalY += strong ? 20 : 16;
-  });
+  if (data.package && data.package.length > 0) {
+    const leftWidth = (CONTENT_WIDTH - BAND_GAP) / 2;
+    const cardHeight = packageCardHeight(data.package, 2);
+    if (bottomY + cardHeight > 780) {
+      doc.addPage();
+      bottomY = MARGIN;
+    }
+    drawPackageCard(doc, data.package, MARGIN, bottomY, leftWidth, 2);
+    const totalsBottom = drawTotals(doc, data, MARGIN + leftWidth + BAND_GAP, PAGE_WIDTH - MARGIN, bottomY + 16);
+    bottomY = Math.max(bottomY + cardHeight, totalsBottom);
+  } else {
+    bottomY = drawTotals(doc, data, PAGE_WIDTH - MARGIN - 150, PAGE_WIDTH - MARGIN, bottomY + 16);
+  }
 
   if (data.notes && data.notes.trim()) {
     doc.setFont("helvetica", "italic");
     doc.setFontSize(9);
     doc.setTextColor(120, 120, 120);
     const note = doc.splitTextToSize(`Note: ${data.notes.trim()}`, CONTENT_WIDTH);
-    doc.text(note, MARGIN, totalY + 8);
+    doc.text(note, MARGIN, bottomY + 10);
   }
 
   doc.setFont("helvetica", "normal");

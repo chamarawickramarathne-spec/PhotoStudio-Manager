@@ -1,6 +1,6 @@
 {
   "name": "photostudio-manager",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "private": true,
   "license": "0BSD",
   "description": "PhotoStudio Manager monorepo: shared web SPA + Electron (Windows) + Capacitor (Android) shells.",

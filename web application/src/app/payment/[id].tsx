@@ -206,6 +206,13 @@ export default function PaymentDetailScreen() {
           </View>
         </View>
 
+        {schedule.notes ? (
+          <View style={styles.noteCard}>
+            <Ionicons name="document-text-outline" size={16} color={palette.onSurfaceVariant} />
+            <Text style={styles.noteText}>{schedule.notes}</Text>
+          </View>
+        ) : null}
+
         {isPaid ? (
           <View style={styles.paidNotice}>
             <Ionicons name="checkmark-circle" size={16} color={palette.success} />
@@ -334,6 +341,16 @@ const styles = StyleSheet.create({
   metaRow: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: spacing.sm },
   metaText: { fontSize: 12, color: palette.onSurfaceVariant },
   dot: { width: 3, height: 3, borderRadius: 2, backgroundColor: palette.outline, marginHorizontal: 4 },
+  noteCard: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: spacing.sm,
+    backgroundColor: palette.surfaceVariant,
+    borderRadius: radius.md,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  noteText: { flex: 1, fontSize: 13, color: palette.onBackground },
   recordBtn: { borderRadius: 999, marginBottom: spacing.xl },
   recordBtnContent: { height: 48 },
   paidNotice: {

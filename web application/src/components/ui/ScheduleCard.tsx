@@ -46,6 +46,14 @@ export function ScheduleCard({ schedule, currency, onPress, statusOverride, row 
             {bookingTitle}
             {clientName ? ` · ${clientName}` : ""} · Due {formatDate(schedule.due_date, "MMM d")}
           </Text>
+          {schedule.notes ? (
+            <View style={styles.noteRow}>
+              <Ionicons name="document-text-outline" size={12} color={palette.onSurfaceVariant} />
+              <Text style={styles.noteText} numberOfLines={1}>
+                {schedule.notes}
+              </Text>
+            </View>
+          ) : null}
         </View>
         <View style={styles.rowAmounts}>
           <Text style={[styles.rowPaidAmount, { color: remaining > 0 ? palette.warning : palette.success }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
@@ -67,6 +75,14 @@ export function ScheduleCard({ schedule, currency, onPress, statusOverride, row 
           <Text style={styles.reference} numberOfLines={1}>
             {bookingTitle}
           </Text>
+          {schedule.notes ? (
+            <View style={styles.noteRow}>
+              <Ionicons name="document-text-outline" size={12} color={palette.onSurfaceVariant} />
+              <Text style={styles.noteText} numberOfLines={2}>
+                {schedule.notes}
+              </Text>
+            </View>
+          ) : null}
         </View>
         <StatusBadge label={status.label} color={status.color} subtle />
       </View>
@@ -120,6 +136,8 @@ const styles = StyleSheet.create({
   titleBlock: { flex: 1, gap: 2 },
   name: { fontSize: 15, fontWeight: "700", color: palette.onBackground },
   reference: { fontSize: 12, color: palette.onSurfaceVariant },
+  noteRow: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 2, minWidth: 0 },
+  noteText: { fontSize: 12, color: palette.onSurfaceVariant, fontStyle: "italic", flexShrink: 1 },
   amountRow: { flexDirection: "row", justifyContent: "space-between", marginTop: spacing.sm },
   amountLabel: { fontSize: 11, color: palette.onSurfaceVariant, textTransform: "uppercase" },
   amount: { fontSize: 18, fontWeight: "800", color: palette.onBackground, marginTop: 2 },
