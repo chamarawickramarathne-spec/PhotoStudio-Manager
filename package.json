@@ -1,11 +1,11 @@
 {
   "name": "photostudio-manager",
-  "version": "2.0.3",
+  "version": "2.1.0",
   "private": true,
   "license": "0BSD",
-  "description": "PhotoStudio Manager monorepo: shared web SPA + Electron (Windows) + Capacitor (Android) shells.",
+  "description": "PhotoStudio Manager monorepo: shared app (core) + Electron (Windows) + Capacitor (Android) shells.",
   "workspaces": [
-    "web application",
+    "core",
     "Windows application",
     "Android Mobile"
   ],
@@ -14,14 +14,11 @@
     "image-size": "^2.0.4"
   },
   "scripts": {
-    "start": "npm run start -w \"web application\"",
-    "web": "npm run web -w \"web application\"",
-    "dev:web": "npm run dev:web -w \"web application\"",
-    "build": "npm run export:web",
-    "build:web": "npm run export:web",
-    "export:web": "npm run export:web -w \"web application\"",
-    "lint": "npm run lint -w \"web application\"",
-    "typecheck": "npm run typecheck -w \"web application\"",
+    "start": "npm run start -w core",
+    "dev": "npm run dev -w core",
+    "build": "npm run build -w core",
+    "lint": "npm run lint -w core",
+    "typecheck": "npm run typecheck -w core",
     "android:sync": "npm run sync -w \"Android Mobile\"",
     "android:build": "npm run build -w \"Android Mobile\"",
     "desktop:build": "npm run build -w \"Windows application\"",

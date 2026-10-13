@@ -1,18 +1,17 @@
 {
   "name": "photostudio-manager-desktop",
-  "version": "2.0.3",
+  "version": "2.1.0",
   "description": "PhotoStudio Manager - Windows desktop app for photographers",
   "main": "main.js",
   "author": "PhotoStudio Manager",
   "license": "0BSD",
   "private": true,
   "scripts": {
-    "web": "npm run prepare:web",
-    "build:web": "npm --prefix \"../web application\" run export:web",
-    "prepare:web": "node prepare-web.js",
+    "build:core": "npm --prefix \"../core\" run build",
+    "prepare:core": "node prepare-core.js",
     "start": "electron .",
-    "build:x64": "npm run build:web && npm run prepare:web && electron-builder --win --x64 --config.directories.output=dist-windows/x64",
-    "build:x86": "npm run build:web && npm run prepare:web && electron-builder --win --ia32 --config.directories.output=dist-windows/x86",
+    "build:x64": "npm run build:core && npm run prepare:core && electron-builder --win --x64 --config.directories.output=dist-windows/x64",
+    "build:x86": "npm run build:core && npm run prepare:core && electron-builder --win --ia32 --config.directories.output=dist-windows/x86",
     "build": "npm run build:x64 && npm run build:x86"
   },
   "devDependencies": {
@@ -22,7 +21,7 @@
   "build": {
     "appId": "com.photostudio.manager.desktop",
     "productName": "PhotoStudio Manager",
-    "copyright": "Copyright © 2026 PhotoStudio Manager",
+    "copyright": "Copyright Â© 2026 PhotoStudio Manager",
     "directories": {
       "buildResources": "build"
     },

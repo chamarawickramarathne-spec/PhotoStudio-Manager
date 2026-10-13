@@ -7,6 +7,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { DesktopUpdaterProvider } from "@/hooks/useDesktopUpdater";
 import { MobileUpdaterProvider } from "@/hooks/useMobileUpdater";
+import { DueNotificationsProvider } from "@/hooks/useDueNotifications";
 import { useAppUpdater } from "@/hooks/useAppUpdater";
 import { UpdateModal } from "@/components/ui/UpdateModal";
 import { ToastProvider } from "@/components/ui/ToastProvider";
@@ -55,11 +56,13 @@ export default function App() {
           <ToastProvider>
             <BackHandlerProvider>
               <AuthProvider>
-                <DesktopUpdaterProvider>
-                  <MobileUpdaterProvider>
-                    <AppGate />
-                  </MobileUpdaterProvider>
-                </DesktopUpdaterProvider>
+                <DueNotificationsProvider>
+                  <DesktopUpdaterProvider>
+                    <MobileUpdaterProvider>
+                      <AppGate />
+                    </MobileUpdaterProvider>
+                  </DesktopUpdaterProvider>
+                </DueNotificationsProvider>
               </AuthProvider>
             </BackHandlerProvider>
           </ToastProvider>

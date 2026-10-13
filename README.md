@@ -1,10 +1,10 @@
 # PhotoStudio Manager
 
 An all-in-one studio management app for photographers to manage **clients**, **bookings**
-(with a dedicated Wedding form), and **payments** (schedules + installments). One
-web-first codebase runs on **Windows desktop** (Electron), **web** (browser), and
-**Android** (Capacitor WebView), all backed by a single Supabase account that keeps
-every device in sync.
+(with a dedicated Wedding form), and **payments** (schedules + installments). A single
+shared codebase ships as a **Windows desktop** app (Electron) and an **Android** app
+(Capacitor WebView), both backed by a single Supabase account that keeps every device in
+sync. There is no browser edition.
 
 ## Features
 
@@ -17,14 +17,21 @@ every device in sync.
   schedules auto-mark themselves paid once installments cover the amount; overdue flags
   keep outstanding amounts visible. A booking can only ever have one final payment
   schedule (app guard + DB unique partial index).
+- **Invoices** - a shareable PDF invoice per booking with grouped package details, line
+  items, totals, and native share / download.
+- **Due-date reminders** - Android schedules OS notifications for each unpaid schedule
+  (09:00 on the due date and 09:00 the following day); the Windows app shows a native
+  toast the same way while it is running.
 - **Dashboard** - 4 stat tiles (Total Bookings / Active Clients / Monthly Revenue /
   Outstanding) with month-over-month trend badges, an interactive monthly revenue bar
   chart with 1/3/6/12-month range selectors, Next Shoots strip, and grouped Payments Due;
   one-tap quick actions; single-line stat row on wide screens.
+- **Reports** - revenue chart, collected/outstanding/overdue tiles, revenue by type,
+  payment methods, top clients, and a bookings pipeline.
 - **Profile** - switchable working currency (default LKR); encrypted profile avatar
-  (AES-GCM, web/desktop); desktop update controls.
-- **Windows desktop** - Electron shell over the shared Vite SPA with resizable window,
-  automatic one-click Git-based updates, and both x86 and x64 installers.
+  (AES-GCM); app update controls.
+- **Windows desktop** - Electron shell over the shared app with a resizable window and
+  automatic one-click Git-based updates (both x86 and x64 installers).
 
 ## Tech stack
 
@@ -32,24 +39,27 @@ every device in sync.
 - React Native 0.86 (JS API) on react-native-web ~0.21, React Native Paper (Material Design)
 - React Router v7 SPA (`createBrowserRouter` + typed adapter), `@react-native-vector-icons`
 - Supabase (Postgres + Auth + RLS + PKCE), `@supabase/supabase-js`
-- TanStack Query v5, react-hook-form + zod v4
-- Electron 43.7.x (desktop, NSIS x64/x86), Capacitor 7 (Android)
+- TanStack Query v5, react-hook-form + zod v4, jsPDF + jspdf-autotable
+- Electron 43.7.x (desktop, NSIS x64/x86), Capacitor 7 (Android + local notifications)
+- npm workspaces monorepo: `core` + `Windows application` + `Android Mobile`
 
 ## Project layout
 
 ```
-index.html / vite.config.mts     # web-first build (Vite → desktop/dist)
-src/main.tsx / src/App.tsx       # entry + providers (auth/query/paper/desktop updater)
-src/navigation/router.tsx        # SPA route table + guards + expo-router-compatible adapter
-src/app/                         # screen components (auth, tabs, booking/client/payment flows)
-src/components/                  # Shared UI (cards, badges, inputs, empty states, RevenueChart, etc.)
-src/forms/                       # Reusable form schemas/components
-src/hooks/                       # TanStack Query data hooks per entity
-src/lib/                         # supabase client, constants, types, utils, desktop bridge, media (WebCrypto)
-src/theme/                       # Paper theme + palette
-supabase/migrations/             # SQL schema + RLS + triggers (0001 init, 0002 RLS fix, 0003 index, 0004 photographer details)
-desktop/                         # Electron Windows app (main, preload, static server, updater)
-android/                         # Capacitor Android project (generated; gitignored)
+core/                            # shared app source (react-native-web) consumed by both shells
+  src/App.tsx                    # entry + providers (auth/query/paper/updater/notifications)
+  src/navigation/router.tsx      # SPA route table + guards + expo-router-compatible adapter
+  src/app/                       # screen components (auth, tabs, booking/client/payment/invoice flows)
+  src/components/                # shared UI (cards, badges, inputs, invoice, dashboard, etc.)
+  src/forms/                     # reusable form schemas/components
+  src/hooks/                     # TanStack Query hooks per entity + app providers
+  src/lib/                       # supabase client, constants, types, format, desktop bridge,
+                                 #   notifications/, update/, invoice/, media (WebCrypto)
+  src/theme/                     # Paper theme + palette
+  vite.config.mts / index.html   # Vite build (outputs core/dist, embedded by both shells)
+Windows application/             # Electron Windows app (main, preload, static server, updater)
+Android Mobile/                  # Capacitor Android project + local psm-install plugin
+supabase/migrations/             # SQL schema + RLS + triggers (0001–0005)
 media/                           # logos, icons, branding, screenshots
 test_APK/                        # release APKs (kept local; shipped via GitHub releases)
 .env                             # EXPO_PUBLIC_* (client-safe) + service-role key (setup only)
@@ -64,27 +74,31 @@ Data model: every table is scoped by `user_id` (single photographer account) wit
 
 ```bash
 npm install
-npm run web                # start Vite dev server
-npm run build              # Vite build → desktop/dist
-npx tsc --noEmit           # typecheck
+npm run dev                # start the Vite dev server for the shared core UI
+npm run build              # Vite build → core/dist
+npm run typecheck          # tsc --noEmit
 npm run lint               # ESLint (standalone flat config)
 ```
 
+The Vite dev server is internal development tooling only; the app is not shipped or
+supported in a browser.
+
 ## Builds
 
-### Web / Electron (Windows desktop)
+### Windows (Electron)
 
 ```
-npm run export:web                 # vite build → desktop/dist
-cd desktop && npm run build:x64    # → dist-windows/x64/PhotoStudioManager-Setup-x64.exe
-cd desktop && npm run build:x86    # → dist-windows/x86/...-Setup-ia32.exe (rename to -x86.exe)
+npm run desktop:build:x64          # → Windows application/dist-windows/x64/PhotoStudioManager-Setup-x64.exe
+npm run desktop:build:x86          # → dist-windows/x86/...-Setup-ia32.exe (rename to -x86.exe)
 ```
 
-Produce `<installer>.sha256` checksum files and attach both installers + checksums to the
-GitHub release. The built-in updater checks the project's latest GitHub release, picks the
-installer for the machine architecture, verifies SHA-256, and installs silently - it
-refuses to install on missing release/installer/checksum or checksum mismatch. Electron is
-pinned to ^43.7.3 (the last patched line shipping win32-ia32 builds; 44+ drops 32-bit).
+Each build runs `core`'s Vite build, copies `core/dist` into the Electron app, and packages
+with electron-builder (NSIS). Produce `<installer>.sha256` checksum files and attach both
+installers + checksums to the GitHub release. The built-in updater checks the project's
+latest GitHub release, picks the installer for the machine architecture, verifies SHA-256,
+and installs silently - it refuses to install on a missing release/installer/checksum or a
+checksum mismatch. Electron is pinned to ^43.7.x (the last patched line shipping
+win32-ia32 builds; 44+ drops 32-bit).
 
 ### Android (Capacitor, no Expo/CMake)
 
@@ -92,7 +106,7 @@ Requires JDK 21 (`$env:JAVA_HOME` → a JDK 21 copy, e.g.
 `E:\AIprojects\AI Agent\jdk-21\jdk-21`) and the Android SDK (`ANDROID_HOME` set).
 
 ```bash
-npm run android:build       # export:web + cap sync android + gradlew assembleRelease
+npm run android:build       # core build + cap sync android + gradlew assembleRelease
 ```
 
 Copy `android/app/build/outputs/apk/release/app-release.apk` to `test_APK/` as
@@ -107,38 +121,46 @@ release (CORS-open API) and, when a newer version ships a matching
 downloaded natively via `@capacitor/filesystem` (release-asset URLs are not CORS-open,
 so WebView fetch cannot read them), SHA-256 verified by the local
 `capacitor-plugin-psm-install` plugin, and installed through the app's FileProvider.
-Fail-closed: missing checksum or hash mismatch refuses the install (mismatched file is
+Fail-closed: a missing checksum or hash mismatch refuses the install (mismatched file is
 deleted).
+
+## Notifications
+
+- **Android** - `@capacitor/local-notifications` schedules one OS notification per unpaid
+  schedule at 09:00 on its due date ("Payment due today") and 09:00 the following day
+  ("Payment overdue"). Schedules are rewired whenever the data changes, on app resume, and
+  cleared on sign-out; the plugin restores them after a device reboot. Android 13+ prompts
+  for notification permission on first use.
+- **Windows** - the Electron main process shows a native toast once per schedule for each
+  event while the app is running (deduped per schedule/event/due date). Electron has no
+  background scheduler, so a toast cannot appear while the app is closed.
 
 ## Database
 
 - `supabase/migrations/0001_init.sql` - schema, RLS policies, triggers (initial build).
-- `supabase/migrations/0002_fix_installment_rls.sql` - removes the SECURITY DEFINER
-  `apply_installment()` cross-tenant hole, adds the BEFORE-owner trigger, and fixes
-  zero-amount schedules being auto-marked paid. Applied to the live Supabase instance on
-  2026-09-20.
-- `supabase/migrations/0003_one_final_schedule_per_booking.sql` - unique partial index
-  enforcing at most one `final` payment schedule per booking. Applied to the live
-  Supabase instance on 2026-09-22.
-- `supabase/migrations/0004_photographer_details.sql` - `profiles.avatar_data` /
-  `avatar_mime` (encrypted avatar storage protocol replaces the public URL bucket).
-  Applied to the live Supabase instance on 2026-09-22; the unused legacy
-  `profile-media` bucket was removed via the Storage API (Dashboard → Storage).
+- `0002_fix_installment_rls.sql` - removes the SECURITY DEFINER `apply_installment()`
+  cross-tenant hole, adds the BEFORE-owner trigger, fixes zero-amount schedules being
+  auto-marked paid.
+- `0003_one_final_schedule_per_booking.sql` - unique partial index enforcing at most one
+  `final` payment schedule per booking.
+- `0004_photographer_details.sql` - `profiles.avatar_data` / `avatar_mime` (encrypted
+  avatar storage replaces the public URL bucket).
+- `0005_payment_schedule_cascade.sql` - deletes a booking's payment schedules (and
+  installments) with the booking.
 
-All migrations (0001–0004) are applied to the live Supabase instance. Apply any new
-migration manually in the Supabase Dashboard → SQL Editor (no CLI transport is
-configured).
+Migrations 0001–0004 are applied to the live Supabase instance; `0005` is applied
+manually. Apply any new migration in the Supabase Dashboard → SQL Editor (no CLI transport
+is configured).
 
 ## Releases
 
 - Windows releases on GitHub carry `PhotoStudioManager-Setup-{x64,x86}.exe` + `.sha256`.
 - Releases whose tag/version shipped shared-source changes must also attach
-  `PhotoStudioManager-<version>.apk` + `.sha256` - the mobile updater refuses any
-  release whose exact-name APK/checksum assets are missing (never leave a stale
-  same-pattern APK on a release).
-- Version is bumped in `package.json` (web/Android `__APP_VERSION__`) and
-  `desktop/package.json` (compared by the updater); Android versionCode/versionName in
-  `android/app/build.gradle`.
+  `PhotoStudioManager-<version>.apk` + `.sha256` - the mobile updater refuses any release
+  whose exact-name APK/checksum assets are missing (never leave a stale same-pattern APK on
+  a release).
+- Version is bumped in `package.json` (root + `core` + `Windows application` +
+  `Android Mobile`) and `android/app/build.gradle` (versionCode/versionName).
 
 ## License
 

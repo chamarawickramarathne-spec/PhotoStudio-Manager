@@ -1,6 +1,6 @@
 const path = require("path");
 const fs = require("fs");
-const { app, BrowserWindow, ipcMain, session, shell } = require("electron");
+const { app, BrowserWindow, Notification, ipcMain, session, shell } = require("electron");
 
 const { createStaticServer } = require("./static-server");
 const { createUpdater } = require("./updater");
@@ -147,6 +147,23 @@ function createWindow() {
 function registerIpc() {
   ipcMain.handle("app:get-version", () => app.getVersion());
 
+  ipcMain.handle("notify:show", (_event, options) => {
+    const title = typeof options?.title === "string" ? options.title : "";
+    const body = typeof options?.body === "string" ? options.body : "";
+    if (!title && !body) return { shown: false };
+    if (!Notification.isSupported()) return { shown: false };
+    const notification = new Notification({ title, body, icon: ICON_PATH });
+    notification.on("click", () => {
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        if (mainWindow.isMinimized()) mainWindow.restore();
+        mainWindow.show();
+        mainWindow.focus();
+      }
+    });
+    notification.show();
+    return { shown: true };
+  });
+
   ipcMain.handle("updater:check", async () => {
     const result = await updater.check();
     if (result.status === "update-available") pendingUpdate = result;
@@ -171,6 +188,8 @@ if (!gotLock) {
   });
 
   app.whenReady().then(async () => {
+    // Match the NSIS shortcut's AppUserModelID so native toasts display reliably.
+    app.setAppUserModelId("com.photostudio.manager.desktop");
     staticServer = await createStaticServer(WEB_ROOT).listen(readPreferredPort());
     writeServerPort(staticServer.port);
     registerIpc();

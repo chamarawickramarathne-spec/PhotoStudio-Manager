@@ -9,6 +9,7 @@ function subscribe(channel, callback) {
 contextBridge.exposeInMainWorld("photoStudioDesktop", {
   isDesktop: true,
   getVersion: () => ipcRenderer.invoke("app:get-version"),
+  notify: (options) => ipcRenderer.invoke("notify:show", options),
   checkForUpdates: () => ipcRenderer.invoke("updater:check"),
   installUpdate: () => ipcRenderer.invoke("updater:install"),
   onUpdateStatus: (callback) => subscribe("updater:status", callback),

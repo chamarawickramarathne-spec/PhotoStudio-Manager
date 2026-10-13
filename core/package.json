@@ -1,13 +1,14 @@
 {
-  "name": "photostudio-manager-web",
-  "version": "2.0.3",
+  "name": "photostudio-manager-core",
+  "version": "2.1.0",
   "private": true,
   "license": "0BSD",
-  "description": "PhotoStudio Manager shared web-first SPA (react-native-web) used by web, Windows (Electron), and Android (Capacitor).",
+  "description": "PhotoStudio Manager shared app source (react-native-web) consumed by the Windows (Electron) and Android (Capacitor) shells.",
   "dependencies": {
     "@capacitor/app": "^7.1.2",
     "@capacitor/core": "^7.0.0",
     "@capacitor/filesystem": "^7.1.9",
+    "@capacitor/local-notifications": "^7.0.0",
     "@capacitor/share": "^7.0.4",
     "@hookform/resolvers": "^5.7.1",
     "@react-native-vector-icons/common": "^13.0.3",
@@ -44,11 +45,8 @@
   },
   "scripts": {
     "start": "vite",
-    "web": "vite",
-    "dev:web": "vite",
+    "dev": "vite",
     "build": "vite build",
-    "build:web": "vite build",
-    "export:web": "vite build",
     "lint": "eslint src eslint.config.js vite.config.mts",
     "typecheck": "tsc --noEmit"
   }
