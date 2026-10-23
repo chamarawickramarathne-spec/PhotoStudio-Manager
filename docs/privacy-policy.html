@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Privacy Policy — PhotoStudio Manager</title>
+    <style>
+      :root { color-scheme: light; }
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        background: #faf9f6;
+        color: #241f1c;
+        line-height: 1.65;
+      }
+      main { max-width: 760px; margin: 0 auto; padding: 48px 24px 72px; }
+      h1 { font-size: 2rem; margin-bottom: 8px; }
+      h2 { font-size: 1.15rem; margin-top: 32px; }
+      p, li { color: #4b423c; }
+      a { color: #a83524; }
+      .brand { color: #a83524; font-weight: 700; }
+      .muted { color: #7a6f68; font-size: 0.92rem; }
+      .card {
+        background: #fff;
+        border: 1px solid #e8e2da;
+        border-radius: 14px;
+        padding: 20px 22px;
+        margin: 18px 0;
+      }
+      footer { margin-top: 40px; padding-top: 18px; border-top: 1px solid #e8e2da; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="brand">PhotoStudio Manager</p>
+      <h1>Privacy Policy</h1>
+      <p class="muted">Effective date: 23 October 2026</p>
+
+      <p>
+        PhotoStudio Manager ("the app", "we", "us") is a studio management app for photographers.
+        This policy explains what information the app stores, why it is stored, where it is stored,
+        and how you can remove it.
+      </p>
+
+      <h2>1. Who controls your data</h2>
+      <p>
+        The app is operated by the photographer or studio that installs it. Each account is a
+        single-tenant workspace. The developer, Chamara Wickramarathne, provides the software and
+        does not sell or rent your data.
+      </p>
+
+      <h2>2. Information the app stores</h2>
+      <ul>
+        <li><strong>Account details:</strong> name, email address, optional phone number, and password (handled by Supabase Auth; we never see your password).</li>
+        <li><strong>Studio profile:</strong> business name, contact details, address, website, portfolio link, bio, currency, and an optional logo or profile image.</li>
+        <li><strong>Client records:</strong> names, email addresses, phone numbers, addresses, status, and notes you enter.</li>
+        <li><strong>Booking records:</strong> event type, dates, times, locations, package details, amounts, and notes.</li>
+        <li><strong>Payment records:</strong> payment schedules, due dates, installments, amounts, payment methods, and notes.</li>
+        <li><strong>Invoice data:</strong> invoice previews and PDFs generated on your device from the records above.</li>
+      </ul>
+
+      <h2>3. How information is used</h2>
+      <p>
+        The information is used only to provide the app's features: managing clients, bookings,
+        payment schedules, reminders, invoices, and reports. The app does not use your data for
+        advertising, profiling, or automated decision-making.
+      </p>
+
+      <h2>4. Where data is stored</h2>
+      <p>
+        Account and studio data is stored in a Supabase PostgreSQL database with row-level
+        security, so each account can access only its own records. Authentication is handled by
+        Supabase Auth. Data is transmitted over HTTPS/TLS. A Supabase session token is stored on
+        your device so you stay signed in.
+      </p>
+      <p>
+        Android payment reminders are scheduled locally on your device. Invoice PDFs are generated
+        on your device; sharing a PDF is initiated by you through the Android share sheet.
+      </p>
+
+      <h2>5. Sharing</h2>
+      <p>
+        We do not sell, rent, or share personal data with advertisers. Data is shared only with:
+      </p>
+      <ul>
+        <li><strong>Supabase</strong>, as the database and authentication provider.</li>
+        <li><strong>Google Play</strong>, for app distribution and updates.</li>
+        <li><strong>Recipients you choose</strong>, when you share an invoice PDF using the system share sheet.</li>
+        <li><strong>Authorities</strong>, when required by applicable law.</li>
+      </ul>
+
+      <h2>6. Retention and deletion</h2>
+      <p>
+        Data remains in your account until you delete it or delete your account. You can delete
+        individual clients, bookings, schedules, and installments in the app. Deleting your
+        account removes your profile and all related clients, bookings, payment schedules,
+        installments, and stored profile images.
+      </p>
+      <p>
+        See <a href="./account-deletion.html">Account Deletion</a> for the in-app steps and the
+        email request process.
+      </p>
+
+      <h2>7. Your choices and rights</h2>
+      <p>
+        You can view and edit your studio profile and all client, booking, and payment records in
+        the app. You can delete records individually or delete the entire account. Depending on
+        your jurisdiction, you may also have the right to access, correct, export, or object to
+        processing; contact us to exercise those rights.
+      </p>
+
+      <h2>8. Children</h2>
+      <p>
+        The app is intended for professional photographers and studio owners. It is not directed
+        to children under 18, and we do not knowingly collect data from children.
+      </p>
+
+      <h2>9. Security</h2>
+      <p>
+        We use HTTPS/TLS in transit, row-level security in the database, and per-account access
+        controls. No method of storage or transmission is completely secure; protect your device
+        and account credentials.
+      </p>
+
+      <h2>10. Changes</h2>
+      <p>
+        We may update this policy when the app changes. The effective date at the top of this page
+        will be updated, and material changes will be reflected in the app or store listing.
+      </p>
+
+      <h2>11. Contact</h2>
+      <div class="card">
+        <p>
+          Chamara Wickramarathne<br />
+          Email: <a href="mailto:chamara.wickramarathne@gmail.com">chamara.wickramarathne@gmail.com</a>
+        </p>
+      </div>
+
+      <footer class="muted">
+        <a href="./index.html">Back to legal index</a>
+      </footer>
+    </main>
+  </body>
+</html>
