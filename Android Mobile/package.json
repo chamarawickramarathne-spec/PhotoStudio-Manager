@@ -1,6 +1,6 @@
 {
   "name": "photostudio-manager-android",
-  "version": "2.1.0",
+  "version": "2.2.1",
   "private": true,
   "license": "0BSD",
   "description": "PhotoStudio Manager Android app (Capacitor shell wrapping the shared core app).",
@@ -10,8 +10,7 @@
     "@capacitor/core": "^7.0.0",
     "@capacitor/filesystem": "^7.1.9",
     "@capacitor/local-notifications": "^7.0.0",
-    "@capacitor/share": "^7.0.4",
-    "capacitor-plugin-psm-install": "file:capacitor-plugin-psm-install"
+    "@capacitor/share": "^7.0.4"
   },
   "devDependencies": {
     "@capacitor/cli": "^7.0.0"
@@ -19,6 +18,7 @@
   "scripts": {
     "build:core": "npm --prefix \"../core\" run build",
     "sync": "npm run build:core && cap sync android",
-    "build": "npm run build:core && cap sync android && cd android && gradlew.bat assembleRelease"
+    "build": "npm run build:core && cap sync android && cd android && gradlew.bat assembleRelease",
+    "bundle": "npm run build:core && cap sync android && cd android && gradlew.bat bundleRelease"
   }
 }

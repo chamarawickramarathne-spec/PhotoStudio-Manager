@@ -27,6 +27,7 @@ interface AuthContextValue {
     phone?: string;
   }) => Promise<boolean>;
   signOut: () => Promise<void>;
+  deleteAccount: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   refreshProfile: () => Promise<void>;
   updateProfile: (patch: Partial<Profile>) => Promise<void>;
@@ -96,6 +97,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfile(null);
   }, []);
 
+  const deleteAccount = useCallback(async () => {
+    const { error } = await supabase.rpc("delete_own_account");
+    if (error) throw error;
+    await supabase.auth.signOut({ scope: "local" });
+    setProfile(null);
+  }, []);
+
   const resetPassword = useCallback(async (email: string) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email);
     if (error) throw error;
@@ -128,11 +136,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signIn,
       signUp,
       signOut,
+      deleteAccount,
       resetPassword,
       refreshProfile,
       updateProfile,
     }),
-    [session, profile, loading, signIn, signUp, signOut, resetPassword, refreshProfile, updateProfile],
+    [session, profile, loading, signIn, signUp, signOut, deleteAccount, resetPassword, refreshProfile, updateProfile],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

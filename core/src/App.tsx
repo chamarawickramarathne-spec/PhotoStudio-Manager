@@ -6,7 +6,6 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { DesktopUpdaterProvider } from "@/hooks/useDesktopUpdater";
-import { MobileUpdaterProvider } from "@/hooks/useMobileUpdater";
 import { DueNotificationsProvider } from "@/hooks/useDueNotifications";
 import { useAppUpdater } from "@/hooks/useAppUpdater";
 import { UpdateModal } from "@/components/ui/UpdateModal";
@@ -58,9 +57,7 @@ export default function App() {
               <AuthProvider>
                 <DueNotificationsProvider>
                   <DesktopUpdaterProvider>
-                    <MobileUpdaterProvider>
-                      <AppGate />
-                    </MobileUpdaterProvider>
+                    <AppGate />
                   </DesktopUpdaterProvider>
                 </DueNotificationsProvider>
               </AuthProvider>

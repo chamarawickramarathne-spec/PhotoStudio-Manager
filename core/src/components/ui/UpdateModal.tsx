@@ -4,7 +4,6 @@ import { ActivityIndicator, Button, Modal, ProgressBar } from "react-native-pape
 import Ionicons from "@react-native-vector-icons/ionicons";
 
 import type { UpdateProgress, UpdateResult } from "@/lib/desktop";
-import { isNativeApp } from "@/lib/platform";
 import { useBackIntercept } from "@/components/ui/BackHandlerProvider";
 import { palette, radius, spacing } from "@/theme";
 
@@ -44,9 +43,7 @@ function statusLine(
     case "installing":
       return {
         title: "Installing update…",
-        detail: isNativeApp()
-          ? "Confirm the system install prompt to finish."
-          : "The app will close when finished.",
+        detail: "The app will close when finished.",
         status: "working",
       };
     case "up-to-date":

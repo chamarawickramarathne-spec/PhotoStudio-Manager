@@ -5,6 +5,8 @@ import Ionicons from "@react-native-vector-icons/ionicons";
 
 import { AppHeader, KeyboardScreen } from "@/components/ui/Screen";
 import { AppAvatar } from "@/components/ui/AppAvatar";
+import { DeleteAccountDialog } from "@/components/ui/DeleteAccountDialog";
+import { useAppToast } from "@/components/ui/ToastProvider";
 import { PhotographerForm } from "@/forms/PhotographerForm";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfileAvatar } from "@/hooks/useProfileAvatar";
@@ -16,10 +18,13 @@ import { palette, radius, spacing } from "@/theme";
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 
 export default function ProfileScreen() {
-  const { profile, currency, updateProfile } = useAuth();
+  const { profile, currency, updateProfile, deleteAccount } = useAuth();
+  const toast = useAppToast();
   const [saveError, setSaveError] = useState("");
   const [savingCode, setSavingCode] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const setCurrency = async (code: string) => {
     setSaveError("");
@@ -54,6 +59,20 @@ export default function ProfileScreen() {
       setSaveError(getErrorMessage(e));
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    setSaveError("");
+    setDeleting(true);
+    try {
+      await deleteAccount();
+      toast.show("Account deleted");
+    } catch (e) {
+      setDeleteOpen(false);
+      setSaveError(getErrorMessage(e));
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -135,10 +154,37 @@ export default function ProfileScreen() {
           </PaperText>
         </View>
 
+        <View style={[styles.card, styles.dangerCard]}>
+          <View style={styles.cardHeader}>
+            <Ionicons name="warning-outline" size={20} color={palette.danger} />
+            <Text style={styles.cardTitle}>Danger zone</Text>
+          </View>
+          <Text style={styles.cardSub}>
+            Permanently delete your account and every client, booking, payment, and invoice in it.
+          </Text>
+          <Button
+            mode="outlined"
+            textColor={palette.danger}
+            icon="trash-outline"
+            onPress={() => setDeleteOpen(true)}
+            style={styles.deleteBtn}
+          >
+            Delete Account
+          </Button>
+        </View>
+
         {saveError ? (
           <Text style={styles.error}>{saveError}</Text>
         ) : null}
       </ScrollView>
+
+      {deleteOpen ? (
+        <DeleteAccountDialog
+          loading={deleting}
+          onCancel={() => setDeleteOpen(false)}
+          onConfirm={() => void handleDeleteAccount()}
+        />
+      ) : null}
     </KeyboardScreen>
   );
 }
@@ -175,5 +221,7 @@ const styles = StyleSheet.create({
   currencyRow: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm },
   currencyBtn: { borderRadius: radius.pill },
   currencySub: { fontSize: 12, color: palette.onSurfaceVariant, marginTop: spacing.md },
+  dangerCard: { borderWidth: 1, borderColor: `${palette.danger}44` },
+  deleteBtn: { borderRadius: radius.pill, borderColor: palette.danger },
   error: { color: palette.danger, fontSize: 13, textAlign: "center", marginTop: spacing.md },
 });

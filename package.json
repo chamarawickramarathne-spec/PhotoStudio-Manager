@@ -1,6 +1,6 @@
 {
   "name": "photostudio-manager",
-  "version": "2.1.0",
+  "version": "2.2.1",
   "private": true,
   "license": "0BSD",
   "description": "PhotoStudio Manager monorepo: shared app (core) + Electron (Windows) + Capacitor (Android) shells.",
@@ -21,6 +21,7 @@
     "typecheck": "npm run typecheck -w core",
     "android:sync": "npm run sync -w \"Android Mobile\"",
     "android:build": "npm run build -w \"Android Mobile\"",
+    "android:bundle": "npm run bundle -w \"Android Mobile\"",
     "desktop:build": "npm run build -w \"Windows application\"",
     "desktop:build:x64": "npm run build:x64 -w \"Windows application\"",
     "desktop:build:x86": "npm run build:x86 -w \"Windows application\""

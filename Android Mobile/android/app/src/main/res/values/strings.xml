@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">PhotoStudio Manager</string>
+    <string name="title_activity_main">PhotoStudio Manager</string>
+    <string name="package_name">lk.photostudiomanager</string>
+    <string name="custom_url_scheme">lk.photostudiomanager</string>
+</resources>

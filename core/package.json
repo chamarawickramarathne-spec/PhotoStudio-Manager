@@ -1,6 +1,6 @@
 {
   "name": "photostudio-manager-core",
-  "version": "2.1.0",
+  "version": "2.2.1",
   "private": true,
   "license": "0BSD",
   "description": "PhotoStudio Manager shared app source (react-native-web) consumed by the Windows (Electron) and Android (Capacitor) shells.",
@@ -16,7 +16,6 @@
     "@react-native-vector-icons/material-design-icons": "^13.1.4",
     "@supabase/supabase-js": "^2.112.2",
     "@tanstack/react-query": "^5.101.4",
-    "capacitor-plugin-psm-install": "file:../Android Mobile/capacitor-plugin-psm-install",
     "date-fns": "^4.4.0",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",

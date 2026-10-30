@@ -1,6 +1,6 @@
 {
   "name": "photostudio-manager-desktop",
-  "version": "2.1.0",
+  "version": "2.2.1",
   "description": "PhotoStudio Manager - Windows desktop app for photographers",
   "main": "main.js",
   "author": "PhotoStudio Manager",
@@ -15,13 +15,13 @@
     "build": "npm run build:x64 && npm run build:x86"
   },
   "devDependencies": {
-    "electron": "43.7.9",
+    "electron": "43.8.4",
     "electron-builder": "^26.0.12"
   },
   "build": {
     "appId": "com.photostudio.manager.desktop",
     "productName": "PhotoStudio Manager",
-    "copyright": "Copyright Â© 2026 PhotoStudio Manager",
+    "copyright": "Copyright Ã‚Â© 2026 PhotoStudio Manager",
     "directories": {
       "buildResources": "build"
     },

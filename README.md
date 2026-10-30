@@ -29,9 +29,12 @@ sync. There is no browser edition.
 - **Reports** - revenue chart, collected/outstanding/overdue tiles, revenue by type,
   payment methods, top clients, and a bookings pipeline.
 - **Profile** - switchable working currency (default LKR); encrypted profile avatar
-  (AES-GCM); app update controls.
+  (AES-GCM); account deletion (type-to-confirm, removes the account and all owned data);
+  desktop-only update controls.
 - **Windows desktop** - Electron shell over the shared app with a resizable window and
   automatic one-click Git-based updates (both x86 and x64 installers).
+- **Android updates** - delivered exclusively through Google Play; the app no longer
+  downloads or installs APKs itself.
 
 ## Tech stack
 
@@ -40,7 +43,7 @@ sync. There is no browser edition.
 - React Router v7 SPA (`createBrowserRouter` + typed adapter), `@react-native-vector-icons`
 - Supabase (Postgres + Auth + RLS + PKCE), `@supabase/supabase-js`
 - TanStack Query v5, react-hook-form + zod v4, jsPDF + jspdf-autotable
-- Electron 43.7.x (desktop, NSIS x64/x86), Capacitor 7 (Android + local notifications)
+- Electron 43.8.4 (desktop, NSIS x64/x86), Capacitor 7 (Android, minSdk 24, targetSdk 36)
 - npm workspaces monorepo: `core` + `Windows application` + `Android Mobile`
 
 ## Project layout
@@ -58,10 +61,12 @@ core/                            # shared app source (react-native-web) consumed
   src/theme/                     # Paper theme + palette
   vite.config.mts / index.html   # Vite build (outputs core/dist, embedded by both shells)
 Windows application/             # Electron Windows app (main, preload, static server, updater)
-Android Mobile/                  # Capacitor Android project + local psm-install plugin
-supabase/migrations/             # SQL schema + RLS + triggers (0001–0005)
-media/                           # logos, icons, branding, screenshots
-test_APK/                        # release APKs (kept local; shipped via GitHub releases)
+Android Mobile/                  # Capacitor Android project (app id lk.photostudiomanager)
+supabase/migrations/             # SQL schema + RLS + triggers (0001–0006)
+docs/                            # Play Console legal pages (GitHub Pages)
+media/                           # logos, icons, branding, screenshots, Play assets
+test_APK/                        # release APKs for local QA (kept local; gitignored)
+release_aab/                     # Play upload bundles (kept local; gitignored)
 .env                             # EXPO_PUBLIC_* (client-safe) + service-role key (setup only)
 ```
 
@@ -97,8 +102,9 @@ with electron-builder (NSIS). Produce `<installer>.sha256` checksum files and at
 installers + checksums to the GitHub release. The built-in updater checks the project's
 latest GitHub release, picks the installer for the machine architecture, verifies SHA-256,
 and installs silently - it refuses to install on a missing release/installer/checksum or a
-checksum mismatch. Electron is pinned to ^43.7.x (the last patched line shipping
-win32-ia32 builds; 44+ drops 32-bit).
+checksum mismatch. Electron is pinned to the exact version `43.8.4` (electron-builder
+rejects ranges; 43.x is the last line shipping win32-ia32 builds, 44+ drops 32-bit).
+`npm audit` must report 0 vulnerabilities.
 
 ### Android (Capacitor, no Expo/CMake)
 
@@ -106,23 +112,44 @@ Requires JDK 21 (`$env:JAVA_HOME` → a JDK 21 copy, e.g.
 `E:\AIprojects\AI Agent\jdk-21\jdk-21`) and the Android SDK (`ANDROID_HOME` set).
 
 ```bash
-npm run android:build       # core build + cap sync android + gradlew assembleRelease
+npm run android:build       # core build + cap sync android + gradlew assembleRelease (QA APK)
+npm run android:bundle      # Play upload artifact: app-release.aab
 ```
 
-Copy `android/app/build/outputs/apk/release/app-release.apk` to `test_APK/` as
-`PhotoStudioManager-<version>.apk`. Release builds are signed with the private
-`photostudio-release.keystore` (see `android/keystore.properties`; gitignored). Versioning
-(versionName/versionCode) is set in `android/app/build.gradle` in sync with
-`package.json` `version` and the root `__APP_VERSION__`.
+App id `lk.photostudiomanager`. Copy `android/app/build/outputs/apk/release/app-release.apk`
+to `test_APK/PhotoStudioManager-<version>.apk` for local QA and copy
+`android/app/build/outputs/bundle/release/app-release.aab` to
+`release_aab/PhotoStudioManager-<version>.aab` for Play Console. Release builds are signed
+with the private `photostudio-release.keystore` (see `android/keystore.properties`;
+gitignored). Versioning (versionName/versionCode) is set in
+`android/app/build.gradle` in sync with `package.json` `version` and the root
+`__APP_VERSION__`.
 
-Since mobile 1.6.2 the Android app self-updates: on launch it checks the latest GitHub
-release (CORS-open API) and, when a newer version ships a matching
-`PhotoStudioManager-<tagVer>.apk` + `.sha256`, offers a one-tap install. The APK is
-downloaded natively via `@capacitor/filesystem` (release-asset URLs are not CORS-open,
-so WebView fetch cannot read them), SHA-256 verified by the local
-`capacitor-plugin-psm-install` plugin, and installed through the app's FileProvider.
-Fail-closed: a missing checksum or hash mismatch refuses the install (mismatched file is
-deleted).
+Release builds run R8 (`minifyEnabled` + `shrinkResources`) with explicit keep rules in
+`android/app/proguard-rules.pro` (Capacitor bridge, `@CapacitorPlugin`, plugins, app
+classes). Verify plugin classes survive in `mapping.txt` after any plugin change.
+
+### Android distribution (Google Play)
+
+Since 2.2.0 the app is distributed **exclusively through Google Play**, so in-app APK
+downloading/installing was removed (Play Device & Network Abuse policy) along with the
+`REQUEST_INSTALL_PACKAGES` permission and the local install plugin. Updates arrive from
+Play; the app exposes no update control on Android. The FileProvider
+(`${applicationId}.fileprovider`) now exposes **cache only** (invoice PDF sharing via
+`@capacitor/share`).
+
+Permissions are limited to `INTERNET`, `SCHEDULE_EXACT_ALARM` (exact due-date reminders;
+the plugin falls back to inexact when denied) plus the local-notifications plugin
+additions `POST_NOTIFICATIONS`, `WAKE_LOCK`, `RECEIVE_BOOT_COMPLETED`,
+`DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`. Do not add a permission without reviewing the
+Play Console declaration impact.
+
+Account deletion: Profile → "Delete account" → type `DELETE` →
+`useAuth().deleteAccount()` → RPC `public.delete_own_account()`
+(`supabase/migrations/0006_delete_own_account.sql`).
+
+Play Console legal pages live in `docs/` and are served from GitHub Pages:
+`https://chamarawickramarathne-spec.github.io/PhotoStudio-Manager/`.
 
 ## Notifications
 
@@ -147,18 +174,22 @@ deleted).
   avatar storage replaces the public URL bucket).
 - `0005_payment_schedule_cascade.sql` - deletes a booking's payment schedules (and
   installments) with the booking.
+- `0006_delete_own_account.sql` - `delete_own_account()` RPC (SECURITY DEFINER, scoped to
+  `auth.uid()`, execute granted to `authenticated` only) backing Profile → Delete account.
 
-Migrations 0001–0004 are applied to the live Supabase instance; `0005` is applied
-manually. Apply any new migration in the Supabase Dashboard → SQL Editor (no CLI transport
+Migrations 0001–0005 are applied to the live Supabase instance; `0006` must still be
+applied. Apply any new migration in the Supabase Dashboard → SQL Editor (no CLI transport
 is configured).
 
 ## Releases
 
-- Windows releases on GitHub carry `PhotoStudioManager-Setup-{x64,x86}.exe` + `.sha256`.
-- Releases whose tag/version shipped shared-source changes must also attach
-  `PhotoStudioManager-<version>.apk` + `.sha256` - the mobile updater refuses any release
-  whose exact-name APK/checksum assets are missing (never leave a stale same-pattern APK on
-  a release).
+- Windows releases on GitHub carry `PhotoStudioManager-Setup-{x64,x86}.exe` + `.sha256`
+  (the desktop updater refuses to install on a missing installer/checksum or SHA-256
+  mismatch).
+- Releases whose tag/version shipped Android changes should attach
+  `PhotoStudioManager-<version>.apk` + `.sha256` for local/QA installs. Android production
+  updates ship through Google Play (AAB), not from GitHub assets. Never leave a stale
+  same-pattern APK on a release.
 - Version is bumped in `package.json` (root + `core` + `Windows application` +
   `Android Mobile`) and `android/app/build.gradle` (versionCode/versionName).
 

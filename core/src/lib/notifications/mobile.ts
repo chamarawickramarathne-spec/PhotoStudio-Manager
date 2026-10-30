@@ -135,7 +135,7 @@ export async function syncScheduleNotifications(
     id: allocId(registry, plan.key),
     title: plan.title,
     body: plan.body,
-    schedule: { at: plan.at },
+    schedule: { at: plan.at, allowWhileIdle: true },
     channelId: CHANNEL_ID,
     extra: { psm: true },
   }));
