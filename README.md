@@ -148,8 +148,11 @@ Account deletion: Profile → "Delete account" → type `DELETE` →
 `useAuth().deleteAccount()` → RPC `public.delete_own_account()`
 (`supabase/migrations/0006_delete_own_account.sql`).
 
-Play Console legal pages live in `docs/` and are served from GitHub Pages:
+Play Console legal pages (Terms of Service, Privacy Policy, Account Deletion) live in
+`docs/` and are served from GitHub Pages:
 `https://chamarawickramarathne-spec.github.io/PhotoStudio-Manager/`.
+The Terms of Service URL for Play Console is
+`https://chamarawickramarathne-spec.github.io/PhotoStudio-Manager/terms-of-service.html`.
 
 ## Notifications
 
